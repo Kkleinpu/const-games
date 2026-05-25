@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Gaming Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo-icon">🎮</span>
+            <span class="logo-text">Gaming Hub</span>
+        </div>
+        <div class="nav-links">
+            <a href="#home" class="active">首页</a>
+            <a href="#games">游戏库</a>
+            <a href="#tools">工具箱</a>
+            <a href="#stats">数据统计</a>
+        </div>
+        <div class="nav-right">
+            <div class="nav-clock" id="navClock">00:00</div>
+            <button class="theme-toggle-mini" onclick="toggleTheme()" title="切换主题">
+                <span id="themeIcon">🌙</span>
+            </button>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <div class="hero-clock-widget">
+                <div class="hero-clock-main">
+                    <span class="hero-clock-time" id="heroClockTime">00:00:00</span>
+                </div>
+                <div class="hero-clock-date" id="heroClockDate">加载中...</div>
+                <div class="hero-clock-tip" id="heroClockTip">🎮 欢迎回来！</div>
+            </div>
+            <div class="profile-section">
+                <div class="avatar-wrapper">
+                    <img src="avatar.jpg" alt="Avatar" class="avatar-img">
+                    <div class="avatar-ring"></div>
+                    <div class="avatar-status">
+                        <span class="status-dot"></span>
+                        <span class="status-text">在线</span>
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <h2 class="profile-name">LX (momaek276)</h2>
+                    <p class="profile-bio">🎮 Steam 玩家 · 30款游戏 · 3款完美通关</p>
+                    <div class="profile-tags">
+                        <span class="profile-tag">🏆 成就猎人</span>
+                        <span class="profile-tag">🎯 竞技玩家</span>
+                        <span class="profile-tag">🌍 开放世界爱好者</span>
+                    </div>
+                </div>
+            </div>
+            <p class="hero-subtitle">欢迎来到</p>
+            <h1 class="hero-title">我的<span class="gradient-text">游戏世界</span></h1>
+            <p class="hero-desc">Steam 游戏库个人主页 · 追踪你的游戏旅程</p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="gameCount">0</span>
+                    <span class="stat-label">款游戏</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="totalHours">0</span>
+                    <span class="stat-label">总游玩小时</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="achievementCount">0</span>
+                    <span class="stat-label">成就解锁</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">Steam</span>
+                    <span class="stat-label">平台</span>
+                </div>
+            </div>
+            <a href="#games" class="hero-btn">
+                浏览游戏库
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+        <div class="hero-featured">
+            <div class="featured-card">
+                <img src="https://cdn.akamai.steamstatic.com/steam/apps/271590/header.jpg" alt="GTA V" loading="lazy">
+                <div class="featured-overlay">
+                    <span class="featured-badge">⭐ 最近在玩</span>
+                    <h3>Grand Theft Auto V</h3>
+                </div>
+            </div>
+            <div class="quick-stats-panel">
+                <div class="quick-stat">
+                    <span class="qs-icon">🔥</span>
+                    <div class="qs-info">
+                        <span class="qs-value">15</span>
+                        <span class="qs-label">天连续登录</span>
+                    </div>
+                </div>
+                <div class="quick-stat">
+                    <span class="qs-icon">🎮</span>
+                    <div class="qs-info">
+                        <span class="qs-value" id="qsPlaying">3</span>
+                        <span class="qs-label">款正在玩</span>
+                    </div>
+                </div>
+                <div class="quick-stat">
+                    <span class="qs-icon">🏅</span>
+                    <div class="qs-info">
+                        <span class="qs-value">Lv.42</span>
+                        <span class="qs-label">Steam 等级</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="games" class="games-section">
+        <div class="section-header">
+            <h2>游戏库</h2>
+            <p>我的 Steam 游戏收藏</p>
+        </div>
+        <div class="games-toolbar">
+            <div class="search-box">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="text" placeholder="搜索游戏..." oninput="handleSearch(event)" class="search-input">
+            </div>
+            <div class="sort-box">
+                <span class="sort-label">排序：</span>
+                <button class="sort-btn active" data-sort="rating" onclick="setSort('rating')">评分</button>
+                <button class="sort-btn" data-sort="playtime" onclick="setSort('playtime')">时长</button>
+                <button class="sort-btn" data-sort="name" onclick="setSort('name')">名称</button>
+            </div>
+        </div>
+        <div class="genre-filters" id="genreFilters"></div>
+        <div class="games-grid" id="gamesGrid"></div>
+    </section>
+
+    <section id="tools" class="tools-section">
+        <div class="section-header">
+            <h2>实用工具箱</h2>
+            <p>游戏玩家的日常助手</p>
+        </div>
+        <div class="tools-grid">
+            <!-- Pomodoro Timer -->
+            <div class="tool-card tool-card-pomodoro">
+                <div class="tool-card-header">
+                    <span class="tool-icon">🍅</span>
+                    <h3>番茄专注钟</h3>
+                </div>
+                <div class="pomodoro-display">
+                    <div class="pomodoro-ring">
+                        <svg viewBox="0 0 100 100">
+                            <circle class="pomodoro-ring-bg" cx="50" cy="50" r="42"/>
+                            <circle class="pomodoro-ring-progress" id="pomodoroProgress" cx="50" cy="50" r="42"/>
+                        </svg>
+                        <div class="pomodoro-time" id="pomodoroTime">25:00</div>
+                    </div>
+                    <div class="pomodoro-label" id="pomodoroLabel">专注时间</div>
+                    <div class="pomodoro-controls">
+                        <button class="pomo-btn pomo-btn-start" id="pomodoroStartBtn" onclick="pomodoroToggle()">▶ 开始</button>
+                        <button class="pomo-btn pomo-btn-reset" onclick="pomodoroReset()">↻ 重置</button>
+                        <select class="pomo-select" id="pomodoroMode" onchange="pomodoroChangeMode()">
+                            <option value="25">专注 25分钟</option>
+                            <option value="45">专注 45分钟</option>
+                            <option value="15">休息 15分钟</option>
+                            <option value="5">短休 5分钟</option>
+                        </select>
+                    </div>
+                    <div class="pomodoro-sessions">
+                        <span id="pomodoroSessions">今日完成：0 个番茄</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weather Widget -->
+            <div class="tool-card">
+                <div class="tool-card-header">
+                    <span class="tool-icon">🌤️</span>
+                    <h3>天气信息</h3>
+                    <button class="tool-refresh-btn" onclick="refreshWeather()">🔄</button>
+                </div>
+                <div class="weather-display" id="weatherDisplay">
+                    <div class="weather-main">
+                        <span class="weather-icon" id="weatherIcon">☀️</span>
+                        <div class="weather-temp-area">
+                            <span class="weather-temp" id="weatherTemp">26°C</span>
+                            <span class="weather-desc" id="weatherDesc">晴朗</span>
+                        </div>
+                    </div>
+                    <div class="weather-details">
+                        <div class="weather-detail">
+                            <span class="wd-icon">💧</span>
+                            <span class="wd-label">湿度</span>
+                            <span class="wd-value" id="weatherHumidity">65%</span>
+                        </div>
+                        <div class="weather-detail">
+                            <span class="wd-icon">🌬️</span>
+                            <span class="wd-label">风速</span>
+                            <span class="wd-value" id="weatherWind">12 km/h</span>
+                        </div>
+                        <div class="weather-detail">
+                            <span class="wd-icon">🌡️</span>
+                            <span class="wd-label">体感</span>
+                            <span class="wd-value" id="weatherFeelsLike">28°C</span>
+                        </div>
+                        <div class="weather-detail">
+                            <span class="wd-icon">👁️</span>
+                            <span class="wd-label">能见度</span>
+                            <span class="wd-value" id="weatherVisibility">10 km</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculator -->
+            <div class="tool-card">
+                <div class="tool-card-header">
+                    <span class="tool-icon">🧮</span>
+                    <h3>快速计算器</h3>
+                </div>
+                <div class="calc-widget">
+                    <div class="calc-display" id="calcDisplay">0</div>
+                    <div class="calc-buttons">
+                        <button class="calc-btn calc-btn-func" onclick="calcInput('C')">C</button>
+                        <button class="calc-btn calc-btn-func" onclick="calcInput('±')">±</button>
+                        <button class="calc-btn calc-btn-func" onclick="calcInput('%')">%</button>
+                        <button class="calc-btn calc-btn-op" onclick="calcInput('÷')">÷</button>
+                        <button class="calc-btn" onclick="calcInput('7')">7</button>
+                        <button class="calc-btn" onclick="calcInput('8')">8</button>
+                        <button class="calc-btn" onclick="calcInput('9')">9</button>
+                        <button class="calc-btn calc-btn-op" onclick="calcInput('×')">×</button>
+                        <button class="calc-btn" onclick="calcInput('4')">4</button>
+                        <button class="calc-btn" onclick="calcInput('5')">5</button>
+                        <button class="calc-btn" onclick="calcInput('6')">6</button>
+                        <button class="calc-btn calc-btn-op" onclick="calcInput('-')">−</button>
+                        <button class="calc-btn" onclick="calcInput('1')">1</button>
+                        <button class="calc-btn" onclick="calcInput('2')">2</button>
+                        <button class="calc-btn" onclick="calcInput('3')">3</button>
+                        <button class="calc-btn calc-btn-op" onclick="calcInput('+')">+</button>
+                        <button class="calc-btn calc-btn-zero" onclick="calcInput('0')">0</button>
+                        <button class="calc-btn" onclick="calcInput('.')">.</button>
+                        <button class="calc-btn calc-btn-op calc-btn-eq" onclick="calcInput('=')">=</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Game Recommendation -->
+            <div class="tool-card tool-card-wide">
+                <div class="tool-card-header">
+                    <span class="tool-icon">🎲</span>
+                    <h3>今日推荐游戏</h3>
+                    <button class="tool-refresh-btn" onclick="rollDailyGame()">🔄 换一个</button>
+                </div>
+                <div class="daily-game" id="dailyGame">
+                    <div class="daily-game-loading">点击刷新获取推荐...</div>
+                </div>
+            </div>
+
+            <!-- Game Countdown -->
+            <div class="tool-card">
+                <div class="tool-card-header">
+                    <span class="tool-icon">⏳</span>
+                    <h3>游戏发售倒计时</h3>
+                </div>
+                <div class="countdown-list" id="countdownList"></div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="tool-card">
+                <div class="tool-card-header">
+                    <span class="tool-icon">🔗</span>
+                    <h3>快捷链接</h3>
+                </div>
+                <div class="quick-links">
+                    <a href="https://store.steampowered.com" target="_blank" class="quick-link">
+                        <span class="quick-link-icon">🛒</span>
+                        <span>Steam 商店</span>
+                    </a>
+                    <a href="https://steamcommunity.com" target="_blank" class="quick-link">
+                        <span class="quick-link-icon">👥</span>
+                        <span>Steam 社区</span>
+                    </a>
+                    <a href="https://isthereanydeal.com" target="_blank" class="quick-link">
+                        <span class="quick-link-icon">💰</span>
+                        <span>比价网</span>
+                    </a>
+                    <a href="https://www.protondb.com" target="_blank" class="quick-link">
+                        <span class="quick-link-icon">🐧</span>
+                        <span>ProtonDB</span>
+                    </a>
+                    <a href="https://howlongtobeat.com" target="_blank" class="quick-link">
+                        <span class="quick-link-icon">📊</span>
+                        <span>HowLongToBeat</span>
+                    </a>
+                    <a href="https://www.pcgamingwiki.com" target="_blank" class="quick-link">
+                        <span class="quick-link-icon">🖥️</span>
+                        <span>PCGamingWiki</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Notes Widget -->
+            <div class="tool-card">
+                <div class="tool-card-header">
+                    <span class="tool-icon">📋</span>
+                    <h3>游戏笔记</h3>
+                    <button class="tool-refresh-btn" onclick="clearNotes()">🗑️ 清空</button>
+                </div>
+                <div class="notes-area">
+                    <textarea class="notes-input" id="notesInput" placeholder="记录游戏待办事项、愿望单、攻略备忘...&#10;&#10;支持自动保存 ✨" oninput="saveNotes()"></textarea>
+                    <div class="notes-footer">
+                        <span class="notes-charcount" id="notesCharCount">0 字</span>
+                        <span class="notes-save-status" id="notesSaveStatus">自动保存</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Info Widget -->
+            <div class="tool-card tool-card-wide">
+                <div class="tool-card-header">
+                    <span class="tool-icon">💻</span>
+                    <h3>系统信息</h3>
+                </div>
+                <div class="sysinfo-grid">
+                    <div class="sysinfo-item">
+                        <span class="sysinfo-icon">🖥️</span>
+                        <div class="sysinfo-detail">
+                            <span class="sysinfo-label">屏幕分辨率</span>
+                            <span class="sysinfo-value" id="sysResolution">-</span>
+                        </div>
+                    </div>
+                    <div class="sysinfo-item">
+                        <span class="sysinfo-icon">🌐</span>
+                        <div class="sysinfo-detail">
+                            <span class="sysinfo-label">浏览器</span>
+                            <span class="sysinfo-value" id="sysBrowser">-</span>
+                        </div>
+                    </div>
+                    <div class="sysinfo-item">
+                        <span class="sysinfo-icon">📱</span>
+                        <div class="sysinfo-detail">
+                            <span class="sysinfo-label">操作系统</span>
+                            <span class="sysinfo-value" id="sysOS">-</span>
+                        </div>
+                    </div>
+                    <div class="sysinfo-item">
+                        <span class="sysinfo-icon">🌍</span>
+                        <div class="sysinfo-detail">
+                            <span class="sysinfo-label">语言</span>
+                            <span class="sysinfo-value" id="sysLang">-</span>
+                        </div>
+                    </div>
+                    <div class="sysinfo-item">
+                        <span class="sysinfo-icon">⏰</span>
+                        <div class="sysinfo-detail">
+                            <span class="sysinfo-label">时区</span>
+                            <span class="sysinfo-value" id="sysTimezone">-</span>
+                        </div>
+                    </div>
+                    <div class="sysinfo-item">
+                        <span class="sysinfo-icon">🔌</span>
+                        <div class="sysinfo-detail">
+                            <span class="sysinfo-label">在线状态</span>
+                            <span class="sysinfo-value" id="sysOnline">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section id="stats" class="stats-section">
+        <div class="section-header">
+            <h2>游戏数据</h2>
+            <p>一览我的游戏习惯</p>
+        </div>
+        <div class="stats-grid">
+            <div class="stats-card">
+                <div class="stats-card-icon">🎯</div>
+                <h3>最爱类型</h3>
+                <p class="stats-card-value">射击 / 动作</p>
+                <p class="stats-card-desc">FPS 和动作冒险游戏是我的最爱，射击游戏占比最高</p>
+            </div>
+            <div class="stats-card">
+                <div class="stats-card-icon">🏆</div>
+                <h3>最长游玩</h3>
+                <p class="stats-card-value">GTA V (186.7h)</p>
+                <p class="stats-card-desc">77/77 成就 · 完美通关 · 开放世界永远玩不腻</p>
+            </div>
+            <div class="stats-card">
+                <div class="stats-card-icon">✨</div>
+                <h3>完美通关</h3>
+                <p class="stats-card-value">3 款游戏</p>
+                <p class="stats-card-desc">GTA V · CS2 · Wallpaper Engine</p>
+            </div>
+            <div class="stats-card">
+                <div class="stats-card-icon">⏱️</div>
+                <h3>总游戏时长</h3>
+                <p class="stats-card-value" id="statsTotalHours">计算中...</p>
+                <p class="stats-card-desc">累计在线时长，每天都在游戏中</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>🎮 Gaming Hub · Powered by Steam · 2026</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
