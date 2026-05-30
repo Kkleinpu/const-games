@@ -28,18 +28,10 @@ let apiGames = null;
 let apiPlaytime = null;
 
 async function fetchFromAPI(endpoint) {
-    if (!window.location.protocol.startsWith("http")) {
-        return null;
-    }
-
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const payload = await response.json();
-        if (payload && payload.success === false) {
-            throw new Error(payload.error || "API returned an error");
-        }
-        return payload && Object.prototype.hasOwnProperty.call(payload, "data") ? payload.data : payload;
+        return await response.json();
     } catch (error) {
         console.warn(`API fetch failed for ${endpoint}:`, error.message);
         return null;
@@ -51,25 +43,21 @@ async function loadGameData() {
     
     // Try to fetch games from API
     const apiGamesData = await fetchFromAPI('/games');
-    if (apiGamesData && Array.isArray(apiGamesData.games)) {
-        apiGames = apiGamesData.games.map(function(game) {
-            return {
-                name: game.name || ("App " + game.appId),
-                appId: game.appId,
-                genre: ["Steam"],
-                rating: 8.0,
-                desc: game.playtimeForever > 0 ? "来自 Steam Web API 的实时游戏数据。" : "Steam 游戏库条目。",
-                ach: [0, 0]
-            };
-        });
-        apiPlaytime = {};
-        apiGamesData.games.forEach(function(game) {
-            apiPlaytime[game.appId] = game.playtimeForever || 0;
-        });
+    if (apiGamesData && Array.isArray(apiGamesData)) {
+        apiGames = apiGamesData;
         console.log('Successfully loaded games from API');
     } else {
         console.log('Using local game data as fallback');
         apiGames = games;
+    }
+    
+    // Try to fetch playtime from API
+    const apiPlaytimeData = await fetchFromAPI('/playtime');
+    if (apiPlaytimeData && typeof apiPlaytimeData === 'object') {
+        apiPlaytime = apiPlaytimeData;
+        console.log('Successfully loaded playtime from API');
+    } else {
+        console.log('Using local playtime data as fallback');
         apiPlaytime = estimatedPlaytime;
     }
     
@@ -115,19 +103,16 @@ function renderRating(r) {
 
 function getFilteredGames() {
     return games.filter(g => {
-        const genres = g.genre || [];
-        const mf = currentFilter === "all" || genres.includes(currentFilter);
-        const ms = searchQuery === "" || g.name.toLowerCase().includes(searchQuery.toLowerCase()) || genres.some(x => x.includes(searchQuery));
+        const mf = currentFilter === "all" || g.genre.includes(currentFilter);
+        const ms = searchQuery === "" || g.name.toLowerCase().includes(searchQuery.toLowerCase()) || g.genre.some(x => x.includes(searchQuery));
         return mf && ms;
     });
 }
 
 function renderFilters() {
     const c = document.getElementById("genreFilters");
-    if (!c) return;
-    const genres = [...new Set(games.flatMap(g => g.genre || []))].sort();
     c.innerHTML = '<button class="filter-btn' + (currentFilter === "all" ? " active" : "") + '" onclick="setFilter(\'all\')">全部</button>' +
-        genres.map(g => '<button class="filter-btn' + (currentFilter === g ? " active" : "") + '" onclick="setFilter(\'' + g + '\')">' + g + "</button>").join("");
+        allGenres.map(g => '<button class="filter-btn' + (currentFilter === g ? " active" : "") + '" onclick="setFilter(\'' + g + '\')">' + g + "</button>").join("");
 }
 
 function setFilter(genre) { currentFilter = genre; renderFilters(); renderGames(); }
@@ -474,6 +459,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     
     // 初始化粒子系统和交互效果
     initGlobalParticles();
+    initMouseTrail();
     initScrollReveal();
     initCardHoverGlow();
     initButtonRipple();
@@ -731,36 +717,16 @@ function initButtonRipple() {
 }
 
 // ==================== 好友相册模块 ====================
-const friendsGallery = [
+var friendsGallery = [
     {
-        name: "闺蜜",
-        desc: "镜子里的小美女 ✨",
-        src: "photos/friend1.jpg",
-        unlockKey: "lx2026"
+        name: "闺蜜A",
+        desc: "高三毕业旅行",
+        src: "photos/friend1.jpg"
     },
     {
-        name: "闺蜜",
-        desc: "红毯上的背影 🌹",
-        src: "photos/friend2.jpg",
-        unlockKey: "lx2026"
-    },
-    {
-        name: "闺蜜",
-        desc: "花田里的影子 🌻",
-        src: "photos/friend3.jpg",
-        unlockKey: "lx2026"
-    },
-    {
-        name: "我们",
-        desc: "不想上班（不想上课）🤪",
-        src: "photos/friend4.jpg",
-        unlockKey: "lx2026"
-    },
-    {
-        name: "闺蜜",
-        desc: "坐地铁出门玩 🚇",
-        src: "photos/friend5.jpg",
-        unlockKey: "lx2026"
+        name: "闺蜜B",
+        desc: "上次一起打游戏",
+        src: "photos/friend2.jpg"
     }
 ];
 

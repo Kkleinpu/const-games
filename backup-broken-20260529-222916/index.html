@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LX Gaming Hub</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar" id="navbar">
+  <div class="nav-brand">
+    <span class="nav-logo-icon">🎮</span>
+    <span class="nav-logo-text">LX Gaming Hub</span>
+  </div>
+  <button class="menu-toggle" id="menuToggle" aria-label="菜单">☰</button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#hero" class="active">首页</a></li>
+    <li><a href="#games">游戏库</a></li>
+    <li><a href="#stats">统计</a></li>
+    <li><a href="#tools">工具箱</a></li>
+  </ul>
+  <div class="nav-right">
+    <span class="nav-clock" id="navClock"></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-bg-particles" id="particles"></div>
+  <div class="hero-container">
+    <!-- Player Profile Card -->
+    <div class="profile-card">
+      <div class="avatar-wrapper">
+        <div class="avatar-ring avatar-ring-2"></div>
+        <div class="avatar-ring"></div>
+        <img src="avatar.jpg" alt="LX Avatar" class="avatar-img" id="avatarImg" onerror="this.style.display='none';document.getElementById('avatarFallback').style.display='flex';">
+        <div class="avatar-fallback" id="avatarFallback" style="display:none">LX</div>
+        <div class="avatar-status" title="在线"></div>
+      </div>
+      <div class="profile-info">
+        <div class="profile-identity">
+          <h1 class="profile-name">LX</h1>
+          <div class="profile-handle">@momaek276</div>
+        </div>
+        <div class="profile-tags">
+          <span class="profile-tag tag-steam">🎮 Steam Player</span>
+          <span class="profile-tag tag-player">🏆 30 Games</span>
+          <span class="profile-tag tag-gamer">💎 3 Perfect Games</span>
+          <span class="profile-tag tag-level">⭐ Level 42</span>
+        </div>
+        <div class="profile-meta">
+          <div class="profile-meta-item">
+            <span class="meta-icon">🎯</span>
+            <span class="meta-value">847</span>
+            <span class="meta-label">成就</span>
+          </div>
+          <div class="profile-meta-divider"></div>
+          <div class="profile-meta-item">
+            <span class="meta-icon">⏱️</span>
+            <span class="meta-value">1,206h</span>
+            <span class="meta-label">总时长</span>
+          </div>
+          <div class="profile-meta-divider"></div>
+          <div class="profile-meta-item">
+            <span class="meta-icon">📅</span>
+            <span class="meta-value">2019</span>
+            <span class="meta-label">加入</span>
+          </div>
+          <div class="profile-meta-divider"></div>
+          <div class="profile-meta-item">
+            <span class="meta-icon">🔥</span>
+            <span class="meta-value">15天</span>
+            <span class="meta-label">连续登录</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero Content -->
+    <div class="hero-content">
+      <h2 class="hero-title">欢迎回到你的游戏世界</h2>
+      <p class="hero-subtitle">管理你的游戏库，追踪成就进度，高效安排每一天的游戏时光。</p>
+      <div class="hero-clock">
+        <span class="hero-clock-time" id="heroTime"></span>
+        <span class="hero-clock-date" id="heroDate"></span>
+        <span class="hero-clock-tip" id="heroTip"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GAMES -->
+<section class="section" id="games">
+  <div class="section-container">
+    <div class="section-header">
+      <h2 class="section-title"><span class="accent-icon">🎮</span> 游戏库 <span class="accent-count" id="gameCount"></span></h2>
+      <p class="section-subtitle">你的全部游戏收藏</p>
+    </div>
+    <div class="search-filter-bar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="搜索游戏名称、开发商或标签...">
+      </div>
+      <div class="filter-sort-group" id="sortBtns">
+        <button class="sort-btn active" data-sort="recent">最近游玩</button>
+        <button class="sort-btn" data-sort="playtime">时长最多</button>
+        <button class="sort-btn" data-sort="rating">评分最高</button>
+        <button class="sort-btn" data-sort="name">名称排序</button>
+      </div>
+    </div>
+    <div class="genre-filters" id="genreFilters"></div>
+    <div class="game-grid" id="gameGrid"></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="section" id="stats">
+  <div class="section-container">
+    <div class="section-header">
+      <h2 class="section-title"><span class="accent-icon">📊</span> 游戏统计</h2>
+      <p class="section-subtitle">你的游戏数据一览</p>
+    </div>
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="stats-footer">
+      <div class="stats-list">
+        <div class="stats-list-title">🏆 常玩游戏</div>
+        <ul id="topGames"></ul>
+      </div>
+      <div class="stats-list">
+        <div class="stats-list-title">📂 游戏类型分布</div>
+        <ul id="genreStats"></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section class="section" id="tools">
+  <div class="section-container">
+    <div class="section-header">
+      <h2 class="section-title"><span class="accent-icon">🧰</span> 工具箱</h2>
+      <p class="section-subtitle">提升效率的小工具</p>
+    </div>
+    <div class="tools-grid" id="toolsGrid"></div>
+  </div>
+</section>
+
+<!-- WIDGETS -->
+<section class="section" id="widgets">
+  <div class="section-container">
+    <div class="section-header">
+      <h2 class="section-title"><span class="accent-icon">⚡</span> 实用面板</h2>
+      <p class="section-subtitle">番茄钟 · 笔记 · 快捷链接</p>
+    </div>
+    <div class="widgets-grid">
+      <!-- Pomodoro -->
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title"><span class="widget-icon">🍅</span> 番茄钟</div>
+          <div class="widget-actions">
+            <button class="widget-btn primary" id="pomodoroStart">开始</button>
+            <button class="widget-btn danger" id="pomodoroReset">重置</button>
+          </div>
+        </div>
+        <div class="widget-body">
+          <div class="pomodoro-display">
+            <div class="pomodoro-time" id="pomodoroTime">25:00</div>
+            <div class="pomodoro-label">专注时间</div>
+          </div>
+          <div class="pomodoro-controls">
+            <button class="widget-btn" data-mins="15">15分钟</button>
+            <button class="widget-btn active" data-mins="25">25分钟</button>
+            <button class="widget-btn" data-mins="45">45分钟</button>
+            <button class="widget-btn" data-mins="60">60分钟</button>
+          </div>
+          <div class="pomodoro-status" id="pomodoroStatus">准备开始专注</div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title"><span class="widget-icon">📝</span> 快速笔记</div>
+          <div class="widget-actions">
+            <button class="widget-btn success" id="notesSave">保存</button>
+            <button class="widget-btn danger" id="notesClear">清空</button>
+          </div>
+        </div>
+        <div class="widget-body">
+          <textarea class="notes-area" id="notesArea" placeholder="记录游戏心得、攻略要点..."></textarea>
+          <div class="notes-footer">
+            <span class="notes-count" id="notesCount">0 字</span>
+            <span class="notes-saved" id="notesSaved"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title"><span class="widget-icon">🔗</span> 快捷链接</div>
+        </div>
+        <div class="widget-body">
+          <div class="links-list" id="linksList"></div>
+        </div>
+      </div>
+
+      <!-- Weather -->
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title"><span class="widget-icon">🌤️</span> 天气信息</div>
+          <div class="widget-actions">
+            <button class="widget-btn primary" id="weatherRefresh">刷新</button>
+          </div>
+        </div>
+        <div class="widget-body" id="weatherContent">
+          <div class="weather-main">
+            <span class="weather-icon" id="weatherIcon">🌤️</span>
+            <div class="weather-info">
+              <span class="weather-temp" id="weatherTemp">--°C</span>
+              <span class="weather-desc" id="weatherDesc">加载中...</span>
+            </div>
+          </div>
+          <div class="weather-details">
+            <div class="weather-detail"><span class="wd-icon">💧</span> <span id="weatherHumidity">湿度: --%</span></div>
+            <div class="weather-detail"><span class="wd-icon">💨</span> <span id="weatherWind">风速: -- km/h</span></div>
+            <div class="weather-detail"><span class="wd-icon">🌡️</span> <span id="weatherFeels">体感: --°C</span></div>
+            <div class="weather-detail"><span class="wd-icon">👁️</span> <span id="weatherVisibility">能见度: -- km</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-brand">🎮 LX Gaming Hub</div>
+    <p>个人游戏档案 · 由 LX 打造</p>
+    <p>数据来源: Steam · 天气: Open-Meteo API</p>
+    <p class="footer-copy">© 2024 LX Gaming Hub. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-backdrop" id="modalBackdrop"></div>
+  <div class="modal-content">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Notification -->
+<div class="notification" id="notification"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

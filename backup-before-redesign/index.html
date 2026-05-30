@@ -8,8 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <canvas class="global-particles" id="globalParticles"></canvas>
-    <canvas class="mouse-trail" id="mouseTrail"></canvas>
     <div class="bg-grid"></div>
     <div class="bg-glow bg-glow-1"></div>
     <div class="bg-glow bg-glow-2"></div>
@@ -23,7 +21,6 @@
         <div class="nav-links">
             <a href="#home" class="active">首页</a>
             <a href="#games">游戏库</a>
-            <a href="#friends">好友相册</a>
             <a href="#tools">工具箱</a>
             <a href="#stats">数据统计</a>
         </div>
@@ -36,19 +33,6 @@
     </nav>
 
     <section id="home" class="hero">
-        <div class="hero-glow hero-glow-1"></div>
-        <div class="hero-glow hero-glow-2"></div>
-        <div class="hero-glow hero-glow-3"></div>
-        <div class="hero-particles">
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-        </div>
         <div class="hero-content">
             <div class="hero-clock-widget">
                 <div class="hero-clock-main">
@@ -137,7 +121,7 @@
     </section>
 
     <section id="games" class="games-section">
-        <div class="section-header reveal">
+        <div class="section-header">
             <h2>游戏库</h2>
             <p>我的 Steam 游戏收藏</p>
         </div>
@@ -157,30 +141,8 @@
         <div class="games-grid" id="gamesGrid"></div>
     </section>
 
-    <!-- 好友相册模块 -->
-    <section id="friends" class="friends-section">
-        <div class="section-header reveal">
-            <h2>好友相册</h2>
-            <p>游戏之外，和朋友们的故事</p>
-        </div>
-        <div class="friends-grid" id="friendsGrid"></div>
-    </section>
-
-    <!-- 全屏图片查看器 -->
-    <div class="photo-lightbox" id="photoLightbox" onclick="closeLightbox(event)">
-        <div class="lightbox-content">
-            <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-            <img id="lightboxImg" src="" alt="">
-            <div class="lightbox-info">
-                <span id="lightboxName"></span>
-                <span id="lightboxDesc"></span>
-            </div>
-        </div>
-    </div>
-
-
     <section id="tools" class="tools-section">
-        <div class="section-header reveal">
+        <div class="section-header">
             <h2>实用工具箱</h2>
             <p>游戏玩家的日常助手</p>
         </div>
@@ -415,30 +377,30 @@
 
     <!-- Stats Section -->
     <section id="stats" class="stats-section">
-        <div class="section-header reveal">
+        <div class="section-header">
             <h2>游戏数据</h2>
             <p>一览我的游戏习惯</p>
         </div>
         <div class="stats-grid">
-            <div class="stats-card reveal">
+            <div class="stats-card">
                 <div class="stats-card-icon">🎯</div>
                 <h3>最爱类型</h3>
                 <p class="stats-card-value">射击 / 动作</p>
                 <p class="stats-card-desc">FPS 和动作冒险游戏是我的最爱，射击游戏占比最高</p>
             </div>
-            <div class="stats-card reveal">
+            <div class="stats-card">
                 <div class="stats-card-icon">🏆</div>
                 <h3>最长游玩</h3>
                 <p class="stats-card-value">GTA V (186.7h)</p>
                 <p class="stats-card-desc">77/77 成就 · 完美通关 · 开放世界永远玩不腻</p>
             </div>
-            <div class="stats-card reveal">
+            <div class="stats-card">
                 <div class="stats-card-icon">✨</div>
                 <h3>完美通关</h3>
                 <p class="stats-card-value">3 款游戏</p>
                 <p class="stats-card-desc">GTA V · CS2 · Wallpaper Engine</p>
             </div>
-            <div class="stats-card reveal">
+            <div class="stats-card">
                 <div class="stats-card-icon">⏱️</div>
                 <h3>总游戏时长</h3>
                 <p class="stats-card-value" id="statsTotalHours">计算中...</p>
