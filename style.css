@@ -511,6 +511,26 @@ body {
     transform: scale(1.05);
 }
 
+/* 语音朗读按钮 */
+.voice-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.3s;
+}
+
+.voice-btn:hover {
+    border-color: var(--accent-1);
+    transform: scale(1.05);
+}
+
 /* Hero Clock Widget - Enhanced Glassmorphism */
 .hero-clock-widget {
     background: rgba(255, 255, 255, 0.04);

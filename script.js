@@ -809,3 +809,48 @@ function closeLightbox(event) {
     var lightbox = document.getElementById("photoLightbox");
     lightbox.classList.remove("active");
 }
+
+// ==================== 语音朗读功能 ====================
+let isVoicePlaying = false;
+let currentUtterance = null;
+
+function toggleVoice() {
+    if (isVoicePlaying) {
+        speechSynthesis.cancel();
+        isVoicePlaying = false;
+        document.getElementById('voiceIcon').textContent = '🔊';
+        return;
+    }
+
+    // 生成朗读内容
+    const content = `欢迎来到 LX 的游戏世界。
+    当前页面正在展示 ${games.length} 款 Steam 游戏，
+    总游玩时长已经达到 ${calcTotalPlaytime()} 小时，
+    解锁了 ${calcTotalAchievements()} 个成就。
+    向下滚动可以查看完整的游戏库。
+    工具箱里有一键番茄钟、计算器和游戏发售倒计时。
+    祝你今天游戏愉快！`;
+
+    const utterance = new SpeechSynthesisUtterance(content);
+    utterance.lang = 'zh-CN';
+    utterance.rate = 1;
+    utterance.pitch = 1;
+
+    // 尝试用中文语音
+    const voices = speechSynthesis.getVoices();
+    const zhVoice = voices.find(v => v.lang.includes('zh'));
+    if (zhVoice) utterance.voice = zhVoice;
+
+    utterance.onend = () => {
+        isVoicePlaying = false;
+        document.getElementById('voiceIcon').textContent = '🔊';
+    };
+
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utterance);
+    isVoicePlaying = true;
+    document.getElementById('voiceIcon').textContent = '⏸';
+}
+
+// 页面加载时确保语音列表就绪
+speechSynthesis.onvoiceschanged = () => {};
