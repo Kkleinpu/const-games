@@ -362,6 +362,63 @@
                 </div>
             </div>
 
+            <!-- Speed Test Widget -->
+            <div class="tool-card tool-card-speedtest">
+                <div class="tool-card-header">
+                    <span class="tool-icon">⚡</span>
+                    <h3>网速测试</h3>
+                    <button class="tool-refresh-btn" onclick="startSpeedTest()" id="speedTestBtn">🚀 开始测试</button>
+                </div>
+                <div class="speedtest-display">
+                    <div class="speedtest-gauge">
+                        <div class="speedtest-dial">
+                            <div class="speedtest-needle" id="speedNeedle"></div>
+                            <div class="speedtest-center">
+                                <span class="speedtest-value" id="speedValue">0</span>
+                                <span class="speedtest-unit">Mbps</span>
+                            </div>
+                        </div>
+                        <div class="speedtest-label" id="speedLabel">点击开始测试</div>
+                    </div>
+                    <div class="speedtest-details">
+                        <div class="speedtest-detail">
+                            <span class="sd-icon">📥</span>
+                            <div class="sd-info">
+                                <span class="sd-label">下载速度</span>
+                                <span class="sd-value" id="downloadSpeed">-</span>
+                            </div>
+                        </div>
+                        <div class="speedtest-detail">
+                            <span class="sd-icon">📤</span>
+                            <div class="sd-info">
+                                <span class="sd-label">上传速度</span>
+                                <span class="sd-value" id="uploadSpeed">-</span>
+                            </div>
+                        </div>
+                        <div class="speedtest-detail">
+                            <span class="sd-icon">⏱️</span>
+                            <div class="sd-info">
+                                <span class="sd-label">延迟</span>
+                                <span class="sd-value" id="pingValue">-</span>
+                            </div>
+                        </div>
+                        <div class="speedtest-detail">
+                            <span class="sd-icon">🌐</span>
+                            <div class="sd-info">
+                                <span class="sd-label">网络类型</span>
+                                <span class="sd-value" id="networkType">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="speedtest-progress" id="speedTestProgress" style="display:none;">
+                        <div class="speedtest-bar">
+                            <div class="speedtest-bar-fill" id="speedTestBar"></div>
+                        </div>
+                        <span class="speedtest-status" id="speedTestStatus">测试中...</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- System Info Widget -->
             <div class="tool-card tool-card-wide">
                 <div class="tool-card-header">

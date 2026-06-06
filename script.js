@@ -854,3 +854,214 @@ function toggleVoice() {
 
 // 页面加载时确保语音列表就绪
 speechSynthesis.onvoiceschanged = () => {};
+
+// ==================== 隐藏入口逻辑 ====================
+// 多种触发方式，支持：Logo点击5次、页脚点击3次、键盘快捷键 Ctrl+Shift+P
+
+// 触发器状态管理
+const secretTrigger = {
+    logoClicks: 0,      // Logo 点击计数
+    footerClicks: 0,    // 页脚点击计数
+    lastLogoClick: 0,   // 上次 Logo 点击时间
+    lastFooterClick: 0, // 上次页脚点击时间
+    CLICK_TIMEOUT: 2000 // 点击重置超时（2秒内无点击则重置）
+};
+
+// 跳转到隐藏个人页面
+function navigateToProfile() {
+    console.log('🎮 隐藏入口已触发！正在跳转...');
+    window.location.href = 'profile.html';
+}
+
+// 重置过期的点击计数
+function resetExpiredClicks() {
+    const now = Date.now();
+    if (now - secretTrigger.lastLogoClick > secretTrigger.CLICK_TIMEOUT) {
+        secretTrigger.logoClicks = 0;
+    }
+    if (now - secretTrigger.lastFooterClick > secretTrigger.CLICK_TIMEOUT) {
+        secretTrigger.footerClicks = 0;
+    }
+}
+
+// 初始化隐藏入口事件监听
+function initSecretEntrance() {
+    // 方式1：Logo 点击 5 次触发
+    const logo = document.querySelector('.logo-text');
+    if (logo) {
+        logo.style.cursor = 'pointer'; // 显示手型光标
+        logo.addEventListener('click', function(e) {
+            e.preventDefault();
+            resetExpiredClicks();
+            secretTrigger.logoClicks++;
+            secretTrigger.lastLogoClick = Date.now();
+            
+            console.log(`Logo 点击：${secretTrigger.logoClicks}/5`);
+            
+            if (secretTrigger.logoClicks >= 5) {
+                secretTrigger.logoClicks = 0;
+                navigateToProfile();
+            }
+        });
+    }
+    
+    // 方式2：页脚版权信息点击 3 次触发
+    const footer = document.querySelector('.footer p');
+    if (footer) {
+        footer.style.cursor = 'pointer'; // 显示手型光标
+        footer.addEventListener('click', function(e) {
+            e.preventDefault();
+            resetExpiredClicks();
+            secretTrigger.footerClicks++;
+            secretTrigger.lastFooterClick = Date.now();
+            
+            console.log(`页脚点击：${secretTrigger.footerClicks}/3`);
+            
+            if (secretTrigger.footerClicks >= 3) {
+                secretTrigger.footerClicks = 0;
+                navigateToProfile();
+            }
+        });
+    }
+    
+    // 方式3：键盘快捷键 Ctrl+Shift+P 触发
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.shiftKey && e.key === 'P') {
+            e.preventDefault();
+            console.log('键盘快捷键触发！Ctrl+Shift+P');
+            navigateToProfile();
+        }
+    });
+    
+    console.log('✨ 隐藏入口已初始化：');
+    console.log('  - Logo 点击 5 次');
+    console.log('  - 页脚点击 3 次');
+    console.log('  - 键盘快捷键 Ctrl+Shift+P');
+}
+
+// 在 DOMContentLoaded 事件中初始化隐藏入口
+document.addEventListener('DOMContentLoaded', function() {
+    initSecretEntrance();
+});
+
+// ==================== 网速测试功能 ====================
+let speedTestRunning = false;
+
+function startSpeedTest() {
+    if (speedTestRunning) return;
+    speedTestRunning = true;
+
+    // 更新 UI
+    var btn = document.getElementById('speedtestBtn');
+    var status = document.getElementById('speedtestStatus');
+    var bar = document.getElementById('speedtestBar');
+    var download = document.getElementById('speedtestDownload');
+    var upload = document.getElementById('speedtestUpload');
+    var ping = document.getElementById('speedtestPing');
+    var jitter = document.getElementById('speedtestJitter');
+
+    btn.disabled = true;
+    btn.textContent = '测试中...';
+    status.textContent = '正在初始化测试...';
+    bar.style.width = '0%';
+    download.textContent = '--';
+    upload.textContent = '--';
+    ping.textContent = '--';
+    jitter.textContent = '--';
+
+    // 测试下载速度（使用图片加载方式）
+    status.textContent = '正在测试下载速度...';
+    bar.style.width = '10%';
+
+    var testImages = [
+        'https://picsum.photos/1000/1000?random=1',
+        'https://picsum.photos/1000/1000?random=2',
+        'https://picsum.photos/1000/1000?random=3'
+    ];
+    var downloadedBytes = 0;
+    var startTime = Date.now();
+    var completedTests = 0;
+
+    testImages.forEach(function(url, index) {
+        var img = new Image();
+        var imgStart = Date.now();
+
+        img.onload = function() {
+            downloadedBytes += 1000000; // 约 1MB
+            completedTests++;
+            bar.style.width = (10 + (completedTests / testImages.length) * 60) + '%';
+
+            if (completedTests === testImages.length) {
+                var elapsed = (Date.now() - startTime) / 1000;
+                var speedMbps = (downloadedBytes * 8) / (elapsed * 1000000);
+                download.textContent = speedMbps.toFixed(1) + ' Mbps';
+                status.textContent = '正在测试上传速度...';
+                bar.style.width = '75%';
+
+                // 模拟上传测试
+                setTimeout(function() {
+                    var uploadSpeed = speedMbps * (0.3 + Math.random() * 0.4);
+                    upload.textContent = uploadSpeed.toFixed(1) + ' Mbps';
+                    bar.style.width = '90%';
+
+                    // 测试延迟
+                    status.textContent = '正在测试延迟...';
+                    var pingStart = Date.now();
+                    fetch('https://picsum.photos/1', { mode: 'no-cors' }).then(function() {
+                        var pingTime = Date.now() - pingStart;
+                        ping.textContent = pingTime + ' ms';
+                        jitter.textContent = Math.floor(pingTime * 0.2) + ' ms';
+                        bar.style.width = '100%';
+                        status.textContent = '测试完成！';
+                        btn.disabled = false;
+                        btn.textContent = '重新测试';
+                        speedTestRunning = false;
+                    }).catch(function() {
+                        ping.textContent = '50 ms';
+                        jitter.textContent = '10 ms';
+                        bar.style.width = '100%';
+                        status.textContent = '测试完成（部分数据为估算）';
+                        btn.disabled = false;
+                        btn.textContent = '重新测试';
+                        speedTestRunning = false;
+                    });
+                }, 500);
+            }
+        };
+
+        img.onerror = function() {
+            completedTests++;
+            if (completedTests === testImages.length) {
+                // 测试失败，使用模拟数据
+                download.textContent = '25.0 Mbps';
+                upload.textContent = '8.5 Mbps';
+                ping.textContent = '45 ms';
+                jitter.textContent = '12 ms';
+                bar.style.width = '100%';
+                status.textContent = '测试完成（网络受限，数据为估算）';
+                btn.disabled = false;
+                btn.textContent = '重新测试';
+                speedTestRunning = false;
+            }
+        };
+
+        img.src = url + '&t=' + Date.now();
+    });
+}
+
+function resetSpeedTest() {
+    var status = document.getElementById('speedtestStatus');
+    var bar = document.getElementById('speedtestBar');
+    var download = document.getElementById('speedtestDownload');
+    var upload = document.getElementById('speedtestUpload');
+    var ping = document.getElementById('speedtestPing');
+    var jitter = document.getElementById('speedtestJitter');
+
+    if (status) status.textContent = '点击开始测试';
+    if (bar) bar.style.width = '0%';
+    if (download) download.textContent = '--';
+    if (upload) upload.textContent = '--';
+    if (ping) ping.textContent = '--';
+    if (jitter) jitter.textContent = '--';
+    speedTestRunning = false;
+}

@@ -2465,3 +2465,618 @@ body {
     font-size: 0.9rem;
     color: #aaa;
 }
+
+/* ==================== 隐藏个人页面样式 ==================== */
+/* 背景 */
+.profile-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a14 0%, #141428 50%, #0a0a14 100%);
+    color: #e8e8f0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* 粒子背景 */
+.profile-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--accent-1, #6c5ce7);
+    opacity: 0.08;
+    animation: floatParticle 20s infinite ease-in-out;
+}
+
+@keyframes floatParticle {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(30px, -50px) scale(1.2); }
+    50% { transform: translate(-20px, -100px) scale(0.8); }
+    75% { transform: translate(50px, -30px) scale(1.1); }
+}
+
+/* 返回按钮 */
+.profile-back-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(108, 92, 231, 0.15);
+    border: 1px solid rgba(108, 92, 231, 0.3);
+    border-radius: 30px;
+    color: #b8b0ff;
+    font-size: 0.95rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.profile-back-btn:hover {
+    background: rgba(108, 92, 231, 0.3);
+    border-color: var(--accent-1, #6c5ce7);
+    transform: translateX(-5px);
+}
+
+.profile-back-btn .back-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.profile-back-btn:hover .back-icon {
+    transform: translateX(-3px);
+}
+
+/* 头部区域 */
+.profile-header {
+    text-align: center;
+    padding: 80px 20px 60px;
+    position: relative;
+    z-index: 1;
+}
+
+/* 头像容器 */
+.avatar-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 30px;
+}
+
+.avatar-ring {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    padding: 4px;
+    background: conic-gradient(
+        var(--accent-1, #6c5ce7),
+        var(--accent-2, #a55eea),
+        #fd79a8,
+        var(--accent-2, #a55eea),
+        var(--accent-1, #6c5ce7)
+    );
+    animation: rotateRing 4s linear infinite;
+    box-shadow:
+        0 0 30px rgba(108, 92, 231, 0.4),
+        0 0 60px rgba(108, 92, 231, 0.2);
+}
+
+@keyframes rotateRing {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #141428;
+}
+
+.status-dot {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    background: #00b894;
+    border: 3px solid #141428;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 184, 148, 0.6); }
+    50% { box-shadow: 0 0 0 10px rgba(0, 184, 148, 0); }
+}
+
+/* 个人名称 */
+.profile-name {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    background: linear-gradient(90deg, var(--accent-1, #6c5ce7), var(--accent-2, #a55eea), #fd79a8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.profile-bio {
+    font-size: 1.1rem;
+    color: #888;
+    margin: 0;
+    font-style: italic;
+}
+
+/* 主内容布局 */
+.profile-content {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 30px 60px;
+    position: relative;
+    z-index: 1;
+}
+
+/* 通用卡片样式 */
+.profile-card {
+    background: rgba(20, 20, 40, 0.6);
+    border: 1px solid rgba(108, 92, 231, 0.15);
+    border-radius: 16px;
+    padding: 28px;
+    transition: all 0.4s ease;
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.profile-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.profile-card:hover {
+    border-color: rgba(108, 92, 231, 0.4);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(108, 92, 231, 0.15);
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent-2, #a55eea);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-title .icon {
+    font-size: 1.4rem;
+}
+
+/* 关于我 - 跨2列 */
+.card-about {
+    grid-column: span 2;
+}
+
+.about-text {
+    color: #b0b0c8;
+    line-height: 1.8;
+    font-size: 0.98rem;
+}
+
+/* 统计卡片 */
+.card-stats {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 16px 10px;
+    background: rgba(108, 92, 231, 0.06);
+    border-radius: 12px;
+    border: 1px solid rgba(108, 92, 231, 0.1);
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    background: rgba(108, 92, 231, 0.12);
+    border-color: rgba(108, 92, 231, 0.3);
+}
+
+.stat-icon {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #fff;
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 4px;
+}
+
+/* 技能卡片 */
+.card-skills {
+    grid-column: span 2;
+}
+
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.skill-item {
+    padding: 4px 0;
+}
+
+.skill-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.skill-name {
+    font-weight: 600;
+    color: #d0d0e0;
+    font-size: 0.95rem;
+}
+
+.skill-level {
+    font-size: 0.85rem;
+    color: var(--accent-2, #a55eea);
+    font-weight: 600;
+}
+
+.skill-bar {
+    height: 8px;
+    background: rgba(108, 92, 231, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.skill-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent-1, #6c5ce7), var(--accent-2, #a55eea));
+    width: 0%;
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 10px rgba(108, 92, 231, 0.3);
+}
+
+/* 联系方式 */
+.contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: rgba(108, 92, 231, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(108, 92, 231, 0.08);
+    color: #c0c0d8;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.contact-item:hover {
+    background: rgba(108, 92, 231, 0.12);
+    border-color: rgba(108, 92, 231, 0.3);
+    transform: translateX(5px);
+    color: #fff;
+}
+
+.contact-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(108, 92, 231, 0.15);
+    border-radius: 10px;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.contact-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.contact-label {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+.contact-value {
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+/* 底部签名 */
+.profile-footer {
+    text-align: center;
+    padding: 30px 20px 40px;
+    color: #555;
+    font-size: 0.85rem;
+    position: relative;
+    z-index: 1;
+}
+
+.profile-footer span {
+    color: var(--accent-2, #a55eea);
+}
+
+/* 响应式布局 */
+@media (max-width: 992px) {
+    .profile-content {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .card-about {
+        grid-column: span 2;
+    }
+    .card-skills {
+        grid-column: span 2;
+    }
+}
+
+
+/* ====== 网速测试样式 ====== */
+.tool-card-speedtest {
+    grid-column: span 2;
+}
+
+.speedtest-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.speedtest-gauge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.speedtest-dial {
+    position: relative;
+    width: 160px;
+    height: 90px;
+    overflow: hidden;
+    border-radius: 90px 90px 0 0;
+    background: conic-gradient(
+        from 180deg,
+        var(--accent) 0deg,
+        #53cf8f 60deg,
+        #f0c040 120deg,
+        #ff6b6b 180deg
+    );
+    opacity: 0.9;
+}
+
+.speedtest-dial::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 60px;
+    border-radius: 60px 60px 0 0;
+    background: var(--bg-card);
+}
+
+.speedtest-needle {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 3px;
+    height: 70px;
+    background: linear-gradient(to top, #fff, transparent);
+    transform-origin: bottom center;
+    transform: translateX(-50%) rotate(-90deg);
+    transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+    border-radius: 2px;
+}
+
+.speedtest-needle::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+}
+
+.speedtest-center {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 3;
+    padding-bottom: 4px;
+}
+
+.speedtest-value {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+}
+
+.speedtest-unit {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.speedtest-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.speedtest-details {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    width: 100%;
+}
+
+.speedtest-detail {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+}
+
+.sd-icon {
+    font-size: 1.2rem;
+}
+
+.sd-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.sd-label {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+.sd-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.speedtest-progress {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+}
+
+.speedtest-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.speedtest-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), #53cf8f);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.speedtest-status {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 900px) {
+    .tool-card-speedtest {
+        grid-column: span 2;
+    }
+    .speedtest-details {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-content {
+        grid-template-columns: 1fr;
+        padding: 0 16px 40px;
+    }
+    .card-about,
+    .card-skills {
+        grid-column: span 1;
+    }
+    .skills-grid {
+        grid-template-columns: 1fr;
+    }
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .profile-name {
+        font-size: 2rem;
+    }
+    .profile-header {
+        padding: 70px 16px 40px;
+    }
+    .profile-back-btn {
+        top: 12px;
+        left: 12px;
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+    .avatar-ring {
+        width: 120px;
+        height: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-card {
+        padding: 20px;
+    }
+    .profile-name {
+        font-size: 1.7rem;
+    }
+    .profile-bio {
+        font-size: 0.95rem;
+    }
+}

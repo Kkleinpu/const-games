@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LX · 个人主页</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .profile-page {
+            min-height: 100vh;
+            padding: 100px 20px 60px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .back-btn {
+            position: fixed;
+            top: 90px;
+            left: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+        }
+        .back-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-1);
+            color: var(--text-primary);
+            transform: translateX(-4px);
+        }
+        .profile-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(24px) saturate(150%);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 60px 50px;
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            animation: cardFadeIn 0.8s ease-out;
+        }
+        @keyframes cardFadeIn {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--accent-1), var(--accent-2), var(--accent-3), transparent);
+        }
+        .profile-card::after {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background: var(--accent-1);
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        .profile-avatar-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+        .profile-avatar-wrapper {
+            position: relative;
+            margin-bottom: 24px;
+        }
+        .profile-avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            border: 3px solid transparent;
+            animation: avatarFloat 6s ease-in-out infinite;
+            box-shadow: 0 0 40px rgba(108, 92, 231, 0.3);
+        }
+        @keyframes avatarFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .profile-avatar-ring {
+            position: absolute;
+            inset: -12px;
+            border-radius: 50%;
+            border: 2px solid rgba(108, 92, 231, 0.4);
+            animation: ringPulse 3s ease-in-out infinite;
+        }
+        .profile-avatar-ring::before {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            border: 1px solid rgba(162, 155, 254, 0.2);
+            animation: ringPulse 3s ease-in-out infinite 0.5s;
+        }
+        .profile-avatar-ring::after {
+            content: '';
+            position: absolute;
+            inset: -16px;
+            border-radius: 50%;
+            border: 1px solid rgba(253, 121, 168, 0.15);
+            animation: ringPulse 3s ease-in-out infinite 1s;
+        }
+        @keyframes ringPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.05); }
+        }
+        .profile-status {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            background: #00d26a;
+            border-radius: 50%;
+            border: 3px solid var(--bg-primary);
+        }
+        .profile-name {
+            font-size: 32px;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .profile-signature {
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-style: italic;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .profile-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .profile-tag {
+            padding: 6px 16px;
+            background: rgba(108, 92, 231, 0.1);
+            border: 1px solid rgba(108, 92, 231, 0.2);
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--accent-2);
+            transition: all 0.3s ease;
+        }
+        .profile-tag:hover {
+            background: rgba(108, 92, 231, 0.2);
+            border-color: var(--accent-1);
+            transform: translateY(-2px);
+        }
+        .profile-section {
+            margin-bottom: 36px;
+            position: relative;
+            z-index: 1;
+        }
+        .profile-section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .profile-section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--gradient);
+            border-radius: 2px;
+        }
+        .profile-about {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 16px;
+        }
+        .skill-item {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        .skill-item:hover {
+            border-color: rgba(108, 92, 231, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(108, 92, 231, 0.1);
+        }
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .skill-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .skill-level {
+            font-size: 12px;
+            color: var(--accent-2);
+            font-weight: 600;
+        }
+        .skill-bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .skill-bar {
+            height: 100%;
+            background: var(--gradient);
+            border-radius: 4px;
+            transition: width 1.5s ease-out;
+        }
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        .contact-item:hover {
+            border-color: rgba(108, 92, 231, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(108, 92, 231, 0.1);
+            background: rgba(108, 92, 231, 0.05);
+        }
+        .contact-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            background: rgba(108, 92, 231, 0.15);
+            flex-shrink: 0;
+        }
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .contact-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 2px;
+        }
+        .contact-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 36px;
+            position: relative;
+            z-index: 1;
+        }
+        .profile-stat-card {
+            text-align: center;
+            padding: 24px 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        .profile-stat-card:hover {
+            border-color: rgba(108, 92, 231, 0.3);
+            transform: translateY(-4px);
+        }
+        .profile-stat-icon {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+        .profile-stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+        .profile-stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .profile-footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            position: relative;
+            z-index: 1;
+        }
+        .profile-footer p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+        @media (max-width: 768px) {
+            .profile-page { padding: 80px 16px 40px; }
+            .back-btn { top: 80px; left: 16px; padding: 10px 18px; font-size: 13px; }
+            .profile-card { padding: 40px 24px; }
+            .profile-avatar { width: 110px; height: 110px; }
+            .profile-name { font-size: 24px; }
+            .profile-stats { grid-template-columns: 1fr; }
+            .skills-grid { grid-template-columns: 1fr; }
+            .contact-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 全站粒子背景 -->
+    <canvas id="globalParticles" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
+    
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo-text">🎮 LX GameHub</a>
+            <div class="nav-right">
+                <div class="nav-clock" id="navClock">--:--</div>
+                <a href="index.html" class="nav-link">返回首页</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 返回按钮 -->
+    <a href="index.html" class="back-btn">返回主界面</a>
+
+    <!-- 个人页面内容 -->
+    <main class="profile-page">
+        <div class="profile-card">
+            <!-- 头像区域 -->
+            <div class="profile-avatar-section">
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar-ring"></div>
+                    <img class="profile-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=LX&backgroundColor=6c5ce7" alt="LX">
+                    <div class="profile-status"></div>
+                </div>
+                <h1 class="profile-name">LX</h1>
+                <p class="profile-signature">「游戏是第九艺术，而我是艺术的鉴赏家」</p>
+                <div class="profile-tags">
+                    <span class="profile-tag">🎮 游戏玩家</span>
+                    <span class="profile-tag">💻 代码爱好者</span>
+                    <span class="profile-tag">🎯 Steam 收藏家</span>
+                    <span class="profile-tag">🌙 夜猫子</span>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="profile-stats">
+                <div class="profile-stat-card">
+                    <div class="profile-stat-icon">🎮</div>
+                    <div class="profile-stat-value">20+</div>
+                    <div class="profile-stat-label">Steam 游戏</div>
+                </div>
+                <div class="profile-stat-card">
+                    <div class="profile-stat-icon">⏱️</div>
+                    <div class="profile-stat-value">3000+</div>
+                    <div class="profile-stat-label">游戏时长(小时)</div>
+                </div>
+                <div class="profile-stat-card">
+                    <div class="profile-stat-icon">🏆</div>
+                    <div class="profile-stat-value">100+</div>
+                    <div class="profile-stat-label">解锁成就</div>
+                </div>
+            </div>
+
+            <!-- 个人介绍 -->
+            <div class="profile-section">
+                <h2 class="profile-section-title">关于我</h2>
+                <div class="profile-about">
+                    大家好，我是 LX！一个热爱游戏和编程的玩家。从《半条命》到《GTA V》，从像素风到3A大作，我享受每一款游戏带来的独特体验。游戏不仅是娱乐，更是艺术、故事和技术的完美结合。在这个个人主页里，你可以看到我的游戏库、游玩时长和一些有趣的工具。希望你也能找到自己喜欢的游戏！
+                </div>
+            </div>
+
+            <!-- 技能展示 -->
+            <div class="profile-section">
+                <h2 class="profile-section-title">技能树</h2>
+                <div class="skills-grid">
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">🎯 FPS 射击</span>
+                            <span class="skill-level">Lv.95</span>
+                        </div>
+                        <div class="skill-bar-container">
+                            <div class="skill-bar" style="width: 95%"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">🏎️ 竞速赛车</span>
+                            <span class="skill-level">Lv.88</span>
+                        </div>
+                        <div class="skill-bar-container">
+                            <div class="skill-bar" style="width: 88%"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">🧩 解谜冒险</span>
+                            <span class="skill-level">Lv.82</span>
+                        </div>
+                        <div class="skill-bar-container">
+                            <div class="skill-bar" style="width: 82%"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">⚔️ 动作RPG</span>
+                            <span class="skill-level">Lv.90</span>
+                        </div>
+                        <div class="skill-bar-container">
+                            <div class="skill-bar" style="width: 90%"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">🏗️ 模拟建造</span>
+                            <span class="skill-level">Lv.75</span>
+                        </div>
+                        <div class="skill-bar-container">
+                            <div class="skill-bar" style="width: 75%"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">🃏 策略卡牌</span>
+                            <span class="skill-level">Lv.70</span>
+                        </div>
+                        <div class="skill-bar-container">
+                            <div class="skill-bar" style="width: 70%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 联系方式 -->
+            <div class="profile-section">
+                <h2 class="profile-section-title">联系方式</h2>
+                <div class="contact-grid">
+                    <a class="contact-item" href="mailto:lx@example.com">
+                        <div class="contact-icon">📧</div>
+                        <div class="contact-info">
+                            <span class="contact-label">邮箱</span>
+                            <span class="contact-value">lx@example.com</span>
+                        </div>
+                    </a>
+                    <a class="contact-item" href="https://steamcommunity.com" target="_blank">
+                        <div class="contact-icon">🎮</div>
+                        <div class="contact-info">
+                            <span class="contact-label">Steam</span>
+                            <span class="contact-value">LX_Gamer</span>
+                        </div>
+                    </a>
+                    <a class="contact-item" href="https://github.com" target="_blank">
+                        <div class="contact-icon">💻</div>
+                        <div class="contact-info">
+                            <span class="contact-label">GitHub</span>
+                            <span class="contact-value">lx-dev</span>
+                        </div>
+                    </a>
+                    <a class="contact-item" href="https://discord.com" target="_blank">
+                        <div class="contact-icon">💬</div>
+                        <div class="contact-info">
+                            <span class="contact-label">Discord</span>
+                            <span class="contact-value">LX#0001</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 页脚 -->
+            <div class="profile-footer">
+                <p>© 2024 LX · 用代码和热爱构建的世界</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- 粒子背景脚本 -->
+    <script>
+        // 粒子背景动画
+        const canvas = document.getElementById('globalParticles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(162, 155, 254, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 60; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // 导航时钟
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('navClock').textContent = h + ':' + m;
+        }
+        updateClock();
+        setInterval(updateClock, 30000);
+
+        // 技能条动画 - 滚动时触发
+        const skillBars = document.querySelectorAll('.skill-bar');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const bar = entry.target;
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => { bar.style.width = width; }, 200);
+                }
+            });
+        }, { threshold: 0.5 });
+        skillBars.forEach(bar => observer.observe(bar));
+    </script>
+</body>
+</html>
