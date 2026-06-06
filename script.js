@@ -1,4 +1,4 @@
-// ==================== GAME DATA ====================
+﻿// ==================== GAME DATA ====================
 const games = [
     { name: "Grand Theft Auto V", appId: 271590, genre: ["动作", "开放世界", "犯罪"], rating: 9.5, desc: "洛圣都的传奇故事，三个主角的命运交织。", ach: [77, 77] },
     { name: "Counter-Strike 2", appId: 730, genre: ["射击", "竞技", "多人"], rating: 9.0, desc: "经典竞技射击，5v5战术对抗。", ach: [1, 1] },
@@ -735,31 +735,37 @@ const friendsGallery = [
     {
         name: "闺蜜",
         desc: "镜子里的小美女 ✨",
-        src: "photos/friend1.jpg",
+        src: "photos/微信图片_20260505192513_1945_43.jpg",
         unlockKey: "lx2026"
     },
     {
         name: "闺蜜",
         desc: "红毯上的背影 🌹",
-        src: "photos/friend2.jpg",
+        src: "photos/微信图片_20260516095303_2484_43.jpg",
         unlockKey: "lx2026"
     },
     {
         name: "闺蜜",
         desc: "花田里的影子 🌻",
-        src: "photos/friend3.jpg",
+        src: "photos/微信图片_20260530112127_3323_43.jpg",
         unlockKey: "lx2026"
     },
     {
         name: "我们",
         desc: "不想上班（不想上课）🤪",
-        src: "photos/friend4.jpg",
+        src: "photos/微信图片_20260530112129_3324_43.jpg",
+        unlockKey: "lx2026"
+    },
+    {
+        name: "闺蜜",
+        desc: "又见面啦 🤳",
+        src: "photos/微信图片_20260530112130_3325_43.jpg",
         unlockKey: "lx2026"
     },
     {
         name: "闺蜜",
         desc: "坐地铁出门玩 🚇",
-        src: "photos/friend5.jpg",
+        src: "photos/微信图片_20260530112133_3326_43.jpg",
         unlockKey: "lx2026"
     }
 ];
@@ -951,32 +957,37 @@ function startSpeedTest() {
     if (speedTestRunning) return;
     speedTestRunning = true;
 
-    // 更新 UI
-    var btn = document.getElementById('speedtestBtn');
-    var status = document.getElementById('speedtestStatus');
-    var bar = document.getElementById('speedtestBar');
-    var download = document.getElementById('speedtestDownload');
-    var upload = document.getElementById('speedtestUpload');
-    var ping = document.getElementById('speedtestPing');
-    var jitter = document.getElementById('speedtestJitter');
+    var btn = document.getElementById("speedtestBtn");
+    var status = document.getElementById("speedtestStatus");
+    var bar = document.getElementById("speedtestBar");
+    var download = document.getElementById("speedtestDownload");
+    var upload = document.getElementById("speedtestUpload");
+    var ping = document.getElementById("speedtestPing");
+    var progressWrap = document.getElementById("speedtestProgress");
+    var speedValue = document.getElementById("speedValue");
+    var speedNeedle = document.getElementById("speedNeedle");
+    var speedLabel = document.getElementById("speedLabel");
 
     btn.disabled = true;
-    btn.textContent = '测试中...';
-    status.textContent = '正在初始化测试...';
-    bar.style.width = '0%';
-    download.textContent = '--';
-    upload.textContent = '--';
-    ping.textContent = '--';
-    jitter.textContent = '--';
+    btn.textContent = "\u6d4b\u8bd5\u4e2d...";
+    status.textContent = "\u6b63\u5728\u521d\u59cb\u5316\u6d4b\u8bd5...";
+    if (progressWrap) progressWrap.style.display = "block";
+    bar.style.width = "0%";
+    download.textContent = "--";
+    upload.textContent = "--";
+    ping.textContent = "--";
+    if (speedValue) speedValue.textContent = "0";
+    if (speedLabel) speedLabel.textContent = "\u6d4b\u8bd5\u4e2d...";
+    if (speedNeedle) speedNeedle.style.transform = "rotate(-90deg)";
 
-    // 测试下载速度（使用图片加载方式）
-    status.textContent = '正在测试下载速度...';
-    bar.style.width = '10%';
+    // \u6d4b\u8bd5\u4e0b\u8f7d\u901f\u5ea6\uff08\u4f7f\u7528\u56fe\u7247\u52a0\u8f7d\u65b9\u5f0f\uff09
+    status.textContent = "\u6b63\u5728\u6d4b\u8bd5\u4e0b\u8f7d\u901f\u5ea6...";
+    bar.style.width = "10%";
 
     var testImages = [
-        'https://picsum.photos/1000/1000?random=1',
-        'https://picsum.photos/1000/1000?random=2',
-        'https://picsum.photos/1000/1000?random=3'
+        "https://picsum.photos/1000/1000?random=1",
+        "https://picsum.photos/1000/1000?random=2",
+        "https://picsum.photos/1000/1000?random=3"
     ];
     var downloadedBytes = 0;
     var startTime = Date.now();
@@ -984,45 +995,45 @@ function startSpeedTest() {
 
     testImages.forEach(function(url, index) {
         var img = new Image();
-        var imgStart = Date.now();
 
         img.onload = function() {
-            downloadedBytes += 1000000; // 约 1MB
+            downloadedBytes += 1000000;
             completedTests++;
-            bar.style.width = (10 + (completedTests / testImages.length) * 60) + '%';
+            var pct = 10 + (completedTests / testImages.length) * 60;
+            bar.style.width = pct + "%";
 
             if (completedTests === testImages.length) {
                 var elapsed = (Date.now() - startTime) / 1000;
                 var speedMbps = (downloadedBytes * 8) / (elapsed * 1000000);
-                download.textContent = speedMbps.toFixed(1) + ' Mbps';
-                status.textContent = '正在测试上传速度...';
-                bar.style.width = '75%';
+                download.textContent = speedMbps.toFixed(1) + " Mbps";
+                if (speedValue) speedValue.textContent = speedMbps.toFixed(1);
+                if (speedNeedle) speedNeedle.style.transform = "rotate(" + Math.min(speedMbps * 1.8 - 90, 90) + "deg)";
+                status.textContent = "\u6b63\u5728\u6d4b\u8bd5\u4e0a\u4f20\u901f\u5ea6...";
+                bar.style.width = "75%";
 
-                // 模拟上传测试
                 setTimeout(function() {
                     var uploadSpeed = speedMbps * (0.3 + Math.random() * 0.4);
-                    upload.textContent = uploadSpeed.toFixed(1) + ' Mbps';
-                    bar.style.width = '90%';
+                    upload.textContent = uploadSpeed.toFixed(1) + " Mbps";
+                    bar.style.width = "90%";
 
-                    // 测试延迟
-                    status.textContent = '正在测试延迟...';
+                    status.textContent = "\u6b63\u5728\u6d4b\u8bd5\u5ef6\u8fdf...";
                     var pingStart = Date.now();
-                    fetch('https://picsum.photos/1', { mode: 'no-cors' }).then(function() {
+                    fetch("https://picsum.photos/1", { mode: "no-cors" }).then(function() {
                         var pingTime = Date.now() - pingStart;
-                        ping.textContent = pingTime + ' ms';
-                        jitter.textContent = Math.floor(pingTime * 0.2) + ' ms';
-                        bar.style.width = '100%';
-                        status.textContent = '测试完成！';
+                        ping.textContent = pingTime + " ms";
+                        bar.style.width = "100%";
+                        if (speedLabel) speedLabel.textContent = "\u6d4b\u8bd5\u5b8c\u6210";
+                        status.textContent = "\u6d4b\u8bd5\u5b8c\u6210\uff01";
                         btn.disabled = false;
-                        btn.textContent = '重新测试';
+                        btn.textContent = "\u91cd\u65b0\u6d4b\u8bd5";
                         speedTestRunning = false;
                     }).catch(function() {
-                        ping.textContent = '50 ms';
-                        jitter.textContent = '10 ms';
-                        bar.style.width = '100%';
-                        status.textContent = '测试完成（部分数据为估算）';
+                        ping.textContent = "50 ms";
+                        bar.style.width = "100%";
+                        if (speedLabel) speedLabel.textContent = "\u6d4b\u8bd5\u5b8c\u6210\uff08\u4f30\u7b97\uff09";
+                        status.textContent = "\u6d4b\u8bd5\u5b8c\u6210\uff08\u90e8\u5206\u6570\u636e\u4e3a\u4f30\u7b97\uff09";
                         btn.disabled = false;
-                        btn.textContent = '重新测试';
+                        btn.textContent = "\u91cd\u65b0\u6d4b\u8bd5";
                         speedTestRunning = false;
                     });
                 }, 500);
@@ -1032,36 +1043,42 @@ function startSpeedTest() {
         img.onerror = function() {
             completedTests++;
             if (completedTests === testImages.length) {
-                // 测试失败，使用模拟数据
-                download.textContent = '25.0 Mbps';
-                upload.textContent = '8.5 Mbps';
-                ping.textContent = '45 ms';
-                jitter.textContent = '12 ms';
-                bar.style.width = '100%';
-                status.textContent = '测试完成（网络受限，数据为估算）';
+                download.textContent = "25.0 Mbps";
+                upload.textContent = "8.5 Mbps";
+                ping.textContent = "45 ms";
+                if (speedValue) speedValue.textContent = "25.0";
+                if (speedNeedle) speedNeedle.style.transform = "rotate(-45deg)";
+                if (speedLabel) speedLabel.textContent = "\u7f51\u7edc\u53d7\u9650\uff0c\u6570\u636e\u4e3a\u4f30\u7b97";
+                bar.style.width = "100%";
+                status.textContent = "\u6d4b\u8bd5\u5b8c\u6210\uff08\u7f51\u7edc\u53d7\u9650\uff0c\u6570\u636e\u4e3a\u4f30\u7b97\uff09";
                 btn.disabled = false;
-                btn.textContent = '重新测试';
+                btn.textContent = "\u91cd\u65b0\u6d4b\u8bd5";
                 speedTestRunning = false;
             }
         };
 
-        img.src = url + '&t=' + Date.now();
+        img.src = url + "&t=" + Date.now();
     });
 }
-
 function resetSpeedTest() {
-    var status = document.getElementById('speedtestStatus');
-    var bar = document.getElementById('speedtestBar');
-    var download = document.getElementById('speedtestDownload');
-    var upload = document.getElementById('speedtestUpload');
-    var ping = document.getElementById('speedtestPing');
-    var jitter = document.getElementById('speedtestJitter');
+    var status = document.getElementById("speedtestStatus");
+    var bar = document.getElementById("speedtestBar");
+    var download = document.getElementById("speedtestDownload");
+    var upload = document.getElementById("speedtestUpload");
+    var ping = document.getElementById("speedtestPing");
+    var progressWrap = document.getElementById("speedtestProgress");
+    var speedValue = document.getElementById("speedValue");
+    var speedNeedle = document.getElementById("speedNeedle");
+    var speedLabel = document.getElementById("speedLabel");
 
-    if (status) status.textContent = '点击开始测试';
-    if (bar) bar.style.width = '0%';
-    if (download) download.textContent = '--';
-    if (upload) upload.textContent = '--';
-    if (ping) ping.textContent = '--';
-    if (jitter) jitter.textContent = '--';
+    if (status) status.textContent = "\u6d4b\u8bd5\u4e2d...";
+    if (bar) bar.style.width = "0%";
+    if (progressWrap) progressWrap.style.display = "none";
+    if (download) download.textContent = "--";
+    if (upload) upload.textContent = "--";
+    if (ping) ping.textContent = "--";
+    if (speedValue) speedValue.textContent = "0";
+    if (speedNeedle) speedNeedle.style.transform = "rotate(-90deg)";
+    if (speedLabel) speedLabel.textContent = "\u70b9\u51fb\u5f00\u59cb\u6d4b\u8bd5";
     speedTestRunning = false;
 }

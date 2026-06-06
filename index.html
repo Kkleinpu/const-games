@@ -8,6 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
+    <video class="bg-video" autoplay muted loop playsinline>
+        <source src="wallpaper.mp4" type="video/mp4">
+    </video>
+    <div class="bg-overlay"></div>
     <canvas class="global-particles" id="globalParticles"></canvas>
     <canvas class="mouse-trail" id="mouseTrail"></canvas>
     <div class="bg-grid"></div>
@@ -367,7 +371,7 @@
                 <div class="tool-card-header">
                     <span class="tool-icon">⚡</span>
                     <h3>网速测试</h3>
-                    <button class="tool-refresh-btn" onclick="startSpeedTest()" id="speedTestBtn">🚀 开始测试</button>
+                    <button class="tool-refresh-btn" onclick="startSpeedTest()" id="speedtestBtn">🚀 开始测试</button>
                 </div>
                 <div class="speedtest-display">
                     <div class="speedtest-gauge">
@@ -385,21 +389,21 @@
                             <span class="sd-icon">📥</span>
                             <div class="sd-info">
                                 <span class="sd-label">下载速度</span>
-                                <span class="sd-value" id="downloadSpeed">-</span>
+                                <span class="sd-value" id="speedtestDownload">-</span>
                             </div>
                         </div>
                         <div class="speedtest-detail">
                             <span class="sd-icon">📤</span>
                             <div class="sd-info">
                                 <span class="sd-label">上传速度</span>
-                                <span class="sd-value" id="uploadSpeed">-</span>
+                                <span class="sd-value" id="speedtestUpload">-</span>
                             </div>
                         </div>
                         <div class="speedtest-detail">
                             <span class="sd-icon">⏱️</span>
                             <div class="sd-info">
                                 <span class="sd-label">延迟</span>
-                                <span class="sd-value" id="pingValue">-</span>
+                                <span class="sd-value" id="speedtestPing">-</span>
                             </div>
                         </div>
                         <div class="speedtest-detail">
@@ -410,11 +414,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="speedtest-progress" id="speedTestProgress" style="display:none;">
+                    <div class="speedtest-progress" id="speedtestProgress" style="display:none;">
                         <div class="speedtest-bar">
-                            <div class="speedtest-bar-fill" id="speedTestBar"></div>
+                            <div class="speedtest-bar-fill" id="speedtestBar"></div>
                         </div>
-                        <span class="speedtest-status" id="speedTestStatus">测试中...</span>
+                        <span class="speedtest-status" id="speedtestStatus">测试中...</span>
                     </div>
                 </div>
             </div>
