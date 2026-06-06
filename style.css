@@ -3104,3 +3104,75 @@ body {
         font-size: 0.95rem;
     }
 }
+
+
+/* ========== 移动端全局优化 ========== */
+@media (max-width: 768px) {
+    .hero {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        padding: 80px 20px 40px;
+        min-height: auto;
+    }
+    .hero-title {
+        font-size: 32px;
+    }
+    .hero-desc {
+        font-size: 14px;
+    }
+    .hero-btn {
+        padding: 12px 24px;
+        font-size: 14px;
+    }
+    .profile-section {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    .profile-tags {
+        justify-content: center;
+    }
+    .nav-links {
+        display: none;
+    }
+    .featured-overlay h3 {
+        font-size: 18px;
+    }
+    .tool-card-header {
+        flex-wrap: wrap;
+    }
+    .speedtest-display {
+        flex-direction: column;
+    }
+    .friends-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    .section-header h2 {
+        font-size: 24px;
+    }
+    .section-header p {
+        font-size: 13px;
+    }
+    .stat-item {
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 26px;
+    }
+    .friends-grid {
+        grid-template-columns: 1fr;
+    }
+    .game-card-title {
+        font-size: 14px;
+    }
+    .quick-stat {
+        padding: 12px;
+    }
+    .qs-value {
+        font-size: 16px;
+    }
+}

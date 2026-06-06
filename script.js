@@ -677,7 +677,7 @@ function initScrollReveal() {
     var observer = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
             if (entry.isIntersecting) {
-                entry.target.classList.add("revealed");
+                entry.target.classList.add("visible");
             }
         });
     }, {
@@ -1082,3 +1082,13 @@ function resetSpeedTest() {
     if (speedLabel) speedLabel.textContent = "\u70b9\u51fb\u5f00\u59cb\u6d4b\u8bd5";
     speedTestRunning = false;
 }
+// ========== 页面加载动画 ==========
+window.addEventListener("load", function() {
+    var loader = document.getElementById("pageLoader");
+    if (loader) {
+        setTimeout(function() {
+            loader.classList.add("hidden");
+            setTimeout(function() { loader.remove(); }, 700);
+        }, 600);
+    }
+});
