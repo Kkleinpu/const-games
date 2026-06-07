@@ -512,7 +512,6 @@
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
-    .bg-video,
     .starfield-canvas,
     .aurora-overlay,
     .protocol-scanline,
@@ -520,3 +519,4 @@
         display: none !important;
     }
 }
+

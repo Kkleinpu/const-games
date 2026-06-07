@@ -19,7 +19,7 @@
     height: auto;
     transform: translate(-50%, -50%);
     object-fit: cover;
-    z-index: -3;
+    z-index: -2;
     /* filter: blur(4px); */
     pointer-events: none;
 }
@@ -27,8 +27,7 @@
 .bg-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(10, 10, 25, 0.3);
-    z-index: -2;
+    z-index: -1;
     pointer-events: none;
 }
 * {

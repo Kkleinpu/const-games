@@ -2049,11 +2049,13 @@ setInterval(function() {
             overlay.removeEventListener('keydown', enterProtocol);
         }
 
-        // 绑定事件 - mobile 用 touchstart 避免 click 延迟
-        if ('ontouchstart' in window) {
-            overlay.addEventListener('touchstart', enterProtocol, { passive: true });
-        } else {
-            overlay.addEventListener('click', enterProtocol);
+        // 绑定事件 - 同时绑 click + touchstart，确保所有设备都能响应
+        overlay.addEventListener('click', enterProtocol);
+        overlay.addEventListener('touchstart', enterProtocol, { passive: true });
+        // 按钮也直接绑定，双重保障
+        if (btn) {
+            btn.addEventListener('click', function(e) { e.stopPropagation(); enterProtocol(); });
+            btn.addEventListener('touchstart', function(e) { e.stopPropagation(); enterProtocol(); }, { passive: true });
         }
         // 也允许键盘进入（Enter 或 Space）
         overlay.addEventListener('keydown', function(e) {
@@ -2062,7 +2064,6 @@ setInterval(function() {
                 enterProtocol();
             }
         });
-
         // 确保 overlay 可聚焦
         overlay.setAttribute('tabindex', '0');
         overlay.focus();
