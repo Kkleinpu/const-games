@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="effects-3d.css">
     <link rel="stylesheet" href="mobile.css">
+    <style>/* 安全网：确保入场元素可见 */.entry-btn{opacity:1!important;animation:btnGlow 2s ease-in-out infinite}.entry-status-line{opacity:1!important;transform:none!important}.entry-logo{opacity:1!important}</style>
 </head>
 <body>
     <!-- 协议入场遮罩 — 点击解锁音频 -->
@@ -22,12 +23,12 @@
             <div class="entry-title" id="entryTitle"></div>
             <div class="entry-subtitle">PROTOCOL ZERO v2.0</div>
             <div class="entry-status">
-                <span class="entry-status-line" id="entryStatus1">// 正在建立安全连接...</span>
+                <span class="entry-status-line" id="entryStatus1" style="opacity:1!important;transform:none!important">// 正在建立安全连接...</span>
                 <span class="entry-status-line" id="entryStatus2">// 正在验证执行者身份...</span>
                 <span class="entry-status-line" id="entryStatus3">// 正在加载任务数据库...</span>
-                <span class="entry-status-line" id="entryStatus4">// 协议就绪</span>
+                <span class="entry-status-line" id="entryStatus4" style="opacity:1!important;transform:none!important">// 协议就绪</span>
             </div>
-            <div class="entry-btn" id="entryBtn">
+            <div class="entry-btn" id="entryBtn" style="opacity:1!important">
                 <span class="entry-btn-text">[ 点击进入协议 ]</span>
                 <span class="entry-btn-sub">INITIALIZE PROTOCOL</span>
             </div>
@@ -39,9 +40,6 @@
     </audio>
     <a href="#home" class="skip-to-content">跳转到协议主终端</a>
     <div class="scroll-progress-bar" id="scrollProgressBar"></div>
-<div class="loader-bar"><div class="loader-bar-fill"></div></div>
-        <div class="loader-text">INITIALIZING PROTOCOL ZERO...</div>
-    </div>
     <video class="bg-video" autoplay muted loop playsinline>
         <source src="wallpaper.mp4" type="video/mp4">
     </video>
