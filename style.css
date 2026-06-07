@@ -11,23 +11,20 @@
 /* ========== 视频背景 ========== */
 .bg-video {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    min-width: 100vw;
-    min-height: 100vh;
-    width: auto;
-    height: auto;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     object-fit: cover;
-    z-index: -2;
-    /* filter: blur(4px); */
+    z-index: 0;
     pointer-events: none;
 }
 
 .bg-overlay {
     position: fixed;
     inset: 0;
-    z-index: -1;
+    z-index: 1;
+    background: transparent;
     pointer-events: none;
 }
 * {
@@ -43,7 +40,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -1;
+    z-index: 2;
     pointer-events: none;
 }
 
@@ -316,7 +313,7 @@ body {
     filter: blur(120px);
     opacity: 0.06;
     pointer-events: none;
-    z-index: 0;
+    z-index: 2;
 }
 
 .bg-glow-1 {
@@ -2179,7 +2176,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 0;
+    z-index: 2;
     pointer-events: none;
 }
 
@@ -3384,7 +3381,7 @@ body {
 /* 移动端优化 */
 @media (max-width:768px) {
     .bg-video { width:100vw; height:100vh; object-fit:cover; }
-    .bg-overlay { background:rgba(10,10,25,0.35); }
+    .bg-overlay { background: transparent; }
     .hamburger { display:flex; }
     .nav-links { display:flex; position:fixed; top:0; left:0; width:100%; height:100vh; background:rgba(10,10,25,0.97); backdrop-filter:blur(20px); flex-direction:column; align-items:center; justify-content:center; gap:24px; transform:translateX(100%); transition:transform 0.3s; z-index:1000; }
     .nav-links.open { transform:translateX(0); }
@@ -3797,12 +3794,11 @@ body {
 }
 
 /* 全局背景色调偏移 */
-body {
-    background: #050510 !important;
-}
+
+/* Video background: body dark bg serves as fallback while video loads */
 
 .bg-overlay {
-    background: rgba(5, 5, 16, 0.35) !important;
+    background: transparent;
 }
 
 /* 二进制代码流背景装饰 */
@@ -4589,12 +4585,7 @@ a, button, .game-card, .tool-card, .fab-main, .nav-links a, .hero-btn,
     cursor: pointer;
 }
 
-/* ================================================================
-   视差滚动增强
-   ================================================================ */
-.bg-video {
-    will-change: transform;
-}
+
 
 /* ================================================================
    游戏卡片悬浮增强 - 冰蓝光晕
@@ -4653,5 +4644,6 @@ a, button, .game-card, .tool-card, .fab-main, .nav-links a, .hero-btn,
 .protocol-entry ~ section {
     /* 入场遮罩在时，section 由遮罩覆盖，无需额外隐藏 */
 }
+
 
 
