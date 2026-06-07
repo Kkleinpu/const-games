@@ -2170,15 +2170,7 @@ body {
 }
 
 /* ========== 全站粒子 canvas ========== */
-.global-particles {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 2;
-    pointer-events: none;
-}
+
 
 /* ========== 鼠标拖尾 canvas ========== */
 .mouse-trail {
@@ -3797,9 +3789,7 @@ body {
 
 /* Video background: body dark bg serves as fallback while video loads */
 
-.bg-overlay {
-    background: transparent;
-}
+
 
 /* 二进制代码流背景装饰 */
 .binary-rain {
