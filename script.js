@@ -2002,6 +2002,14 @@ setInterval(function() {
             if (btn) btn.classList.add('show');
         }, 3800);
 
+        // 安全网：10秒后强制显示按钮并允许点击整个遮罩
+        setTimeout(function() {
+            if (!entered) {
+                if (btn) { btn.style.opacity = '1'; btn.style.transition = 'opacity 0.3s'; }
+                overlay.style.cursor = 'pointer';
+            }
+        }, 10000);
+
         // 防重复执行锁
         var entered = false;
 
