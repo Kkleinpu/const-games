@@ -1,0 +1,170 @@
+﻿/* ============================================
+   PROTOCOL ZERO — 3D & Advanced Effects
+   Fixed: no body perspective, no negative Z
+   ============================================ */
+
+/* === 1. 3D Starfield Background === */
+.starfield-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* === 2. Aurora Gradient Overlay === */
+.aurora-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.12;
+    background:
+        radial-gradient(ellipse 80% 60% at 20% 40%, rgba(0,212,255,0.3), transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 60%, rgba(138,43,226,0.25), transparent 60%),
+        radial-gradient(ellipse 70% 50% at 50% 80%, rgba(0,206,201,0.2), transparent 60%);
+    animation: auroraShift 20s ease-in-out infinite alternate;
+}
+@keyframes auroraShift {
+    0%   { opacity: 0.1; filter: hue-rotate(0deg); }
+    50%  { opacity: 0.18; filter: hue-rotate(30deg); }
+    100% { opacity: 0.1; filter: hue-rotate(-20deg); }
+}
+
+/* === 3. 3D Card Tilt (perspective on card itself) === */
+.game-card, .tool-card, .stats-card, .friend-card, .featured-card {
+    transform-style: preserve-3d;
+    transition: transform 0.4s cubic-bezier(0.03,0.98,0.52,0.99), box-shadow 0.4s ease;
+    will-change: transform;
+}
+.game-card:hover, .tool-card:hover, .stats-card:hover, .friend-card:hover, .featured-card:hover {
+    transform: perspective(800px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1.04);
+    box-shadow:
+        0 25px 60px rgba(0,0,0,0.4),
+        0 0 40px rgba(var(--theme-r,0),var(--theme-g,212),var(--theme-b,255),0.15);
+}
+
+/* === 4. Hero Floating Animation (2D only, safe) === */
+.hero-content {
+    animation: heroFloat 6s ease-in-out infinite;
+}
+@keyframes heroFloat {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+}
+
+.hero-featured {
+    animation: heroFloatRight 7s ease-in-out infinite;
+    animation-delay: -1.5s;
+}
+@keyframes heroFloatRight {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-7px); }
+}
+
+/* === 5. Avatar Pulse === */
+.avatar-ring {
+    animation: avatarPulse 3s ease-in-out infinite;
+}
+@keyframes avatarPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(var(--theme-r,0),var(--theme-g,212),var(--theme-b,255),0.4); }
+    50%      { box-shadow: 0 0 30px 10px rgba(var(--theme-r,0),var(--theme-g,212),var(--theme-b,255),0.2); }
+}
+
+/* === 6. Section Reveal on Scroll === */
+.section-header.reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.03,0.98,0.52,0.99);
+}
+.section-header.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.game-card {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.03,0.98,0.52,0.99), box-shadow 0.4s ease;
+}
+.game-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* === 7. Navbar Scroll Effect === */
+.navbar {
+    backdrop-filter: blur(20px) saturate(1.8);
+    -webkit-backdrop-filter: blur(20px) saturate(1.8);
+    transition: box-shadow 0.3s ease, background 0.3s ease;
+}
+.navbar.scrolled {
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    background: rgba(5,5,16,0.9);
+}
+
+/* === 8. Magnetic Button === */
+.hero-btn, .tool-btn, .entry-btn {
+    transition: transform 0.3s cubic-bezier(0.03,0.98,0.52,0.99), box-shadow 0.3s ease;
+}
+.hero-btn:hover, .tool-btn:hover, .entry-btn:hover {
+    transform: scale(1.06);
+    box-shadow: 0 15px 40px rgba(var(--theme-r,0),var(--theme-g,212),var(--theme-b,255),0.3);
+}
+
+/* === 9. Stat Card Hover === */
+.stat-item {
+    transition: transform 0.4s cubic-bezier(0.03,0.98,0.52,0.99), box-shadow 0.4s ease;
+}
+.stat-item:hover {
+    transform: translateY(-6px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+}
+
+/* === 10. Profile Section Hover === */
+.profile-section {
+    transition: transform 0.5s cubic-bezier(0.03,0.98,0.52,0.99), box-shadow 0.5s ease;
+}
+.profile-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+
+/* === 11. Glassmorphism Depth === */
+.search-box, .sort-box, .genre-filters {
+    backdrop-filter: blur(15px) saturate(1.5);
+    -webkit-backdrop-filter: blur(15px) saturate(1.5);
+    background: rgba(5,5,16,0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.search-box:hover, .sort-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* === 12. Scroll Progress Glow === */
+.scroll-progress-bar {
+    box-shadow: 0 0 20px rgba(var(--theme-r,0),var(--theme-g,212),var(--theme-b,255),0.5);
+}
+
+/* === 13. Reduced Motion === */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    .starfield-canvas, .aurora-overlay { display: none; }
+}
+
+/* === 14. Mobile === */
+@media (max-width: 768px) {
+    .starfield-canvas { opacity: 0.25; }
+    .aurora-overlay { opacity: 0.06; }
+    .game-card:hover, .tool-card:hover, .stats-card:hover, .friend-card:hover {
+        transform: translateY(-4px) scale(1.02);
+    }
+    .hero-content, .hero-featured { animation: none; }
+}

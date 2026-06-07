@@ -1300,6 +1300,13 @@ function setThemeColor(color) {
     document.documentElement.style.setProperty('--accent', color);
     document.documentElement.style.setProperty('--primary', color);
     localStorage.setItem('themeColor', color);
+    /* 3D effects: set RGB components for rgba() usage */
+    var m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+    if (m) {
+        document.documentElement.style.setProperty('--theme-r', parseInt(m[1],16));
+        document.documentElement.style.setProperty('--theme-g', parseInt(m[2],16));
+        document.documentElement.style.setProperty('--theme-b', parseInt(m[3],16));
+    }
     showToast('\ud83c\udfa8 \u4e3b\u9898\u8272\u5df2\u66f4\u6362', 'success');
     var p = document.getElementById('themeColorsPopup'); if (p) p.classList.remove('show');
 }
@@ -2241,3 +2248,4 @@ function tryAudioContextUnlock(audio) {
         }, 500);
     });
 })();
+

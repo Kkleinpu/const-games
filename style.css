@@ -1,5 +1,9 @@
 ﻿/* 字体系统 */
 :root {
+    --theme-r: 0;
+    --theme-g: 212;
+    --theme-b: 255;
+
     --font-cn: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
     --font-en: 'Rajdhani', 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
@@ -256,6 +260,10 @@
 }
 
 :root {
+    --theme-r: 0;
+    --theme-g: 212;
+    --theme-b: 255;
+
     --bg-primary: #0a0a0f;
     --bg-secondary: #12121a;
     --bg-card: rgba(26, 26, 46, 0.8);
@@ -3771,6 +3779,10 @@ body {
 
 /* 冰蓝色主题覆盖 */
 :root {
+    --theme-r: 0;
+    --theme-g: 212;
+    --theme-b: 255;
+
     --accent: #00d4ff;
     --primary: #00d4ff;
     --accent-glow: rgba(0, 212, 255, 0.3);
@@ -4642,3 +4654,5 @@ a, button, .game-card, .tool-card, .fab-main, .nav-links a, .hero-btn,
 .protocol-entry ~ section {
     /* 入场遮罩在时，section 由遮罩覆盖，无需额外隐藏 */
 }
+
+
