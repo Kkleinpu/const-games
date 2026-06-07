@@ -1,596 +1,244 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Profile</title>
-    <link rel="stylesheet" href="style.css">
+    <title>执行者档案 // OPERATIVE FILE</title>
+    <meta name="theme-color" content="#050510">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* 个人页面专属样式 */
-        :root {
-            --bg-primary: #0a0a0f;
-            --bg-secondary: #12121a;
-            --bg-card: #1a1a2e;
-            --accent: #6c5ce7;
-            --accent-glow: rgba(108, 92, 231, 0.4);
-            --text-primary: #e0e0e0;
-            --text-secondary: #888;
-            --border-color: rgba(108, 92, 231, 0.2);
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{min-height:100vh;font-family:'Noto Sans SC','Inter',system-ui,sans-serif;color:white;overflow-x:hidden;background:#050510;-webkit-font-smoothing:antialiased}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* 背景 */
+        .profile-bg{position:fixed;inset:0;background:url('profile-bg.jpg') center/cover no-repeat;z-index:-2}
+        .profile-bg-overlay{position:fixed;inset:0;background:linear-gradient(180deg,rgba(5,5,16,0.4) 0%,rgba(5,5,16,0.2) 30%,rgba(5,5,16,0.5) 60%,rgba(5,5,16,0.85) 100%);z-index:-1}
+        .snow-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
 
-        body {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+        /* 扫描线 */
+        .scanline{position:fixed;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,#00d4ff,transparent);z-index:999;pointer-events:none;animation:scanMove 8s linear infinite;opacity:0.2}
+        @keyframes scanMove{0%{top:-2px}100%{top:100vh}}
 
-        /* 背景粒子效果 */
-        .bg-particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: var(--accent);
-            border-radius: 50%;
-            animation: float linear infinite;
-            opacity: 0.3;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.3; }
-            90% { opacity: 0.3; }
-            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
-        }
+        /* 返回 */
+        .back-btn{position:fixed;top:24px;left:24px;z-index:100;background:rgba(0,212,255,0.08);backdrop-filter:blur(12px);border:1px solid rgba(0,212,255,0.2);color:#00d4ff;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all 0.3s;font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase}
+        .back-btn:hover{background:rgba(0,212,255,0.15);transform:translateY(-2px);box-shadow:0 0 20px rgba(0,212,255,0.2)}
 
         /* 主容器 */
-        .profile-container {
-            position: relative;
-            z-index: 1;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
+        .profile-container{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:100px 24px 60px}
 
-        /* 返回按钮 */
-        .back-button {
-            position: fixed;
-            top: 30px;
-            left: 30px;
-            z-index: 100;
-            background: rgba(108, 92, 231, 0.2);
-            border: 1px solid var(--border-color);
-            color: var(--accent);
-            padding: 12px 24px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        /* 头部 */
+        .profile-header{text-align:center;margin-bottom:32px;animation:fadeUp 0.8s ease}
+        .avatar-frame{position:relative;width:140px;height:140px;margin:0 auto 20px}
+        .avatar-img{width:140px;height:140px;border-radius:50%;object-fit:cover;border:3px solid rgba(0,212,255,0.2);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+        .avatar-glow{position:absolute;inset:-6px;border-radius:50%;background:conic-gradient(from 0deg,rgba(0,212,255,0.4),rgba(0,255,136,0.2),rgba(0,153,204,0.3),rgba(0,212,255,0.4));z-index:-1;animation:glowRotate 6s linear infinite}
+        @keyframes glowRotate{to{transform:rotate(360deg)}}
+        .profile-name{font-size:36px;font-weight:800;margin-bottom:6px;font-family:'Rajdhani','Noto Sans SC',sans-serif;background:linear-gradient(135deg,#00d4ff,#00ff88);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+        .profile-tagline{font-size:13px;color:rgba(0,212,255,0.4);font-family:'JetBrains Mono',monospace;letter-spacing:2px;margin-bottom:12px}
+        .online-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.2);border-radius:4px;font-size:12px;color:#00ff88;font-family:'JetBrains Mono',monospace;letter-spacing:1px}
+        .online-dot{width:8px;height:8px;border-radius:50%;background:#00ff88;animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 
-        .back-button:hover {
-            background: rgba(108, 92, 231, 0.4);
-            transform: translateX(-5px);
-            box-shadow: 0 0 20px var(--accent-glow);
-        }
+        /* 卡片 */
+        .profile-card{background:rgba(5,5,16,0.6);backdrop-filter:blur(16px);border:1px dashed rgba(0,212,255,0.12);border-radius:12px;padding:24px;margin-bottom:16px;transition:all 0.3s;animation:fadeUp 0.8s ease backwards}
+        .profile-card:nth-child(2){animation-delay:0.1s}
+        .profile-card:nth-child(3){animation-delay:0.15s}
+        .profile-card:nth-child(4){animation-delay:0.2s}
+        .profile-card:nth-child(5){animation-delay:0.25s}
+        .profile-card:nth-child(6){animation-delay:0.3s}
+        .profile-card:nth-child(7){animation-delay:0.35s}
+        .profile-card:hover{border-color:rgba(0,212,255,0.3);box-shadow:0 0 20px rgba(0,212,255,0.08)}
+        .card-title{font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;font-family:'Rajdhani','Noto Sans SC',sans-serif;letter-spacing:1px;color:#00d4ff}
+        .card-text{color:rgba(255,255,255,0.7);line-height:1.8;font-size:14px}
 
-        .back-button::before {
-            content: '←';
-            font-size: 18px;
-        }
+        /* 统计 */
+        .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+        .stat-box{text-align:center;padding:14px 8px;background:rgba(0,212,255,0.03);border-radius:8px;border:1px dashed rgba(0,212,255,0.08);transition:all 0.3s}
+        .stat-box:hover{background:rgba(0,212,255,0.08);border-color:rgba(0,212,255,0.2)}
+        .stat-number{font-size:26px;font-weight:800;color:#00d4ff;font-family:'Rajdhani',sans-serif;margin-bottom:2px;text-shadow:0 0 15px rgba(0,212,255,0.3)}
+        .stat-label{font-size:10px;color:rgba(0,212,255,0.4);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:1px}
 
-        /* 头部区域 */
-        .profile-header {
-            text-align: center;
-            padding: 60px 0 40px;
-            animation: fadeInDown 0.8s ease;
-        }
+        /* 技能条 */
+        .skill-item{margin-bottom:14px}
+        .skill-item:last-child{margin-bottom:0}
+        .skill-header{display:flex;justify-content:space-between;margin-bottom:6px}
+        .skill-name{font-size:13px;font-weight:500}
+        .skill-percent{font-size:12px;color:#00d4ff;font-weight:600;font-family:'Rajdhani',sans-serif}
+        .skill-bar{background:rgba(255,255,255,0.04);border-radius:4px;height:6px;overflow:hidden}
+        .skill-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#00d4ff,#00ff88);transition:width 1.5s cubic-bezier(0.16,1,0.3,1);width:0}
 
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* 最近游玩 */
+        .recent-list{display:flex;flex-direction:column;gap:10px}
+        .recent-item{display:flex;align-items:center;gap:12px;padding:10px;background:rgba(0,212,255,0.03);border-radius:8px;border:1px solid rgba(0,212,255,0.06);transition:all 0.3s}
+        .recent-item:hover{border-color:rgba(0,212,255,0.15);background:rgba(0,212,255,0.06)}
+        .recent-cover{width:80px;height:36px;border-radius:4px;object-fit:cover}
+        .recent-name{font-size:13px;font-weight:500;flex:1}
+        .recent-time{font-size:12px;color:rgba(0,212,255,0.5);font-family:'JetBrains Mono',monospace}
 
-        /* 头像容器 */
-        .avatar-container {
-            position: relative;
-            display: inline-block;
-            margin-bottom: 24px;
-        }
-
-        .avatar {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent), #a29bfe);
-            padding: 4px;
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
-
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-            background: var(--bg-secondary);
-        }
-
-        .avatar-placeholder {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: var(--bg-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 60px;
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(108, 92, 231, 0.2); }
-            50% { box-shadow: 0 0 30px var(--accent-glow), 0 0 60px rgba(108, 92, 231, 0.3); }
-        }
-
-        /* 在线状态指示器 */
-        .online-status {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            width: 20px;
-            height: 20px;
-            background: #00b894;
-            border-radius: 50%;
-            border: 3px solid var(--bg-primary);
-            animation: status-pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes status-pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 184, 148, 0.4); }
-            50% { box-shadow: 0 0 0 8px rgba(0, 184, 148, 0); }
-        }
-
-        /* 昵称 */
-        .profile-name {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #fff, var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* 签名 */
-        .profile-tagline {
-            color: var(--text-secondary);
-            font-size: 16px;
-            font-style: italic;
-        }
-
-        /* 内容卡片通用样式 */
-        .profile-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 24px;
-            transition: all 0.3s ease;
-            animation: fadeInUp 0.6s ease forwards;
-            opacity: 0;
-        }
-
-        .profile-card:nth-child(1) { animation-delay: 0.1s; }
-        .profile-card:nth-child(2) { animation-delay: 0.2s; }
-        .profile-card:nth-child(3) { animation-delay: 0.3s; }
-        .profile-card:nth-child(4) { animation-delay: 0.4s; }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .profile-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(108, 92, 231, 0.15);
-        }
-
-        .card-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card-title::before {
-            content: '';
-            width: 4px;
-            height: 20px;
-            background: var(--accent);
-            border-radius: 2px;
-        }
-
-        /* 个人介绍 */
-        .about-text {
-            color: var(--text-secondary);
-            line-height: 1.8;
-            font-size: 15px;
-        }
-
-        /* 技能展示 */
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-        }
-
-        .skill-item {
-            background: rgba(108, 92, 231, 0.05);
-            border: 1px solid rgba(108, 92, 231, 0.1);
-            border-radius: 12px;
-            padding: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .skill-item:hover {
-            background: rgba(108, 92, 231, 0.1);
-            transform: scale(1.02);
-        }
-
-        .skill-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .skill-name {
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .skill-percent {
-            font-size: 12px;
-            color: var(--accent);
-        }
-
-        .skill-bar {
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .skill-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), #a29bfe);
-            border-radius: 3px;
-            transition: width 1s ease;
-            animation: skill-load 1.5s ease forwards;
-        }
-
-        @keyframes skill-load {
-            from { width: 0; }
-        }
+        /* 时间线 */
+        .mini-timeline{position:relative;padding-left:20px}
+        .mini-tl-item{position:relative;padding-bottom:16px;padding-left:16px;border-left:2px dashed rgba(0,212,255,0.15)}
+        .mini-tl-item:last-child{padding-bottom:0}
+        .mini-tl-item::before{content:'';position:absolute;left:-7px;top:4px;width:10px;height:10px;border-radius:50%;background:#00d4ff;box-shadow:0 0 8px rgba(0,212,255,0.3)}
+        .mini-tl-date{font-size:12px;color:#00d4ff;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:1px}
+        .mini-tl-text{font-size:13px;color:rgba(255,255,255,0.65);margin-top:2px}
 
         /* 联系方式 */
-        .contact-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+        .contact-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+        .contact-item{display:flex;align-items:center;gap:10px;padding:12px;background:rgba(0,212,255,0.03);border-radius:8px;border:1px dashed rgba(0,212,255,0.08);text-decoration:none;color:white;transition:all 0.3s}
+        .contact-item:hover{border-color:rgba(0,212,255,0.25);background:rgba(0,212,255,0.06);transform:translateY(-2px)}
+        .contact-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:rgba(0,212,255,0.08);border-radius:8px;font-size:18px}
+        .contact-label{font-size:11px;color:rgba(0,212,255,0.4);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:1px}
+        .contact-value{font-size:13px;font-weight:500}
 
-        .contact-item {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 14px 18px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-        }
+        /* 底部协议标记 */
+        .profile-quote{text-align:center;margin-top:32px;padding:20px;font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(0,212,255,0.3);letter-spacing:2px;border-top:1px dashed rgba(0,212,255,0.08)}
+        .profile-quote::before{content:'// '}
+        .profile-quote::after{content:' //'}
 
-        .contact-item:hover {
-            background: rgba(108, 92, 231, 0.1);
-            border-color: var(--border-color);
-            transform: translateX(8px);
-        }
+        /* 协议等级条 */
+        .protocol-level{margin-top:12px;padding:12px;background:rgba(0,212,255,0.03);border-radius:8px;border:1px solid rgba(0,212,255,0.06)}
+        .protocol-level-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+        .protocol-level-label{font-size:12px;color:rgba(0,212,255,0.5);font-family:'JetBrains Mono',monospace;letter-spacing:1px}
+        .protocol-level-value{font-size:14px;color:#00d4ff;font-family:'Rajdhani',sans-serif;font-weight:700}
+        .protocol-level-bar{height:4px;background:rgba(255,255,255,0.04);border-radius:2px;overflow:hidden}
+        .protocol-level-fill{height:100%;width:92%;background:linear-gradient(90deg,#00d4ff,#00ff88);border-radius:2px;box-shadow:0 0 8px rgba(0,212,255,0.3)}
 
-        .contact-icon {
-            width: 40px;
-            height: 40px;
-            background: rgba(108, 92, 231, 0.15);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
+        /* 协议终端风格装饰 */
+        .terminal-header{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(0,212,255,0.3);margin-bottom:12px;letter-spacing:1px}
+        .terminal-header::before{content:'> '}
 
-        .contact-info {
-            flex: 1;
-        }
+        /* 协议状态指示灯 */
+        .status-indicators{display:flex;gap:12px;justify-content:center;margin-top:16px}
+        .status-ind{display:flex;align-items:center;gap:4px;font-size:11px;color:rgba(0,212,255,0.4);font-family:'JetBrains Mono',monospace}
+        .status-ind-dot{width:6px;height:6px;border-radius:50%}
+        .status-ind-dot.green{background:#00ff88;box-shadow:0 0 6px rgba(0,255,136,0.5)}
+        .status-ind-dot.blue{background:#00d4ff;box-shadow:0 0 6px rgba(0,212,255,0.5)}
+        .status-ind-dot.yellow{background:#ffaa00;box-shadow:0 0 6px rgba(255,170,0,0.5)}
 
-        .contact-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 2px;
-        }
+        @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
-        .contact-value {
-            font-size: 14px;
-            color: var(--text-primary);
-        }
-
-        .contact-arrow {
-            color: var(--text-secondary);
-            font-size: 18px;
-            transition: transform 0.3s ease;
-        }
-
-        .contact-item:hover .contact-arrow {
-            transform: translateX(4px);
-            color: var(--accent);
-        }
-
-        /* 页脚 */
-        .profile-footer {
-            text-align: center;
-            padding: 40px 0;
-            color: var(--text-secondary);
-            font-size: 12px;
-        }
-
-        .profile-footer a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .profile-container {
-                padding: 20px 16px;
-            }
-
-            .back-button {
-                top: 16px;
-                left: 16px;
-                padding: 10px 18px;
-                font-size: 13px;
-            }
-
-            .profile-header {
-                padding: 50px 0 30px;
-            }
-
-            .avatar {
-                width: 120px;
-                height: 120px;
-            }
-
-            .profile-name {
-                font-size: 26px;
-            }
-
-            .profile-card {
-                padding: 24px;
-            }
-
-            .skills-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .avatar {
-                width: 100px;
-                height: 100px;
-            }
-
-            .avatar-placeholder {
-                font-size: 45px;
-            }
-
-            .profile-name {
-                font-size: 22px;
-            }
-
-            .profile-tagline {
-                font-size: 14px;
-            }
+        @media(max-width:600px){
+            .stats-row{grid-template-columns:repeat(2,1fr)}
+            .contact-grid{grid-template-columns:1fr}
+            .profile-name{font-size:28px}
+            .profile-container{padding:80px 16px 40px}
         }
     </style>
 </head>
 <body>
-    <!-- 背景粒子 -->
-    <div class="bg-particles" id="particles"></div>
+    <div class="profile-bg"></div>
+    <div class="profile-bg-overlay"></div>
+    <canvas class="snow-canvas" id="snowCanvas"></canvas>
+    <div class="scanline"></div>
 
-    <!-- 返回按钮 -->
-    <button class="back-button" onclick="goBack()">返回主界面</button>
+    <a href="index.html" class="back-btn">⬡ 返回协议终端</a>
 
     <div class="profile-container">
-        <!-- 头部区域 -->
+        <!-- 头部 -->
         <div class="profile-header">
-            <div class="avatar-container">
-                <div class="avatar">
-                    <div class="avatar-placeholder">🎮</div>
-                </div>
-                <div class="online-status"></div>
+            <div class="avatar-frame">
+                <img src="avatar.jpg" alt="LX" class="avatar-img">
+                <div class="avatar-glow"></div>
             </div>
-            <h1 class="profile-name">Gamer_X</h1>
-            <p class="profile-tagline">"在游戏中寻找另一个自己"</p>
-        </div>
+            <h1 class="profile-name">执行者 LX</h1>
+            <p class="profile-tagline">代号: momaek276 · 协议等级: MAX</p>
+            <div class="online-badge"><span class="online-dot"></span>PROTOCOL ACTIVE</div>
 
-        <!-- 个人介绍 -->
-        <div class="profile-card">
-            <h2 class="card-title">关于我</h2>
-            <p class="about-text">
-                嗨！我是一个热爱游戏的玩家，从 FPS 到开放世界，从竞技对战到剧情冒险，几乎所有类型的游戏都有涉猎。
-                游戏对我来说不仅仅是娱乐，更是一种生活方式和艺术表达。在这里记录我的游戏历程和一些有趣的瞬间。
-            </p>
-        </div>
+            <div class="status-indicators">
+                <div class="status-ind"><span class="status-ind-dot green"></span>在线</div>
+                <div class="status-ind"><span class="status-ind-dot blue"></span>协议运行中</div>
+                <div class="status-ind"><span class="status-ind-dot yellow"></span>Steam 已连接</div>
+            </div>
 
-        <!-- 技能展示 -->
-        <div class="profile-card">
-            <h2 class="card-title">游戏技能</h2>
-            <div class="skills-grid">
-                <div class="skill-item">
-                    <div class="skill-header">
-                        <span class="skill-name">🎯 射击瞄准</span>
-                        <span class="skill-percent">92%</span>
-                    </div>
-                    <div class="skill-bar">
-                        <div class="skill-fill" style="width: 92%"></div>
-                    </div>
+            <div class="protocol-level">
+                <div class="protocol-level-header">
+                    <span class="protocol-level-label">协议执行等级</span>
+                    <span class="protocol-level-value">Lv.42 · MAX</span>
                 </div>
-                <div class="skill-item">
-                    <div class="skill-header">
-                        <span class="skill-name">🗺️ 地图意识</span>
-                        <span class="skill-percent">88%</span>
-                    </div>
-                    <div class="skill-bar">
-                        <div class="skill-fill" style="width: 88%"></div>
-                    </div>
-                </div>
-                <div class="skill-item">
-                    <div class="skill-header">
-                        <span class="skill-name">🤝 团队协作</span>
-                        <span class="skill-percent">85%</span>
-                    </div>
-                    <div class="skill-bar">
-                        <div class="skill-fill" style="width: 85%"></div>
-                    </div>
-                </div>
-                <div class="skill-item">
-                    <div class="skill-header">
-                        <span class="skill-name">⚡ 反应速度</span>
-                        <span class="skill-percent">90%</span>
-                    </div>
-                    <div class="skill-bar">
-                        <div class="skill-fill" style="width: 90%"></div>
-                    </div>
-                </div>
-                <div class="skill-item">
-                    <div class="skill-header">
-                        <span class="skill-name">🧩 解谜能力</span>
-                        <span class="skill-percent">78%</span>
-                    </div>
-                    <div class="skill-bar">
-                        <div class="skill-fill" style="width: 78%"></div>
-                    </div>
-                </div>
-                <div class="skill-item">
-                    <div class="skill-header">
-                        <span class="skill-name">🎮 游戏理解</span>
-                        <span class="skill-percent">95%</span>
-                    </div>
-                    <div class="skill-bar">
-                        <div class="skill-fill" style="width: 95%"></div>
-                    </div>
-                </div>
+                <div class="protocol-level-bar"><div class="protocol-level-fill"></div></div>
             </div>
         </div>
 
-        <!-- 联系方式 -->
+        <!-- 执行者数据 -->
         <div class="profile-card">
-            <h2 class="card-title">联系方式</h2>
-            <div class="contact-list">
-                <a class="contact-item" href="mailto:gamer@example.com">
-                    <div class="contact-icon">📧</div>
-                    <div class="contact-info">
-                        <div class="contact-label">电子邮箱</div>
-                        <div class="contact-value">gamer@example.com</div>
-                    </div>
-                    <span class="contact-arrow">→</span>
-                </a>
-                <a class="contact-item" href="https://github.com" target="_blank">
-                    <div class="contact-icon">🐙</div>
-                    <div class="contact-info">
-                        <div class="contact-label">GitHub</div>
-                        <div class="contact-value">github.com/gamer-x</div>
-                    </div>
-                    <span class="contact-arrow">→</span>
-                </a>
-                <a class="contact-item" href="https://steamcommunity.com" target="_blank">
-                    <div class="contact-icon">🎮</div>
-                    <div class="contact-info">
-                        <div class="contact-label">Steam</div>
-                        <div class="contact-value">steamcommunity.com/id/gamer-x</div>
-                    </div>
-                    <span class="contact-arrow">→</span>
-                </a>
-                <a class="contact-item" href="https://discord.com" target="_blank">
-                    <div class="contact-icon">💬</div>
-                    <div class="contact-info">
-                        <div class="contact-label">Discord</div>
-                        <div class="contact-value">Gamer_X#0001</div>
-                    </div>
-                    <span class="contact-arrow">→</span>
-                </a>
+            <h2 class="card-title">📊 执行者数据 // OPERATIVE STATS</h2>
+            <div class="terminal-header">读取执行者核心数据...</div>
+            <div class="stats-row">
+                <div class="stat-box"><div class="stat-number">20</div><div class="stat-label">任务数</div></div>
+                <div class="stat-box"><div class="stat-number">607</div><div class="stat-label">执行时长</div></div>
+                <div class="stat-box"><div class="stat-number">177</div><div class="stat-label">节点解锁</div></div>
+                <div class="stat-box"><div class="stat-number">3</div><div class="stat-label">完全渗透</div></div>
             </div>
         </div>
 
-        <!-- 页脚 -->
-        <div class="profile-footer">
-            <p>🎮 Gaming Hub · Personal Profile · 2026</p>
-            <p style="margin-top: 8px; opacity: 0.5;">这是一个隐藏页面，只有你知道 ✨</p>
+        <!-- 协议执行能力评估 -->
+        <div class="profile-card">
+            <h2 class="card-title">🎯 协议执行能力评估 // SKILL ASSESSMENT</h2>
+            <div class="terminal-header">加载能力评估矩阵...</div>
+            <div class="skill-item"><div class="skill-header"><span class="skill-name">🔫 射击瞄准</span><span class="skill-percent">92%</span></div><div class="skill-bar"><div class="skill-fill" data-width="92"></div></div></div>
+            <div class="skill-item"><div class="skill-header"><span class="skill-name">🗺️ 地图意识</span><span class="skill-percent">88%</span></div><div class="skill-bar"><div class="skill-fill" data-width="88"></div></div></div>
+            <div class="skill-item"><div class="skill-header"><span class="skill-name">🤝 团队协作</span><span class="skill-percent">85%</span></div><div class="skill-bar"><div class="skill-fill" data-width="85"></div></div></div>
+            <div class="skill-item"><div class="skill-header"><span class="skill-name">⚡ 反应速度</span><span class="skill-percent">90%</span></div><div class="skill-bar"><div class="skill-fill" data-width="90"></div></div></div>
+            <div class="skill-item"><div class="skill-header"><span class="skill-name">🧩 解谜能力</span><span class="skill-percent">78%</span></div><div class="skill-bar"><div class="skill-fill" data-width="78"></div></div></div>
+            <div class="skill-item"><div class="skill-header"><span class="skill-name">🎮 游戏理解</span><span class="skill-percent">95%</span></div><div class="skill-bar"><div class="skill-fill" data-width="95"></div></div></div>
         </div>
+
+        <!-- 高频任务 -->
+        <div class="profile-card">
+            <h2 class="card-title">🔥 高频执行任务 // TOP MISSIONS</h2>
+            <div class="terminal-header">同步最近任务记录...</div>
+            <div class="recent-list">
+                <div class="recent-item"><img class="recent-cover" src="https://cdn.akamai.steamstatic.com/steam/apps/271590/header.jpg" alt=""><span class="recent-name">Grand Theft Auto V</span><span class="recent-time">186.7h · 完全渗透</span></div>
+                <div class="recent-item"><img class="recent-cover" src="https://cdn.akamai.steamstatic.com/steam/apps/730/header.jpg" alt=""><span class="recent-name">Counter-Strike 2</span><span class="recent-time">303.4h · 完全渗透</span></div>
+                <div class="recent-item"><img class="recent-cover" src="https://cdn.akamai.steamstatic.com/steam/apps/431960/header.jpg" alt=""><span class="recent-name">Wallpaper Engine</span><span class="recent-time">41.9h · 完全渗透</span></div>
+                <div class="recent-item"><img class="recent-cover" src="https://cdn.akamai.steamstatic.com/steam/apps/570/header.jpg" alt=""><span class="recent-name">Dota 2</span><span class="recent-time">18.6h · 执行中</span></div>
+                <div class="recent-item"><img class="recent-cover" src="https://cdn.akamai.steamstatic.com/steam/apps/381210/header.jpg" alt=""><span class="recent-name">Dead by Daylight</span><span class="recent-time">12.4h · 执行中</span></div>
+                <div class="recent-item"><img class="recent-cover" src="https://cdn.akamai.steamstatic.com/steam/apps/105600/header.jpg" alt=""><span class="recent-name">Terraria</span><span class="recent-time">7.8h · 执行中</span></div>
+                <div class="recent-item"><img class="recent-cover" src="https://cdn.akamai.steamstatic.com/steam/apps/1245620/header.jpg" alt=""><span class="recent-name">Elden Ring</span><span class="recent-time">5.2h · 执行中</span></div>
+                <div class="recent-item"><img class="recent-cover" src="https://cdn.akamai.steamstatic.com/steam/apps/359550/header.jpg" alt=""><span class="recent-name">Rainbow Six Siege</span><span class="recent-time">3.0h · 执行中</span></div>
+            </div>
+        </div>
+
+        <!-- 协议执行日志 -->
+        <div class="profile-card">
+            <h2 class="card-title">⏳ 协议执行日志 // PROTOCOL LOG</h2>
+            <div class="terminal-header">读取执行日志时间线...</div>
+            <div class="mini-timeline">
+                <div class="mini-tl-item"><div class="mini-tl-date">2015</div><div class="mini-tl-text">⬡ 协议初始化 · 接入 Steam 终端</div></div>
+                <div class="mini-tl-item"><div class="mini-tl-date">2018</div><div class="mini-tl-text">🎯 GTA V 渗透深度突破 100 小时</div></div>
+                <div class="mini-tl-item"><div class="mini-tl-date">2020</div><div class="mini-tl-text">🏆 首次完全渗透: GTA V 77/77 节点</div></div>
+                <div class="mini-tl-item"><div class="mini-tl-date">2024</div><div class="mini-tl-text">⚔️ CS:GO → CS2 协议升级</div></div>
+                <div class="mini-tl-item"><div class="mini-tl-date">2026</div><div class="mini-tl-text">🚀 零度协议终端部署完成</div></div>
+            </div>
+        </div>
+
+        <!-- 通讯频道 -->
+        <div class="profile-card">
+            <h2 class="card-title">📡 通讯频道 // CHANNELS</h2>
+            <div class="terminal-header">扫描可用通讯频道...</div>
+            <div class="contact-grid">
+                <a class="contact-item" href="https://steamcommunity.com/id/momaek276" target="_blank"><div class="contact-icon">🎮</div><div><div class="contact-label">Steam</div><div class="contact-value">momaek276</div></div></a>
+                <a class="contact-item" href="https://store.steampowered.com/" target="_blank"><div class="contact-icon">🛒</div><div><div class="contact-label">Steam 终端</div><div class="contact-value">商店入口</div></div></a>
+                <a class="contact-item" href="index.html"><div class="contact-icon">⬡</div><div><div class="contact-label">协议终端</div><div class="contact-value">返回主页</div></div></a>
+                <a class="contact-item" href="#"><div class="contact-icon">📧</div><div><div class="contact-label">加密通讯</div><div class="contact-value">momaek276</div></div></a>
+            </div>
+        </div>
+
+        <div class="profile-quote">协议永不休眠 · 执行者从未离线 · 零度协议 v2.0</div>
     </div>
 
     <script>
-        // 返回主界面
-        function goBack() {
-            window.location.href = 'index.html';
-        }
-
-        // 生成背景粒子
-        function createParticles() {
-            const container = document.getElementById('particles');
-            const particleCount = 30;
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
-                particle.style.animationDelay = (Math.random() * 10) + 's';
-                particle.style.width = (Math.random() * 3 + 1) + 'px';
-                particle.style.height = particle.style.width;
-                container.appendChild(particle);
-            }
-        }
-
-        // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            createParticles();
-        });
+        // 飘雪
+        (function(){
+            var cv=document.getElementById('snowCanvas');if(!cv)return;var ctx=cv.getContext('2d');var dpr=window.devicePixelRatio||1;var flakes=[];var cnt=50;
+            function resize(){cv.width=window.innerWidth*dpr;cv.height=window.innerHeight*dpr;ctx.scale(dpr,dpr)}
+            resize();window.addEventListener('resize',resize);
+            for(var i=0;i<cnt;i++)flakes.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,r:Math.random()*2.5+0.5,speed:Math.random()*0.8+0.3,wind:Math.random()*0.4-0.2,op:Math.random()*0.4+0.1});
+            function draw(){ctx.clearRect(0,0,cv.width/dpr,cv.height/dpr);flakes.forEach(function(f){ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,Math.PI*2);ctx.fillStyle='rgba(0,212,255,'+f.op+')';ctx.fill();f.y+=f.speed;f.x+=f.wind+Math.sin(f.y*0.008)*0.3;if(f.y>cv.height/dpr+10){f.y=-10;f.x=Math.random()*window.innerWidth}});requestAnimationFrame(draw)}
+            draw();
+        })();
+        // 技能条动画
+        window.addEventListener('load',function(){setTimeout(function(){document.querySelectorAll('.skill-fill').forEach(function(f){var w=f.dataset.width;if(w)f.style.width=w+'%'});},300)});
     </script>
 </body>
 </html>

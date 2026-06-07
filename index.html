@@ -3,14 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Gaming Hub</title>
+    <title>零度协议 // PROTOCOL ZERO</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#050510">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
-    <div class="page-loader" id="pageLoader">
-        <div class="loader-spinner"></div>
-        <div class="loader-text">🎮 Gaming Hub</div>
+    <!-- 协议入场遮罩 — 点击解锁音频 -->
+    <div class="protocol-entry" id="protocolEntry" style="background:#050510;z-index:99999;position:fixed;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+        <div class="entry-bg-grid"></div>
+        <div class="entry-scanline"></div>
+        <div class="entry-content">
+            <div class="entry-logo">⬡</div>
+            <div class="entry-title" id="entryTitle"></div>
+            <div class="entry-subtitle">PROTOCOL ZERO v2.0</div>
+            <div class="entry-status">
+                <span class="entry-status-line" id="entryStatus1">// 正在建立安全连接...</span>
+                <span class="entry-status-line" id="entryStatus2">// 正在验证执行者身份...</span>
+                <span class="entry-status-line" id="entryStatus3">// 正在加载任务数据库...</span>
+                <span class="entry-status-line" id="entryStatus4">// 协议就绪</span>
+            </div>
+            <div class="entry-btn" id="entryBtn">
+                <span class="entry-btn-text">[ 点击进入协议 ]</span>
+                <span class="entry-btn-sub">INITIALIZE PROTOCOL</span>
+            </div>
+            <div class="entry-footer">零度协议 // PROTOCOL ZERO · 执行者 LX · 2026</div>
+        </div>
+    </div>
+    <audio id="bgmAudio" loop preload="auto">
+        <source src="bgm.mp3" type="audio/mpeg">
+    </audio>
+    <a href="#home" class="skip-to-content">跳转到协议主终端</a>
+    <div class="scroll-progress-bar" id="scrollProgressBar"></div>
+<div class="loader-bar"><div class="loader-bar-fill"></div></div>
+        <div class="loader-text">INITIALIZING PROTOCOL ZERO...</div>
     </div>
     <video class="bg-video" autoplay muted loop playsinline>
         <source src="wallpaper.mp4" type="video/mp4">
@@ -19,23 +47,49 @@
     <canvas class="global-particles" id="globalParticles"></canvas>
     <canvas class="mouse-trail" id="mouseTrail"></canvas>
     <div class="bg-grid"></div>
+    <div class="protocol-scanline"></div>
+    <div class="binary-rain" id="binaryRain"></div>
     <div class="bg-glow bg-glow-1"></div>
     <div class="bg-glow bg-glow-2"></div>
     <div class="bg-glow bg-glow-3"></div>
 
     <nav class="navbar">
         <div class="nav-brand">
-            <span class="logo-icon">🎮</span>
-            <span class="logo-text">Gaming Hub</span>
+            <span class="logo-icon">⬡</span>
+            <span class="logo-text">PROTOCOL ZERO</span>
         </div>
-        <div class="nav-links">
+        <div class="hamburger" id="hamburger" onclick="toggleHamburger()"><span></span><span></span><span></span></div>
+        <div class="nav-links" id="navLinks">
             <a href="#home" class="active">首页</a>
-            <a href="#games">游戏库</a>
-            <a href="#friends">好友相册</a>
-            <a href="#tools">工具箱</a>
-            <a href="#stats">数据统计</a>
+            <a href="#games">武器库</a>
+            <a href="#friends">通讯录</a>
+            <a href="#tools">协议工具</a>
+            <a href="#stats">执行报告</a>
         </div>
         <div class="nav-right">
+            <a href="#tools" class="cpu-indicator" id="cpuIndicator" title="系统监控">
+                <span class="cpu-dot" id="cpuDot"></span>
+                <span class="cpu-text" id="cpuText">CPU</span>
+            </a>
+            <div class="bgm-player" id="bgmPlayer">
+                <button class="bgm-btn" id="bgmPlayBtn" onclick="toggleBGM()" title="播放/暂停">▶️</button>
+                <div class="bgm-visualizer" id="bgmVisualizer"><div class="bgm-bar" style="height:4px"></div><div class="bgm-bar" style="height:8px"></div><div class="bgm-bar" style="height:6px"></div><div class="bgm-bar" style="height:10px"></div></div>
+                <span class="bgm-info" id="bgmInfo">BGM</span>
+                <input type="range" class="bgm-volume" id="bgmVolume" min="0" max="100" value="30" oninput="setBGMVolume(this.value)">
+            </div>
+            <div class="theme-switcher">
+                <button class="theme-colors-btn" onclick="toggleThemeColors()" title="主题颜色">🎨</button>
+                <div class="theme-colors-popup" id="themeColorsPopup">
+                    <div class="color-dot active" style="background:#00d4ff" onclick="setThemeColor(&#39;#00d4ff&#39;)"></div>
+                    <div class="color-dot" style="background:#e17055" onclick="setThemeColor(&#39;#e17055&#39;)"></div>
+                    <div class="color-dot" style="background:#ffc312" onclick="setThemeColor(&#39;#ffc312&#39;)"></div>
+                    <div class="color-dot" style="background:#00cec9" onclick="setThemeColor(&#39;#00cec9&#39;)"></div>
+                    <div class="color-dot" style="background:#fd79a8" onclick="setThemeColor(&#39;#fd79a8&#39;)"></div>
+                    <div class="color-dot" style="background:#00b894" onclick="setThemeColor(&#39;#00b894&#39;)"></div>
+                    <div class="color-dot" style="background:#0984e3" onclick="setThemeColor(&#39;#0984e3&#39;)"></div>
+                    <div class="color-dot" style="background:#e84393" onclick="setThemeColor(&#39;#e84393&#39;)"></div>
+                </div>
+            </div>
             <div class="nav-clock" id="navClock">00:00</div>
             <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()" title="语音朗读">
                 <span id="voiceIcon">🔊</span>
@@ -66,7 +120,7 @@
                     <span class="hero-clock-time" id="heroClockTime">00:00:00</span>
                 </div>
                 <div class="hero-clock-date" id="heroClockDate">加载中...</div>
-                <div class="hero-clock-tip" id="heroClockTip">🎮 欢迎回来！</div>
+                <div class="hero-clock-tip" id="heroClockTip">⬡ 协议状态: 运行中 · 已执行 607 小时</div>
             </div>
             <div class="profile-section">
                 <div class="avatar-wrapper">
@@ -79,37 +133,37 @@
                 </div>
                 <div class="profile-info">
                     <h2 class="profile-name">LX (momaek276)</h2>
-                    <p class="profile-bio">🎮 Steam 玩家 · 30款游戏 · 3款完美通关</p>
+                    <p class="profile-bio">⬡ 执行者 LX · 30 个任务 · 3 个完全渗透</p>
                     <div class="profile-tags">
-                        <span class="profile-tag">🏆 成就猎人</span>
-                        <span class="profile-tag">🎯 竞技玩家</span>
-                        <span class="profile-tag">🌍 开放世界爱好者</span>
+                        <span class="profile-tag">⬡ 节点猎手</span>
+                        <span class="profile-tag">⬡ 战术执行者</span>
+                        <span class="profile-tag">⬡ 自由探索者</span>
                     </div>
                 </div>
             </div>
-            <p class="hero-subtitle">欢迎来到</p>
-            <h1 class="hero-title">我的<span class="gradient-text">游戏世界</span></h1>
-            <p class="hero-desc">Steam 游戏库个人主页 · 追踪你的游戏旅程</p>
+            <p class="hero-subtitle">PROTOCOL ZERO — 初始化完成</p>
+            <h1 class="hero-title"><span class="gradient-text" data-text="零度协议">零度协议</span></h1>
+            <p class="hero-desc">20 个任务节点 · 607 小时执行 · 177 个已解锁 · 协议运行中</p>
             <div class="hero-stats">
                 <div class="stat-item">
                     <span class="stat-number" id="gameCount">0</span>
-                    <span class="stat-label">款游戏</span>
+                    <span class="stat-label">执行次数</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-number" id="totalHours">0</span>
-                    <span class="stat-label">总游玩小时</span>
+                    <span class="stat-label">累计时长</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-number" id="achievementCount">0</span>
-                    <span class="stat-label">成就解锁</span>
+                    <span class="stat-label">解锁节点</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-number">Steam</span>
-                    <span class="stat-label">平台</span>
+                    <span class="stat-label">协议版本</span>
                 </div>
             </div>
             <a href="#games" class="hero-btn">
-                浏览游戏库
+                进入武器库
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
         </div>
@@ -117,7 +171,7 @@
             <div class="featured-card">
                 <img src="https://cdn.akamai.steamstatic.com/steam/apps/271590/header.jpg" alt="GTA V" loading="lazy">
                 <div class="featured-overlay">
-                    <span class="featured-badge">⭐ 最近在玩</span>
+                    <span class="featured-badge">⚡ 当前执行</span>
                     <h3>Grand Theft Auto V</h3>
                 </div>
             </div>
@@ -126,21 +180,21 @@
                     <span class="qs-icon">🔥</span>
                     <div class="qs-info">
                         <span class="qs-value">15</span>
-                        <span class="qs-label">天连续登录</span>
+                        <span class="qs-label">天持续在线</span>
                     </div>
                 </div>
                 <div class="quick-stat">
                     <span class="qs-icon">🎮</span>
                     <div class="qs-info">
                         <span class="qs-value" id="qsPlaying">3</span>
-                        <span class="qs-label">款正在玩</span>
+                        <span class="qs-label">个进行中</span>
                     </div>
                 </div>
                 <div class="quick-stat">
                     <span class="qs-icon">🏅</span>
                     <div class="qs-info">
                         <span class="qs-value">Lv.42</span>
-                        <span class="qs-label">Steam 等级</span>
+                        <span class="qs-label">协议等级</span>
                     </div>
                 </div>
             </div>
@@ -149,13 +203,13 @@
 
     <section id="games" class="games-section">
         <div class="section-header reveal">
-            <h2>游戏库</h2>
-            <p>我的 Steam 游戏收藏</p>
+            <h2>武器库</h2>
+            <p>全部任务节点 · 点击查看详情</p>
         </div>
         <div class="games-toolbar">
             <div class="search-box">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                <input type="text" placeholder="搜索游戏..." oninput="handleSearch(event)" class="search-input">
+                <input type="text" placeholder="> 搜索任务节点..." oninput="handleSearch(event)" class="search-input">
             </div>
             <div class="sort-box">
                 <span class="sort-label">排序：</span>
@@ -171,8 +225,8 @@
     <!-- 好友相册模块 -->
     <section id="friends" class="friends-section">
         <div class="section-header reveal">
-            <h2>好友相册</h2>
-            <p>游戏之外，和朋友们的故事</p>
+            <h2>通讯录</h2>
+            <p>协议执行者的通讯频道</p>
         </div>
         <div class="friends-grid" id="friendsGrid"></div>
     </section>
@@ -192,8 +246,8 @@
 
     <section id="tools" class="tools-section">
         <div class="section-header reveal">
-            <h2>实用工具箱</h2>
-            <p>游戏玩家的日常助手</p>
+            <h2>协议工具 // TOOLS</h2>
+            <p>执行者的战术装备</p>
         </div>
         <div class="tools-grid">
             <!-- Pomodoro Timer -->
@@ -481,44 +535,133 @@
         </div>
     </section>
 
+
+    <section id="about" class="about-section">
+        <div class="section-header reveal"><h2>协议说明 // ABOUT</h2></div>
+        <div class="about-card reveal">
+            <h3>执行者 LX · 协议代号 ZERO</h3>
+            <p>协议执行者，专注 FPS 与开放世界任务。<br>此站点为零度协议的执行终端，用于记录所有任务数据与执行日志。<br>GTA V 渗透深度 200 小时 · CS2 每日战术执行 · 协议永不休眠。</p>
+            <div class="about-tags"><span class="about-tag">⬡ 协议核心成员</span><span class="about-tag">⬡ 终端维护者</span><span class="about-tag">⬡ 战术执行专家</span><span class="about-tag">⬡ 自由探索协议</span></div>
+        </div>
+    </section>
+
+    <section id="achievements" class="achievements-section">
+        <div class="section-header reveal"><h2>节点解锁 // NODES UNLOCKED</h2><p>每一个节点都是完全渗透的证明</p></div>
+        <div class="achievement-grid" id="achievementGrid"></div>
+    </section>
+
+    <section id="dataviz" class="viz-section">
+        <div class="section-header reveal"><h2>执行数据 // ANALYTICS</h2><p>协议运行数据一览</p></div>
+        <div class="viz-grid">
+            <div class="viz-card reveal"><h3>🎮 时长分布</h3><canvas class="playtime-chart-canvas" id="playtimeChart"></canvas><div class="playtime-chart-legend" id="playtimeLegend"></div></div>
+            <div class="viz-card reveal"><h3>📈 类型分布</h3><canvas class="genre-chart-canvas" id="genreChart"></canvas></div>
+            <div class="viz-card reveal"><h3>📅 年度活跃度</h3><div class="heatmap-container"><div class="heatmap-grid" id="heatmapGrid"></div></div><div class="heatmap-legend"><span>少</span><div class="heatmap-legend-cell" style="background:rgba(255,255,255,0.06)"></div><div class="heatmap-legend-cell" style="background:rgba(108,92,231,0.3)"></div><div class="heatmap-legend-cell" style="background:rgba(108,92,231,0.6)"></div><div class="heatmap-legend-cell" style="background:rgba(108,92,231,0.85)"></div><span>多</span></div></div>
+            <div class="viz-card reveal"><h3>📈 月度趋势</h3><canvas class="trend-chart-canvas" id="trendChart"></canvas></div>
+        </div>
+    </section>
+
+    <section id="tierlist" class="tierlist-section">
+        <div class="section-header reveal"><h2>🏅 Tier List</h2><p>直接拖，别客气</p></div>
+        <div class="tierlist-container" id="tierlistContainer"></div>
+    </section>
+
+    <section id="timeline" class="timeline-section">
+        <div class="section-header reveal"><h2>⏳ 游戏旅程</h2><p>从入坑到现在</p></div>
+        <div class="timeline" id="timelineContainer"></div>
+    </section>
+
+    <section id="guestbook" class="guestbook-section">
+        <div class="section-header reveal"><h2>💬 留言板</h2><p>随便说点什么都行</p></div>
+        <div class="guestbook-form">
+            <input class="guestbook-input" id="gbNickname" placeholder="你的昵称" maxlength="20">
+            <textarea class="guestbook-textarea" id="gbMessage" placeholder="随便聊两句..." maxlength="500"></textarea>
+            <button class="guestbook-submit" onclick="submitGuestbook()">发表留言</button>
+        </div>
+        <div class="guestbook-list" id="guestbookList"></div>
+    </section>
     <!-- Stats Section -->
     <section id="stats" class="stats-section">
         <div class="section-header reveal">
-            <h2>游戏数据</h2>
-            <p>一览我的游戏习惯</p>
+            <h2>执行报告 // REPORT</h2>
+            <p>协议执行者的行为分析</p>
         </div>
         <div class="stats-grid">
             <div class="stats-card reveal">
                 <div class="stats-card-icon">🎯</div>
-                <h3>最爱类型</h3>
+                <h3>高频任务类型</h3>
                 <p class="stats-card-value">射击 / 动作</p>
-                <p class="stats-card-desc">FPS 和动作冒险游戏是我的最爱，射击游戏占比最高</p>
+                <p class="stats-card-desc">射击与动作冒险任务执行频率最高，FPS 占主导地位</p>
             </div>
             <div class="stats-card reveal">
                 <div class="stats-card-icon">🏆</div>
-                <h3>最长游玩</h3>
+                <h3>最长执行任务</h3>
                 <p class="stats-card-value">GTA V (186.7h)</p>
-                <p class="stats-card-desc">77/77 成就 · 完美通关 · 开放世界永远玩不腻</p>
+                <p class="stats-card-desc">77/77 节点 · 完全渗透 · 开放世界协议无终止</p>
             </div>
             <div class="stats-card reveal">
                 <div class="stats-card-icon">✨</div>
-                <h3>完美通关</h3>
-                <p class="stats-card-value">3 款游戏</p>
+                <h3>完全渗透</h3>
+                <p class="stats-card-value">3 个任务</p>
                 <p class="stats-card-desc">GTA V · CS2 · Wallpaper Engine</p>
             </div>
             <div class="stats-card reveal">
                 <div class="stats-card-icon">⏱️</div>
                 <h3>总游戏时长</h3>
                 <p class="stats-card-value" id="statsTotalHours">计算中...</p>
-                <p class="stats-card-desc">累计在线时长，每天都在游戏中</p>
+                <p class="stats-card-desc">协议持续运行中，执行者从未离线</p>
             </div>
         </div>
     </section>
 
+
+    <div class="game-modal-overlay" id="gameModalOverlay" onclick="closeGameModal(event)">
+        <div class="game-modal" id="gameModal">
+            <button class="game-modal-close" onclick="closeGameModal()">✕</button>
+            <img class="game-modal-cover" id="modalCover" src="" alt="">
+            <div class="game-modal-body">
+                <h2 class="game-modal-title" id="modalTitle"></h2>
+                <div class="game-modal-tags" id="modalTags"></div>
+                <p class="game-modal-desc" id="modalDesc"></p>
+                <div class="game-modal-stats" id="modalStats"></div>
+                <div class="game-modal-ach-bar" id="modalAchBar" style="display:none"><div class="game-modal-ach-fill" id="modalAchFill"></div></div>
+                <div id="modalAchText" style="font-size:12px;color:rgba(255,255,255,0.5)"></div>
+                <a class="game-modal-link" id="modalSteamLink" href="#" target="_blank">⬡ 在 Steam 终端查看</a>
+                <div class="game-modal-notes">
+                    <h4>📋 任务备注</h4>
+                    <textarea id="modalNotes" placeholder="写下感想..."></textarea>
+                    <div class="game-modal-rating"><label>评分：</label><div class="rating-stars" id="modalRatingStars"></div><span id="modalRatingValue" style="font-size:13px;color:rgba(255,255,255,0.5)">-</span></div>
+                    <button class="guestbook-submit" style="margin-top:8px;padding:8px 20px;font-size:12px" onclick="saveGameNotes()">保存笔记</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="cmd-palette-overlay" id="cmdPaletteOverlay" onclick="closeCmdPalette(event)">
+        <div class="cmd-palette">
+            <input class="cmd-palette-input" id="cmdInput" placeholder="> 输入协议命令..." oninput="filterCmds(this.value)">
+            <div class="cmd-palette-list" id="cmdList"></div>
+        </div>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
+    <div class="fab-container">
+        <div class="fab-actions" id="fabActions">
+            <button class="fab-action" onclick="scrollToTop()" title="返回协议顶层">⬆️</button>
+            <button class="fab-action" onclick="toggleTheme()" title="主题">🌙</button>
+            <button class="fab-action" onclick="toggleBGM()" title="音乐">🎵</button>
+            <button class="fab-action" onclick="randomGame()" title="随机游戏">🎲</button>
+            <button class="fab-action" onclick="openCmdPalette()" title="命令面板">⌨️</button>
+        </div>
+        <button class="fab-main" id="fabMain" onclick="toggleFab()">⚡</button>
+    </div>
     <footer class="footer">
-        <p>🎮 Gaming Hub · Powered by Steam · 2026</p>
+        <div class="footer-content"><div class="footer-links"><a href="https://store.steampowered.com/" target="_blank">Steam 商店</a><a href="https://steamcommunity.com/id/momaek276" target="_blank">我的 Steam</a><a href="#home">回到顶部</a></div><p>零度协议 // PROTOCOL ZERO · v2.0 · 2026</p></div>
     </footer>
 
     <script src="script.js"></script>
 </body>
 </html>
+
+
+
+
+
+

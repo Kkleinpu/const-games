@@ -1,0 +1,17 @@
+﻿{
+    "description":  "个人 Steam 游戏主页",
+    "short_name":  "Gaming Hub",
+    "icons":  [
+                  {
+                      "type":  "image/svg+xml",
+                      "sizes":  "any",
+                      "src":  "data:image/svg+xml,\u003csvg xmlns=\u0027http://www.w3.org/2000/svg\u0027 viewBox=\u00270 0 100 100\u0027\u003e\u003ctext y=\u0027.9em\u0027 font-size=\u002790\u0027\u003e🎮\u003c/text\u003e\u003c/svg\u003e"
+                  }
+              ],
+    "theme_color":  "#6c5ce7",
+    "display":  "standalone",
+    "name":  "LX Gaming Hub",
+    "background_color":  "#1a1a2e",
+    "start_url":  "/",
+    "orientation":  "any"
+}
