@@ -1,0 +1,522 @@
+﻿/* ============================================
+   PROTOCOL ZERO — 完整移动端适配
+   320px / 480px / 768px 三档断点
+   ============================================ */
+
+/* ====== 768px 以下（平板/大手机） ====== */
+@media (max-width: 768px) {
+
+    /* --- 全局 --- */
+    body {
+        overflow-x: hidden;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    /* --- 入场遮罩 --- */
+    .entry-content {
+        padding: 20px 16px;
+    }
+    .entry-logo {
+        font-size: 40px;
+    }
+    .entry-title {
+        font-size: 24px !important;
+    }
+    .entry-subtitle {
+        font-size: 12px;
+        letter-spacing: 4px;
+    }
+    .entry-status-line {
+        font-size: 11px;
+    }
+    .entry-btn {
+        padding: 12px 24px;
+    }
+    .entry-btn-text {
+        font-size: 14px;
+    }
+    .entry-btn-sub {
+        font-size: 10px;
+    }
+    .entry-footer {
+        font-size: 10px;
+    }
+
+    /* --- 导航栏 --- */
+    .navbar {
+        padding: 0 12px;
+        height: 56px;
+    }
+    .logo-text {
+        font-size: 14px;
+    }
+    .nav-clock {
+        display: none;
+    }
+    .bgm-player {
+        gap: 4px;
+    }
+    .bgm-volume {
+        width: 36px;
+    }
+    .bgm-info {
+        display: none;
+    }
+    .voice-btn,
+    .theme-toggle-mini {
+        padding: 6px;
+        font-size: 14px;
+    }
+    .cpu-indicator {
+        display: none;
+    }
+
+    /* --- Hero 区域 --- */
+    .hero {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding: 70px 16px 30px;
+        min-height: auto;
+    }
+    .hero-featured {
+        order: -1;
+        max-width: 100%;
+    }
+    .featured-card {
+        max-height: 180px;
+    }
+    .featured-card img {
+        height: 180px;
+    }
+    .hero-title {
+        font-size: 32px !important;
+    }
+    .hero-desc {
+        font-size: 13px !important;
+    }
+    .hero-subtitle {
+        font-size: 12px;
+    }
+    .hero-btn {
+        padding: 12px 24px;
+        font-size: 14px;
+        width: 100%;
+        text-align: center;
+    }
+    .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .stat-item {
+        padding: 12px 8px;
+    }
+    .stat-number {
+        font-size: 18px;
+    }
+    .stat-label {
+        font-size: 11px;
+    }
+
+    /* --- 个人信息 --- */
+    .profile-section {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+        padding: 16px;
+    }
+    .avatar-wrapper {
+        width: 80px;
+        height: 80px;
+    }
+    .avatar-img {
+        width: 80px;
+        height: 80px;
+    }
+    .profile-name {
+        font-size: 1.3rem;
+    }
+    .profile-bio {
+        font-size: 0.85rem;
+    }
+    .profile-tags {
+        justify-content: center;
+        gap: 6px;
+    }
+    .profile-tag {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+
+    /* --- 快速统计面板 --- */
+    .quick-stats-panel {
+        flex-direction: row;
+        gap: 8px;
+    }
+    .quick-stat {
+        padding: 10px;
+        flex: 1;
+    }
+    .qs-value {
+        font-size: 16px;
+    }
+    .qs-label {
+        font-size: 10px;
+    }
+
+    /* --- 搜索/排序栏 --- */
+    .games-toolbar {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .search-box {
+        width: 100%;
+    }
+    .search-input {
+        font-size: 14px;
+    }
+    .sort-box {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    /* --- 游戏网格 --- */
+    .games-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    .game-card-body {
+        padding: 10px;
+    }
+    .game-card-title {
+        font-size: 13px;
+    }
+    .game-card-genre {
+        font-size: 10px;
+    }
+
+    /* --- 工具网格 --- */
+    .tools-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    .tool-card {
+        padding: 16px;
+    }
+
+    /* --- 好友网格 --- */
+    .friends-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    /* --- 统计网格 --- */
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    /* --- 段落标题 --- */
+    .section-header h2 {
+        font-size: 22px;
+    }
+    .section-header p {
+        font-size: 13px;
+    }
+
+    /* --- 留言板 --- */
+    .guestbook-section textarea {
+        font-size: 14px;
+        min-height: 80px;
+    }
+
+    /* --- Tier List --- */
+    .tier-row {
+        flex-direction: column;
+    }
+    .tier-label {
+        width: 100%;
+        border-radius: 8px 8px 0 0;
+        padding: 8px;
+        font-size: 14px;
+    }
+    .tier-games {
+        border-radius: 0 0 8px 8px;
+        min-height: 60px;
+    }
+
+    /* --- 时间线 --- */
+    .timeline::before {
+        left: 16px;
+    }
+    .timeline-item {
+        width: calc(100% - 40px);
+        margin-left: 40px !important;
+        padding: 12px;
+    }
+    .timeline-dot {
+        left: -32px;
+        width: 12px;
+        height: 12px;
+    }
+
+    /* --- 模态框 --- */
+    .game-modal {
+        width: 95%;
+        max-height: 90vh;
+        padding: 16px;
+    }
+    .game-modal-stats {
+        grid-template-columns: 1fr;
+    }
+    .game-modal-header {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    /* --- FAB --- */
+    .fab-main {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+
+    /* --- Toast --- */
+    .toast-container {
+        top: 60px;
+        right: 12px;
+        left: 12px;
+    }
+    .toast {
+        min-width: auto;
+        font-size: 13px;
+    }
+
+    /* --- 命令面板 --- */
+    .cmd-palette {
+        width: 95%;
+        max-height: 80vh;
+    }
+    .cmd-input {
+        font-size: 16px; /* 防止 iOS 缩放 */
+    }
+
+    /* --- 时钟小组件 --- */
+    .hero-clock-widget {
+        display: none;
+    }
+
+    /* --- 数据可视化 --- */
+    .viz-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* --- 成就墙 --- */
+    .achievement-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* --- 进度条 --- */
+    .scroll-progress-bar {
+        height: 3px;
+    }
+
+    /* --- 主题切换弹窗 --- */
+    .theme-colors-popup {
+        right: -20px;
+    }
+}
+
+/* ====== 480px 以下（小手机） ====== */
+@media (max-width: 480px) {
+
+    .hero-title {
+        font-size: 26px !important;
+    }
+    .hero-desc {
+        font-size: 12px !important;
+    }
+    .hero-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    .stat-number {
+        font-size: 16px;
+    }
+
+    .games-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    .game-card-body {
+        padding: 8px;
+    }
+    .game-card-title {
+        font-size: 12px;
+    }
+    .game-card-rating {
+        font-size: 10px;
+    }
+
+    .friends-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-name {
+        font-size: 1.1rem;
+    }
+    .profile-bio {
+        font-size: 0.8rem;
+    }
+
+    .entry-title {
+        font-size: 20px !important;
+    }
+    .entry-subtitle {
+        font-size: 10px;
+        letter-spacing: 2px;
+    }
+
+    .section-header h2 {
+        font-size: 18px;
+    }
+
+    .quick-stats-panel {
+        flex-direction: column;
+    }
+
+    .sort-btn {
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+
+    .nav-right {
+        gap: 4px;
+    }
+    .theme-switcher,
+    .voice-btn {
+        display: none;
+    }
+}
+
+/* ====== 320px 以下（极小屏幕） ====== */
+@media (max-width: 320px) {
+    .hero-title {
+        font-size: 22px !important;
+    }
+    .hero-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+    .games-grid {
+        grid-template-columns: 1fr;
+    }
+    .entry-btn-text {
+        font-size: 12px;
+    }
+}
+
+/* ====== 触摸设备优化 ====== */
+@media (hover: none) and (pointer: coarse) {
+    /* 禁用 hover 效果，改用 active */
+    .game-card:hover,
+    .tool-card:hover,
+    .stats-card:hover,
+    .friend-card:hover,
+    .featured-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    .game-card:active,
+    .tool-card:active,
+    .stats-card:active,
+    .friend-card:active {
+        transform: scale(0.97);
+        transition: transform 0.1s;
+    }
+
+    /* 按钮触摸反馈 */
+    .hero-btn:active,
+    .entry-btn:active,
+    .tool-btn:active,
+    .sort-btn:active,
+    .filter-btn:active {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+
+    /* 增大点击区域 */
+    .nav-links a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+    .filter-btn {
+        min-height: 40px;
+        padding: 8px 14px;
+    }
+    .sort-btn {
+        min-height: 40px;
+    }
+    .hamburger {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    /* 禁用 3D 卡片倾斜 */
+    .game-card, .tool-card, .stats-card, .friend-card, .featured-card {
+        transform-style: flat;
+    }
+}
+
+/* ====== 横屏适配 ====== */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero {
+        min-height: auto;
+        padding: 60px 20px 20px;
+    }
+    .entry-content {
+        padding: 10px 16px;
+    }
+    .entry-logo {
+        font-size: 30px;
+    }
+    .entry-title {
+        font-size: 18px !important;
+    }
+    .entry-status {
+        display: none;
+    }
+}
+
+/* ====== 安全区域适配（刘海屏） ====== */
+@supports (padding: env(safe-area-inset-top)) {
+    .navbar {
+        padding-top: env(safe-area-inset-top);
+        height: calc(56px + env(safe-area-inset-top));
+    }
+    .entry-content {
+        padding-top: calc(20px + env(safe-area-inset-top));
+        padding-bottom: calc(20px + env(safe-area-inset-bottom));
+        padding-left: calc(16px + env(safe-area-inset-left));
+        padding-right: calc(16px + env(safe-area-inset-right));
+    }
+    .hero {
+        padding-top: calc(70px + env(safe-area-inset-top));
+    }
+}
+
+/* ====== 减少动画（性能/电量） ====== */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    .bg-video,
+    .starfield-canvas,
+    .aurora-overlay,
+    .protocol-scanline,
+    .binary-rain {
+        display: none !important;
+    }
+}

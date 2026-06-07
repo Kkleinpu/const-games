@@ -154,12 +154,17 @@
     }
 
     /* === Init === */
+    function isTouchDevice() {
+        return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    }
     function init() {
         initAurora();
         initStarfield();
-        initCardTilt();
+        if (!isTouchDevice()) {
+            initCardTilt();
+            initMagneticButtons();
+        }
         initNavbar3D();
-        initMagneticButtons();
         if (document.readyState === "loading") {
             document.addEventListener("DOMContentLoaded", function() {
                 initScrollReveal3D();
@@ -184,3 +189,4 @@
 
     init();
 })();
+
