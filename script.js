@@ -2002,10 +2002,20 @@ setInterval(function() {
             if (btn) btn.classList.add('show');
         }, 3800);
 
+        // 防重复执行锁
+        var entered = false;
+
         // 点击进入
         function enterProtocol() {
-            // 播放 BGM（这是用户手势，浏览器允许！）
-            unlockBGM();
+            if (entered) return;
+            entered = true;
+
+            try {
+                // 播放 BGM（这是用户手势，浏览器允许！）
+                unlockBGM();
+            } catch(e) {
+                console.log('[PROTOCOL] BGM unlock error:', e);
+            }
 
             // 隐藏遮罩
             overlay.classList.add('hidden');
@@ -2022,19 +2032,21 @@ setInterval(function() {
 
             // 移除遮罩 DOM
             setTimeout(function() {
-                overlay.remove();
+                if (overlay && overlay.parentNode) overlay.remove();
             }, 1000);
 
-            // 移除事件监听
+            // 移除所有事件监听
             overlay.removeEventListener('click', enterProtocol);
             overlay.removeEventListener('touchstart', enterProtocol);
             overlay.removeEventListener('keydown', enterProtocol);
         }
 
-        // 绑定事件
-        overlay.addEventListener('click', enterProtocol);
-        overlay.addEventListener('touchstart', enterProtocol);
-
+        // 绑定事件 - mobile 用 touchstart 避免 click 延迟
+        if ('ontouchstart' in window) {
+            overlay.addEventListener('touchstart', enterProtocol, { passive: true });
+        } else {
+            overlay.addEventListener('click', enterProtocol);
+        }
         // 也允许键盘进入（Enter 或 Space）
         overlay.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -2248,4 +2260,3 @@ function tryAudioContextUnlock(audio) {
         }, 500);
     });
 })();
-
