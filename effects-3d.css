@@ -1,4 +1,4 @@
-﻿/* ============================================
+/* ============================================
    PROTOCOL ZERO — 3D & Advanced Effects
    Fixed: no body perspective, no negative Z
    ============================================ */
@@ -7,7 +7,7 @@
 .starfield-canvas {
     position: fixed;
     inset: 0;
-    z-index: 0;
+    z-index: 2;
     pointer-events: none;
     opacity: 0.5;
 }
@@ -16,7 +16,7 @@
 .aurora-overlay {
     position: fixed;
     inset: 0;
-    z-index: 0;
+    z-index: 2;
     pointer-events: none;
     opacity: 0.12;
     background:
