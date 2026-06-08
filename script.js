@@ -23,12 +23,12 @@ const games = [
 ];
 
 // ==================== API CONFIGURATION ====================
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? '/api' : null;
 let apiGames = null;
 let apiPlaytime = null;
 
 async function fetchFromAPI(endpoint) {
-    if (!window.location.protocol.startsWith("http")) {
+    if (!API_BASE_URL || !window.location.protocol.startsWith("http")) {
         return null;
     }
 
@@ -1962,6 +1962,7 @@ setInterval(function() {
 // ================================================================
 
 // ---------- 协议入场系统 ----------
+var protocolEntry_entered = false;
 (function protocolEntry() {
     // 等待 DOM 加载
     function init() {
@@ -2010,12 +2011,13 @@ setInterval(function() {
             }
         }, 10000);
 
-        // 防重复执行锁
-        var entered = false;
+        // 防重复执行锁（全局，防止重复）
+        var entered = protocolEntry_entered;
 
         // 点击进入
         function enterProtocol() {
-            if (entered) return;
+            if (protocolEntry_entered) return;
+            protocolEntry_entered = true;
             entered = true;
 
             try {
@@ -2069,6 +2071,26 @@ setInterval(function() {
         overlay.focus();
     }
 
+
+// === 全局兜底：12秒后如果还没进入，强制允许点击整个页面进入 ===
+setTimeout(function() {
+    if (!protocolEntry_entered) {
+        var overlay = document.getElementById('protocolEntry');
+        if (overlay) {
+            overlay.style.cursor = 'pointer';
+            // 直接绑定到 body 作为最后手段
+            document.body.addEventListener('click', function bodyClick() {
+                if (window.enterProtocol && !protocolEntry_entered) {
+                    window.enterProtocol();
+                    document.body.removeEventListener('click', bodyClick);
+                }
+            }, { once: false });
+        }
+    }
+}, 12000);
+    // 暴露到全局，确保手机端 inline onclick 能调用
+    window.enterProtocol = enterProtocol;
+    
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {

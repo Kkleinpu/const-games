@@ -4637,3 +4637,14 @@ a, button, .game-card, .tool-card, .fab-main, .nav-links a, .hero-btn,
 
 
 
+
+
+/* 移动端：视频被跳过时显示渐变背景 */
+@media (max-width: 768px) {
+    body {
+        background: linear-gradient(135deg, #0a0a0f 0%, #0d0d1a 30%, #0a0f1f 60%, #0a0a0f 100%) !important;
+    }
+    .bg-video {
+        display: none !important;
+    }
+}
