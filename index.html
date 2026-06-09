@@ -37,6 +37,47 @@
         </div>
     </div>
     <script>
+    // 终极兜底：直接在 DOM 上绑定点击事件
+    (function(){
+        var el = document.getElementById('protocolEntry');
+        if (!el) return;
+        
+        function doEnter() {
+            // 如果已经进入过，跳过
+            if (el.dataset.entered) return;
+            el.dataset.entered = '1';
+            
+            // 隐藏遮罩
+            el.style.transition = 'opacity 0.6s ease';
+            el.style.opacity = '0';
+            el.style.pointerEvents = 'none';
+            
+            // 显示主内容
+            setTimeout(function() {
+                el.style.display = 'none';
+                document.querySelectorAll('section').forEach(function(s) {
+                    s.style.opacity = '1';
+                    s.style.transform = 'none';
+                });
+            }, 600);
+            
+            // 尝试播放BGM
+            try {
+                var audio = document.getElementById('bgmAudio');
+                if (audio) { audio.volume = 0.3; audio.play().catch(function(){}); }
+            } catch(e) {}
+        }
+        
+        // 绑定所有可能的事件
+        el.addEventListener('click', doEnter, true);
+        el.addEventListener('touchend', doEnter, true);
+        el.addEventListener('pointerup', doEnter, true);
+        
+        // 10秒后自动进入
+        setTimeout(doEnter, 10000);
+    })();
+    </script>
+    <script>
     // Auto-enter fallback: 15s
     setTimeout(function(){ if (!window.protocolEntry_entered && window.enterProtocol) window.enterProtocol(); }, 15000);
     </script>
