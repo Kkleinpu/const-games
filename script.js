@@ -1962,7 +1962,6 @@ setInterval(function() {
 // ================================================================
 
 // ---------- 协议入场系统 ----------
-var protocolEntry_entered = false;
 (function protocolEntry() {
     // 等待 DOM 加载
     function init() {
@@ -2011,13 +2010,12 @@ var protocolEntry_entered = false;
             }
         }, 10000);
 
-        // 防重复执行锁（全局，防止重复）
-        var entered = protocolEntry_entered;
+        // 防重复执行锁
+        var entered = false;
 
         // 点击进入
         function enterProtocol() {
-            if (protocolEntry_entered) return;
-            protocolEntry_entered = true;
+            if (entered) return;
             entered = true;
 
             try {
@@ -2069,28 +2067,9 @@ var protocolEntry_entered = false;
         // 确保 overlay 可聚焦
         overlay.setAttribute('tabindex', '0');
         overlay.focus();
+        window.enterProtocol = enterProtocol;
     }
 
-
-// === 全局兜底：12秒后如果还没进入，强制允许点击整个页面进入 ===
-setTimeout(function() {
-    if (!protocolEntry_entered) {
-        var overlay = document.getElementById('protocolEntry');
-        if (overlay) {
-            overlay.style.cursor = 'pointer';
-            // 直接绑定到 body 作为最后手段
-            document.body.addEventListener('click', function bodyClick() {
-                if (window.enterProtocol && !protocolEntry_entered) {
-                    window.enterProtocol();
-                    document.body.removeEventListener('click', bodyClick);
-                }
-            }, { once: false });
-        }
-    }
-}, 12000);
-    // 暴露到全局，确保手机端 inline onclick 能调用
-    window.enterProtocol = enterProtocol;
-    
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
