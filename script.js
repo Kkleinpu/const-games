@@ -767,29 +767,279 @@ const friendsGallery = [
         desc: "坐地铁出门玩 🚇",
         src: "photos/微信图片_20260530112133_3326_43.jpg",
         unlockKey: "lx2026"
+    },
+    {
+        name: "小诺猫",
+        desc: "棒球外套酷女孩 🧢",
+        src: "photos/小诺猫_01.jpg",
+        unlockKey: "lx2026"
+    },
+    {
+        name: "小诺猫",
+        desc: "温柔V领灰色毛衣 🕌",
+        src: "photos/小诺猫_02.jpg",
+        unlockKey: "lx2026"
+    },
+    {
+        name: "小诺猫",
+        desc: "条纹T恤+牛仔外套 🌊",
+        src: "photos/小诺猫_03.jpg",
+        unlockKey: "lx2026"
+    },
+    {
+        name: "小诺猫",
+        desc: "花丛中的影子 🌺",
+        src: "photos/小诺猫_04.jpg",
+        unlockKey: "lx2026"
+    },
+    {
+        name: "小诺猫",
+        desc: "条纹T+蓝色长裙 💃",
+        src: "photos/小诺猫_05.jpg",
+        unlockKey: "lx2026"
+    },
+    {
+        name: "小诺猫",
+        desc: "蓝色棒球外套再现 🎒",
+        src: "photos/小诺猫_06.jpg",
+        unlockKey: "lx2026"
+    },
+    {
+        name: "小诺猫",
+        desc: "商场镜子自拍 🛍️",
+        src: "photos/小诺猫_07.jpg",
+        unlockKey: "lx2026"
+    },
+    {
+        name: "小诺猫",
+        desc: "冬日温暖棉服 🧥",
+        src: "photos/小诺猫_08.jpg",
+        unlockKey: "lx2026"
+    },
+    {
+        name: "小诺猫",
+        desc: "圆镜灰衣随拍 🪞",
+        src: "photos/小诺猫_09.jpg",
+        unlockKey: "lx2026"
+    },
+    {
+        name: "小诺猫",
+        desc: "彩色纽扣开衣 🌈",
+        src: "photos/小诺猫_10.jpg",
+        unlockKey: "lx2026"
+    },
+    {
+        name: "小诺猫",
+        desc: "牛仔外套酷妹 🕶️",
+        src: "photos/小诺猫_11.jpg",
+        unlockKey: "lx2026"
+    },
+    {
+        name: "小诺猫",
+        desc: "商场休闲一刻 ☕",
+        src: "photos/小诺猫_12.jpg",
+        unlockKey: "lx2026"
     }
 ];
 
 function renderFriendsGallery() {
     var grid = document.getElementById("friendsGrid");
     if (!grid) return;
-    
+
     grid.innerHTML = friendsGallery.map(function(friend, index) {
-        return '<div class="friend-card" data-index="' + index + '">' +
+        return '<article class="friend-card" data-index="' + index + '">' +
             '<div class="friend-card-img-wrapper">' +
-                '<img class="friend-card-img" src="' + friend.src + '" alt="' + friend.name + '">' +
+                '<img class="friend-card-img" src="' + friend.src + '" alt="' + friend.name + '" loading="lazy">' +
             '</div>' +
             '<div class="friend-card-info">' +
                 '<h3 class="friend-card-name">' + friend.name + '</h3>' +
                 '<p class="friend-card-desc">' + friend.desc + '</p>' +
-                '<button class="friend-card-btn" onclick="handleFriendPhoto(' + index + ')">' +
+                '<button class="friend-card-btn" type="button" data-photo-index="' + index + '">' +
                     '查看照片' +
                 '</button>' +
             '</div>' +
-        '</div>';
+        '</article>';
     }).join("");
+
+    grid.insertAdjacentHTML('beforeend',
+        '<div class="friends-spiral-copy" aria-hidden="true">' +
+            '<span>SCROLL TO DEPLOY</span>' +
+            '<strong>你是所有方向里唯一的目的地</strong>' +
+        '</div>'
+    );
+
+    initFriendsSpiralGallery();
 }
 
+function initFriendsSpiralGallery() {
+    var section = document.querySelector(".friends-spiral-section");
+    var stage = document.getElementById("friendsGrid");
+    var cards = Array.prototype.slice.call(document.querySelectorAll(".friend-card"));
+    if (!section || !stage || !cards.length) return;
+
+    var prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var isSmallScreen = window.matchMedia && window.matchMedia("(max-width: 680px)").matches;
+    if (prefersReducedMotion || isSmallScreen) {
+        section.classList.add("friends-static-mode");
+        cards.forEach(function(card) { card.classList.add("revealed"); });
+        return;
+    }
+
+    var rafId = 0;
+    var cardCount = cards.length;
+    var featuredIndex = Math.min(6, cardCount - 1);
+
+    function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    function lerp(from, to, amount) {
+        return from + (to - from) * amount;
+    }
+
+    function easeInOut(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    function mixPose(a, b, amount) {
+        return {
+            x: lerp(a.x, b.x, amount),
+            y: lerp(a.y, b.y, amount),
+            z: lerp(a.z, b.z, amount),
+            rx: lerp(a.rx, b.rx, amount),
+            ry: lerp(a.ry, b.ry, amount),
+            rz: lerp(a.rz, b.rz, amount),
+            scale: lerp(a.scale, b.scale, amount),
+            opacity: lerp(a.opacity, b.opacity, amount)
+        };
+    }
+
+    function getGridPose(index) {
+        var columns = 4;
+        var gapX = Math.min(245, window.innerWidth * 0.18);
+        var gapY = 235;
+        var col = index % columns;
+        var row = Math.floor(index / columns);
+        var rows = Math.ceil(cardCount / columns);
+
+        return {
+            x: (col - (columns - 1) / 2) * gapX,
+            y: (row - (rows - 1) / 2) * gapY + 28,
+            z: 40 - row * 24,
+            rx: -8 + (row % 2) * 4,
+            ry: (col - 1.5) * 5,
+            rz: (col - 1.5) * 3,
+            scale: 0.86,
+            opacity: 1
+        };
+    }
+
+    function getSpiralPose(index, progress) {
+        var turn = index * 0.82 + progress * Math.PI * 1.2;
+        var radius = 190 + (index % 3) * 18;
+        return {
+            x: Math.sin(turn) * radius,
+            y: (index - (cardCount - 1) / 2) * 34,
+            z: Math.cos(turn) * radius - index * 18,
+            rx: -14 + Math.sin(turn) * 10,
+            ry: (turn * 180 / Math.PI) + 20,
+            rz: -10 + index * 2.5,
+            scale: 0.62 + (Math.cos(turn) + 1) * 0.07,
+            opacity: 0.72 + (Math.cos(turn) + 1) * 0.14
+        };
+    }
+
+    function getOrbitPose(index) {
+        if (index === featuredIndex) {
+            return { x: 0, y: -8, z: 360, rx: -4, ry: 0, rz: -2, scale: 1.2, opacity: 1 };
+        }
+
+        var orbitSlot = index < featuredIndex ? index : index - 1;
+        var orbitTotal = Math.max(1, cardCount - 1);
+        var angle = (orbitSlot / orbitTotal) * Math.PI * 2 - Math.PI / 2;
+        var radiusX = Math.min(430, window.innerWidth * 0.35);
+        var radiusY = 215;
+
+        return {
+            x: Math.cos(angle) * radiusX,
+            y: Math.sin(angle) * radiusY + 18,
+            z: -70 + Math.sin(angle) * 80,
+            rx: -10,
+            ry: Math.cos(angle) * -28,
+            rz: Math.sin(angle) * 12,
+            scale: 0.7,
+            opacity: 0.86
+        };
+    }
+
+    function applyPose(card, pose, index) {
+        card.style.setProperty("--x", pose.x.toFixed(2) + "px");
+        card.style.setProperty("--y", pose.y.toFixed(2) + "px");
+        card.style.setProperty("--z", pose.z.toFixed(2) + "px");
+        card.style.setProperty("--rx", pose.rx.toFixed(2) + "deg");
+        card.style.setProperty("--ry", pose.ry.toFixed(2) + "deg");
+        card.style.setProperty("--rz", pose.rz.toFixed(2) + "deg");
+        card.style.setProperty("--scale", pose.scale.toFixed(3));
+        card.style.setProperty("--card-opacity", pose.opacity.toFixed(3));
+        card.style.zIndex = String(Math.round(pose.z + 1000 + index));
+        card.classList.toggle("is-featured", index === featuredIndex && pose.scale > 1);
+        card.classList.add("revealed");
+    }
+
+    function updateSpiral() {
+        rafId = 0;
+        var rect = section.getBoundingClientRect();
+        var scrollable = rect.height - window.innerHeight;
+        var progress = scrollable > 0 ? clamp(-rect.top / scrollable, 0, 1) : 0;
+        var firstPhase = easeInOut(clamp(progress / 0.48, 0, 1));
+        var secondPhase = easeInOut(clamp((progress - 0.45) / 0.55, 0, 1));
+
+        section.style.setProperty("--spiral-progress", progress.toFixed(3));
+        section.classList.toggle("is-grid-phase", progress > 0.72);
+        section.classList.toggle("is-focus-phase", progress > 0.25 && progress < 0.75);
+
+        cards.forEach(function(card, index) {
+            var spiralPose = getSpiralPose(index, progress);
+            var orbitPose = getOrbitPose(index);
+            var gridPose = getGridPose(index);
+            var pose = mixPose(spiralPose, orbitPose, firstPhase);
+            pose = mixPose(pose, gridPose, secondPhase);
+            applyPose(card, pose, index);
+        });
+    }
+
+    function requestUpdate() {
+        if (rafId) return;
+        rafId = requestAnimationFrame(updateSpiral);
+    }
+
+    cards.forEach(function(card) {
+        var button = card.querySelector(".friend-card-btn");
+        if (button) {
+            button.addEventListener("click", function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleFriendPhoto(Number(button.getAttribute("data-photo-index")) || 0);
+            });
+        }
+
+        card.addEventListener("mousemove", function(e) {
+            var rect = card.getBoundingClientRect();
+            var x = e.clientX - rect.left;
+            var y = e.clientY - rect.top;
+            card.style.setProperty("--mx", (x / rect.width * 100).toFixed(1) + "%");
+            card.style.setProperty("--my", (y / rect.height * 100).toFixed(1) + "%");
+        }, { passive: true });
+    });
+
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate, { passive: true });
+    updateSpiral();
+}
+
+function initFriendCardEffects() {
+    initFriendsSpiralGallery();
+}
 function handleFriendPhoto(index) {
     var friend = friendsGallery[index];
     // 直接打开lightbox查看照片
@@ -815,6 +1065,10 @@ function closeLightbox(event) {
     var lightbox = document.getElementById("photoLightbox");
     lightbox.classList.remove("active");
 }
+
+window.handleFriendPhoto = handleFriendPhoto;
+window.openLightbox = openLightbox;
+window.closeLightbox = closeLightbox;
 
 // ==================== 语音朗读功能 ====================
 let isVoicePlaying = false;
@@ -1779,7 +2033,6 @@ document.addEventListener('DOMContentLoaded', function() {
         container.appendChild(col);
     }
 })();
-
 // ---------- 覆盖打字效果 ----------
 (function overrideTypingEffect() {
     var origInit = window.initTypingEffect;
@@ -2270,3 +2523,4 @@ function tryAudioContextUnlock(audio) {
         }, 500);
     });
 })();
+

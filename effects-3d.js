@@ -58,7 +58,7 @@
 
     /* === 3. 3D Card Tilt === */
     function initCardTilt() {
-        document.querySelectorAll(".game-card, .tool-card, .stats-card, .friend-card, .featured-card").forEach(function(card) {
+        document.querySelectorAll(".game-card, .tool-card, .stats-card, .featured-card").forEach(function(card) {
             if (card._tiltInit) return;
             card._tiltInit = true;
             card.addEventListener("mousemove", function(e) {
