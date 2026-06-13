@@ -2181,6 +2181,10 @@ body {
     min-height: 260vh;
     --spiral-progress: 0;
 }
+.lightbox-open .friends-grid,
+.friends-spiral-section.is-opening .friends-grid {
+    pointer-events: none;
+}
 .friends-spiral-section::before,
 .friends-spiral-section::after {
     content: '';
@@ -2263,23 +2267,28 @@ body {
         rotateZ(var(--rz, 0deg))
         scale(var(--scale, 1));
     box-shadow:
-        0 22px 55px rgba(0, 0, 0, 0.48),
+        0 18px 42px rgba(0, 0, 0, 0.42),
         0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-    transition: border-color 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+    transition: border-color 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
     will-change: transform, opacity;
     backface-visibility: hidden;
+    touch-action: manipulation;
 }
 .friend-card.revealed {
     opacity: var(--card-opacity, 1);
+}
+.friend-card:focus-visible {
+    outline: 2px solid rgba(0, 212, 255, 0.9);
+    outline-offset: 4px;
 }
 .friend-card:hover,
 .friend-card.is-featured {
     border-color: rgba(0, 212, 255, 0.72);
     box-shadow:
-        0 30px 78px rgba(0, 0, 0, 0.56),
-        0 0 44px rgba(0, 212, 255, 0.24),
+        0 24px 58px rgba(0, 0, 0, 0.5),
+        0 0 28px rgba(0, 212, 255, 0.18),
         0 0 0 1px rgba(255, 255, 255, 0.11) inset;
-    filter: saturate(1.1) brightness(1.06);
+    filter: saturate(1.04) brightness(1.03);
 }
 .friend-card::before {
     content: '';
@@ -2336,8 +2345,8 @@ body {
 }
 .friend-card:hover .friend-card-img,
 .friend-card.is-featured .friend-card-img {
-    transform: scale(1.12);
-    filter: contrast(1.05) saturate(1.18);
+    transform: scale(1.09);
+    filter: contrast(1.03) saturate(1.1);
 }
 .friend-card-info {
     position: relative;
@@ -2379,6 +2388,24 @@ body {
 .friend-card-btn:hover {
     transform: translateY(-2px) scale(1.04);
     box-shadow: 0 12px 32px rgba(108, 92, 231, 0.36);
+}
+.perf-lite .friends-spiral-section::before,
+.perf-lite .friends-spiral-section::after,
+.perf-lite .friends-grid::before,
+.perf-lite .friends-grid::after {
+    display: none;
+}
+.perf-lite .friend-card {
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.36);
+    filter: none !important;
+    will-change: auto;
+}
+.perf-lite .friend-card::before,
+.perf-lite .friend-card::after {
+    display: none;
+}
+.perf-lite .friend-card-img {
+    transition: none;
 }
 .friends-spiral-copy {
     position: absolute;
@@ -2428,7 +2455,64 @@ body {
         height: clamp(200px, 26vw, 252px);
     }
 }
-@media (max-width: 680px), (prefers-reduced-motion: reduce) {
+.friends-spiral-section.friends-static-mode,
+.perf-mobile .friends-spiral-section {
+    min-height: auto;
+}
+.friends-spiral-section.friends-static-mode .friends-grid,
+.perf-mobile .friends-grid {
+    position: relative;
+    top: auto;
+    height: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    perspective: none;
+    transform-style: flat;
+    overflow: visible;
+}
+.friends-spiral-section.friends-static-mode .friends-grid::before,
+.friends-spiral-section.friends-static-mode .friends-grid::after,
+.friends-spiral-section.friends-static-mode .friends-spiral-copy,
+.perf-mobile .friends-grid::before,
+.perf-mobile .friends-grid::after,
+.perf-mobile .friends-spiral-copy {
+    display: none;
+}
+.friends-spiral-section.friends-static-mode .friend-card,
+.perf-mobile .friend-card {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 100%;
+    height: 280px;
+    opacity: 1;
+    transform: none !important;
+    transform-style: flat;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.friends-spiral-section.friends-static-mode .friend-card:hover,
+.friends-spiral-section.friends-static-mode .friend-card.is-featured,
+.perf-mobile .friend-card:hover,
+.perf-mobile .friend-card.is-featured {
+    transform: none !important;
+    filter: none;
+}
+.friends-spiral-section.friends-static-mode .friend-card:active,
+.perf-mobile .friend-card:active {
+    transform: scale(0.985) !important;
+}
+.friends-spiral-section.friends-static-mode .friend-card::before,
+.friends-spiral-section.friends-static-mode .friend-card::after,
+.perf-mobile .friend-card::before,
+.perf-mobile .friend-card::after {
+    display: none;
+}
+.friends-spiral-section.friends-static-mode .friend-card-info h3,
+.perf-mobile .friend-card-info h3 {
+    font-size: 0.95rem;
+}
+@media (max-width: 768px), (prefers-reduced-motion: reduce) {
     .friends-spiral-section {
         min-height: auto;
     }
@@ -2440,6 +2524,7 @@ body {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px;
         perspective: none;
+        transform-style: flat;
     }
     .friends-grid::before,
     .friends-grid::after,
@@ -2454,6 +2539,16 @@ body {
         height: 280px;
         opacity: 1;
         transform: none !important;
+        transform-style: flat;
+    }
+    .friend-card:hover,
+    .friend-card.is-featured {
+        transform: none !important;
+        filter: none;
+    }
+    .friend-card::before,
+    .friend-card::after {
+        display: none;
     }
     .friend-card-info h3 { font-size: 0.95rem; }
 }

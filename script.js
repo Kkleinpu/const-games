@@ -455,7 +455,37 @@ function detectSystemInfo() {
     if (os) { var ua2 = navigator.userAgent; if (ua2.includes("Win")) os.textContent = "Windows"; else if (ua2.includes("Mac")) os.textContent = "macOS"; else if (ua2.includes("Linux")) os.textContent = "Linux"; else os.textContent = "\u5176\u4ED6"; }
 }
 
+function getPerformanceProfile() {
+    var reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var coarsePointer = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+    var smallScreen = window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
+    var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    var saveData = !!(connection && connection.saveData);
+    var hardwareConcurrency = navigator.hardwareConcurrency || 8;
+    var deviceMemory = navigator.deviceMemory || 8;
+    var lowPower = hardwareConcurrency <= 4 || deviceMemory <= 4 || saveData;
+
+    return {
+        isMobile: !!(coarsePointer || smallScreen),
+        reducedMotion: !!reducedMotion,
+        lowPower: !!lowPower,
+        saveData: saveData,
+        lite: !!(reducedMotion || coarsePointer || smallScreen || lowPower)
+    };
+}
+
+function applyPerformanceProfile() {
+    var profile = getPerformanceProfile();
+    var root = document.documentElement;
+
+    root.classList.toggle("perf-lite", profile.lite);
+    root.classList.toggle("perf-mobile", profile.isMobile);
+    root.classList.toggle("perf-reduced-motion", profile.reducedMotion);
+    return profile;
+}
+
 document.addEventListener("DOMContentLoaded", async function() {
+    var perfProfile = applyPerformanceProfile();
     // Load data from API first, with fallback to local data
     await loadGameData();
     setupNavigation();
@@ -473,7 +503,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     if (statsEl) statsEl.textContent = calcTotalPlaytime() + " 小时";
     
     // 初始化粒子系统和交互效果
-    initGlobalParticles();
+    initGlobalParticles(perfProfile);
     initScrollReveal();
     initCardHoverGlow();
     initButtonRipple();
@@ -481,13 +511,22 @@ document.addEventListener("DOMContentLoaded", async function() {
 });
 
 // ==================== 全站粒子背景 ====================
-function initGlobalParticles() {
+function initGlobalParticles(profile) {
     var canvas = document.getElementById("globalParticles");
     if (!canvas) return;
+    profile = profile || getPerformanceProfile();
+    if (profile.reducedMotion || profile.isMobile || profile.saveData) {
+        canvas.style.display = "none";
+        return;
+    }
+
     var ctx = canvas.getContext("2d");
     var particles = [];
-    var particleCount = 120;
-    var mouse = { x: 0, y: 0, radius: 200 };
+    var particleCount = profile.lowPower ? 45 : 80;
+    var connectDistance = profile.lowPower ? 110 : 135;
+    var mouse = { x: 0, y: 0, radius: profile.lowPower ? 130 : 180 };
+    var rafId = 0;
+    var isRunning = true;
     
     // 设置canvas尺寸
     function resizeCanvas() {
@@ -495,7 +534,7 @@ function initGlobalParticles() {
         canvas.height = window.innerHeight;
     }
     resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
+    window.addEventListener("resize", resizeCanvas, { passive: true });
     
     // 粒子类
     function Particle() {
@@ -518,6 +557,7 @@ function initGlobalParticles() {
     
     // 绘制粒子
     function drawParticles() {
+        if (!isRunning) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = getParticleColor();
         
@@ -536,7 +576,7 @@ function initGlobalParticles() {
             var dx = mouse.x - p.x;
             var dy = mouse.y - p.y;
             var dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < mouse.radius) {
+            if (dist > 0 && dist < mouse.radius) {
                 var force = (mouse.radius - dist) / mouse.radius;
                 p.vx += (dx / dist) * force * 0.2;
                 p.vy += (dy / dist) * force * 0.2;
@@ -554,9 +594,9 @@ function initGlobalParticles() {
                 var dy2 = p.y - p2.y;
                 var dist2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
                 
-                if (dist2 < 150) {
+                if (dist2 < connectDistance) {
                     ctx.strokeStyle = getParticleColor();
-                    ctx.globalAlpha = 1 - dist2 / 150;
+                    ctx.globalAlpha = 1 - dist2 / connectDistance;
                     ctx.beginPath();
                     ctx.moveTo(p.x, p.y);
                     ctx.lineTo(p2.x, p2.y);
@@ -566,14 +606,14 @@ function initGlobalParticles() {
             }
         }
         
-        requestAnimationFrame(drawParticles);
+        rafId = requestAnimationFrame(drawParticles);
     }
     
     // 鼠标移动事件
     document.addEventListener("mousemove", function(e) {
         mouse.x = e.clientX;
         mouse.y = e.clientY;
-    });
+    }, { passive: true });
     
     // 鼠标点击爆裂效果
     document.addEventListener("click", function(e) {
@@ -583,20 +623,25 @@ function initGlobalParticles() {
             var dy = p.y - e.clientY;
             var dist = Math.sqrt(dx * dx + dy * dy);
             
-            if (dist < 150) {
+            if (dist > 0 && dist < 150) {
                 var force = (150 - dist) / 150;
                 p.vx += (dx / dist) * force * 8;
                 p.vy += (dy / dist) * force * 8;
             }
         }
-    });
+    }, { passive: true });
     
     // 页面可见性检测
     document.addEventListener("visibilitychange", function() {
         if (document.hidden) {
-            cancelAnimationFrame(drawParticles);
+            isRunning = false;
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = 0;
+            }
         } else {
-            drawParticles();
+            isRunning = true;
+            if (!rafId) drawParticles();
         }
     });
     
@@ -847,9 +892,9 @@ function renderFriendsGallery() {
     if (!grid) return;
 
     grid.innerHTML = friendsGallery.map(function(friend, index) {
-        return '<article class="friend-card" data-index="' + index + '">' +
+        return '<article class="friend-card" data-index="' + index + '" role="button" tabindex="0" aria-label="查看' + friend.name + '照片">' +
             '<div class="friend-card-img-wrapper">' +
-                '<img class="friend-card-img" src="' + friend.src + '" alt="' + friend.name + '" loading="lazy">' +
+                '<img class="friend-card-img" src="' + friend.src + '" alt="' + friend.name + '" loading="lazy" decoding="async" fetchpriority="low">' +
             '</div>' +
             '<div class="friend-card-info">' +
                 '<h3 class="friend-card-name">' + friend.name + '</h3>' +
@@ -877,17 +922,81 @@ function initFriendsSpiralGallery() {
     var cards = Array.prototype.slice.call(document.querySelectorAll(".friend-card"));
     if (!section || !stage || !cards.length) return;
 
-    var prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var isSmallScreen = window.matchMedia && window.matchMedia("(max-width: 680px)").matches;
-    if (prefersReducedMotion || isSmallScreen) {
-        section.classList.add("friends-static-mode");
-        cards.forEach(function(card) { card.classList.add("revealed"); });
-        return;
-    }
-
+    var profile = getPerformanceProfile();
+    var isStaticMode = profile.reducedMotion || profile.isMobile || profile.lowPower;
+    var isFrozen = false;
+    var isActive = true;
+    var lastProgress = -1;
     var rafId = 0;
     var cardCount = cards.length;
     var featuredIndex = Math.min(6, cardCount - 1);
+
+    function openCard(card) {
+        if (!card) return;
+        var index = Number(card.getAttribute("data-index"));
+        if (Number.isNaN(index)) return;
+        freezeGallery(450);
+        handleFriendPhoto(index);
+    }
+
+    stage.addEventListener("click", function(e) {
+        var card = e.target.closest && e.target.closest(".friend-card");
+        if (!card || !stage.contains(card)) return;
+        e.preventDefault();
+        openCard(card);
+    });
+
+    stage.addEventListener("keydown", function(e) {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        var card = e.target.closest && e.target.closest(".friend-card");
+        if (!card || !stage.contains(card)) return;
+        e.preventDefault();
+        openCard(card);
+    });
+
+    function resetCardPose(card) {
+        ["--x", "--y", "--z", "--rx", "--ry", "--rz", "--scale", "--card-opacity"].forEach(function(prop) {
+            card.style.removeProperty(prop);
+        });
+        card.style.zIndex = "";
+        card.classList.remove("is-featured");
+        card.classList.add("revealed");
+    }
+
+    function enableStaticMode() {
+        isStaticMode = true;
+        section.classList.add("friends-static-mode");
+        cards.forEach(resetCardPose);
+    }
+
+    function freezeGallery(duration) {
+        isFrozen = true;
+        section.classList.add("is-opening");
+        if (duration) {
+            window.setTimeout(function() {
+                if (!window.friendGalleryPaused) {
+                    isFrozen = false;
+                    section.classList.remove("is-opening");
+                    requestUpdate();
+                }
+            }, duration);
+        }
+    }
+
+    window.addEventListener("friend-gallery-pause", function() {
+        freezeGallery(0);
+    });
+
+    window.addEventListener("friend-gallery-resume", function() {
+        isFrozen = false;
+        section.classList.remove("is-opening");
+        requestUpdate();
+    });
+
+    if (isStaticMode) {
+        enableStaticMode();
+        return;
+    }
 
     function clamp(value, min, max) {
         return Math.max(min, Math.min(max, value));
@@ -988,9 +1097,14 @@ function initFriendsSpiralGallery() {
 
     function updateSpiral() {
         rafId = 0;
+        if (!isActive || isFrozen || isStaticMode || window.friendGalleryPaused) return;
+
         var rect = section.getBoundingClientRect();
         var scrollable = rect.height - window.innerHeight;
         var progress = scrollable > 0 ? clamp(-rect.top / scrollable, 0, 1) : 0;
+        if (lastProgress >= 0 && Math.abs(progress - lastProgress) < 0.001) return;
+        lastProgress = progress;
+
         var firstPhase = easeInOut(clamp(progress / 0.48, 0, 1));
         var secondPhase = easeInOut(clamp((progress - 0.45) / 0.55, 0, 1));
 
@@ -1009,21 +1123,13 @@ function initFriendsSpiralGallery() {
     }
 
     function requestUpdate() {
-        if (rafId) return;
+        if (rafId || !isActive || isFrozen || isStaticMode || window.friendGalleryPaused) return;
         rafId = requestAnimationFrame(updateSpiral);
     }
 
     cards.forEach(function(card) {
-        var button = card.querySelector(".friend-card-btn");
-        if (button) {
-            button.addEventListener("click", function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                handleFriendPhoto(Number(button.getAttribute("data-photo-index")) || 0);
-            });
-        }
-
         card.addEventListener("mousemove", function(e) {
+            if (isStaticMode || profile.isMobile) return;
             var rect = card.getBoundingClientRect();
             var x = e.clientX - rect.left;
             var y = e.clientY - rect.top;
@@ -1032,8 +1138,23 @@ function initFriendsSpiralGallery() {
         }, { passive: true });
     });
 
+    if ("IntersectionObserver" in window) {
+        isActive = false;
+        var observer = new IntersectionObserver(function(entries) {
+            isActive = entries.some(function(entry) { return entry.isIntersecting; });
+            if (isActive) requestUpdate();
+        }, { rootMargin: "360px 0px" });
+        observer.observe(section);
+    }
+
     window.addEventListener("scroll", requestUpdate, { passive: true });
-    window.addEventListener("resize", requestUpdate, { passive: true });
+    window.addEventListener("resize", function() {
+        if (getPerformanceProfile().isMobile) {
+            enableStaticMode();
+            return;
+        }
+        requestUpdate();
+    }, { passive: true });
     updateSpiral();
 }
 
@@ -1042,6 +1163,7 @@ function initFriendCardEffects() {
 }
 function handleFriendPhoto(index) {
     var friend = friendsGallery[index];
+    if (!friend) return;
     // 直接打开lightbox查看照片
     openLightbox(friend.src, friend.name, friend.desc);
 }
@@ -1051,7 +1173,13 @@ function openLightbox(src, name, desc) {
     var img = document.getElementById("lightboxImg");
     var nameEl = document.getElementById("lightboxName");
     var descEl = document.getElementById("lightboxDesc");
+    if (!lightbox || !img || !nameEl || !descEl) return;
     
+    window.friendGalleryPaused = true;
+    document.body.classList.add("lightbox-open");
+    window.dispatchEvent(new Event("friend-gallery-pause"));
+    img.loading = "eager";
+    img.decoding = "async";
     img.src = src;
     nameEl.textContent = name;
     descEl.textContent = desc;
@@ -1063,8 +1191,16 @@ function closeLightbox(event) {
     if (event && event.target !== event.currentTarget) return;
     
     var lightbox = document.getElementById("photoLightbox");
+    if (!lightbox) return;
     lightbox.classList.remove("active");
+    document.body.classList.remove("lightbox-open");
+    window.friendGalleryPaused = false;
+    window.dispatchEvent(new Event("friend-gallery-resume"));
 }
+
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") closeLightbox();
+});
 
 window.handleFriendPhoto = handleFriendPhoto;
 window.openLightbox = openLightbox;

@@ -421,15 +421,13 @@
     .game-card:hover,
     .tool-card:hover,
     .stats-card:hover,
-    .friend-card:hover,
     .featured-card:hover {
         transform: none;
         box-shadow: none;
     }
     .game-card:active,
     .tool-card:active,
-    .stats-card:active,
-    .friend-card:active {
+    .stats-card:active {
         transform: scale(0.97);
         transition: transform 0.1s;
     }
@@ -463,8 +461,15 @@
     }
 
     /* 禁用 3D 卡片倾斜 */
-    .game-card, .tool-card, .stats-card, .friend-card, .featured-card {
+    .game-card, .tool-card, .stats-card, .featured-card {
         transform-style: flat;
+    }
+
+    .friends-spiral-section .friend-card,
+    .friends-spiral-section .friend-card:hover,
+    .friends-spiral-section .friend-card:active {
+        transform: none !important;
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.36);
     }
 }
 

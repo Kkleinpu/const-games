@@ -32,12 +32,12 @@
 }
 
 /* === 3. 3D Card Tilt (perspective on card itself) === */
-.game-card, .tool-card, .stats-card, .friend-card, .featured-card {
+.game-card, .tool-card, .stats-card, .featured-card {
     transform-style: preserve-3d;
     transition: transform 0.4s cubic-bezier(0.03,0.98,0.52,0.99), box-shadow 0.4s ease;
     will-change: transform;
 }
-.game-card:hover, .tool-card:hover, .stats-card:hover, .friend-card:hover, .featured-card:hover {
+.game-card:hover, .tool-card:hover, .stats-card:hover, .featured-card:hover {
     transform: perspective(800px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1.04);
     box-shadow:
         0 25px 60px rgba(0,0,0,0.4),
@@ -163,7 +163,7 @@
 @media (max-width: 768px) {
     .starfield-canvas { opacity: 0.25; }
     .aurora-overlay { opacity: 0.06; }
-    .game-card:hover, .tool-card:hover, .stats-card:hover, .friend-card:hover {
+    .game-card:hover, .tool-card:hover, .stats-card:hover {
         transform: translateY(-4px) scale(1.02);
     }
     .hero-content, .hero-featured { animation: none; }
