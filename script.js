@@ -894,7 +894,7 @@ function renderFriendsGallery() {
     grid.innerHTML = friendsGallery.map(function(friend, index) {
         return '<article class="friend-card" data-index="' + index + '" role="button" tabindex="0" aria-label="查看' + friend.name + '照片">' +
             '<div class="friend-card-img-wrapper">' +
-                '<img class="friend-card-img" src="' + friend.src + '" alt="' + friend.name + '" loading="lazy" decoding="async" fetchpriority="low">' +
+                '<img class="friend-card-img is-loading" src="' + friend.src + '" alt="' + friend.name + '" loading="lazy" decoding="async" fetchpriority="low">' +
             '</div>' +
             '<div class="friend-card-info">' +
                 '<h3 class="friend-card-name">' + friend.name + '</h3>' +
@@ -913,6 +913,20 @@ function renderFriendsGallery() {
         '</div>'
     );
 
+    Array.prototype.slice.call(grid.querySelectorAll(".friend-card-img")).forEach(function(img) {
+        function markReady() {
+            img.classList.remove("is-loading");
+            img.classList.add("is-ready");
+            if (img.parentElement) img.parentElement.classList.add("is-ready");
+        }
+        if (img.complete) {
+            markReady();
+        } else {
+            img.addEventListener("load", markReady, { once: true });
+            img.addEventListener("error", markReady, { once: true });
+        }
+    });
+
     initFriendsSpiralGallery();
 }
 
@@ -930,6 +944,8 @@ function initFriendsSpiralGallery() {
     var rafId = 0;
     var cardCount = cards.length;
     var featuredIndex = Math.min(6, cardCount - 1);
+    var progressValue = section.querySelector(".friends-scroll-hud__value");
+    var progressTrack = section.querySelector(".friends-scroll-hud__track i");
 
     function openCard(card) {
         if (!card) return;
@@ -1024,9 +1040,9 @@ function initFriendsSpiralGallery() {
     }
 
     function getGridPose(index) {
-        var columns = 4;
-        var gapX = Math.min(245, window.innerWidth * 0.18);
-        var gapY = 235;
+        var columns = window.innerWidth >= 1120 && cardCount > 16 ? 5 : 4;
+        var gapX = Math.min(222, window.innerWidth / (columns + 0.65));
+        var gapY = Math.min(220, window.innerHeight * 0.26);
         var col = index % columns;
         var row = Math.floor(index / columns);
         var rows = Math.ceil(cardCount / columns);
@@ -1109,6 +1125,9 @@ function initFriendsSpiralGallery() {
         var secondPhase = easeInOut(clamp((progress - 0.45) / 0.55, 0, 1));
 
         section.style.setProperty("--spiral-progress", progress.toFixed(3));
+        if (progressValue) progressValue.textContent = Math.round(progress * 100) + "%";
+        if (progressTrack) progressTrack.style.transform = "scaleX(" + progress.toFixed(3) + ")";
+        section.classList.toggle("is-armed", progress > 0.05);
         section.classList.toggle("is-grid-phase", progress > 0.72);
         section.classList.toggle("is-focus-phase", progress > 0.25 && progress < 0.75);
 
