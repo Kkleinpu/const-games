@@ -5331,3 +5331,278 @@ a, button, .game-card, .tool-card, .fab-main, .nav-links a, .hero-btn,
     }
 }
 
+/* ========== 第四轮优化：移动端稳态 + 视觉统一 ========== */
+.hero-terminal-panel,
+.terminal-dashboard,
+.terminal-panel-item,
+.featured-card,
+.game-card,
+.tool-card,
+.stats-card,
+.viz-card,
+.achievement-card,
+.photo-lightbox .lightbox-content {
+    border-radius: 8px;
+}
+
+.hero-btn,
+.game-card-link,
+.filter-btn,
+.sort-btn,
+.tool-refresh-btn,
+.guestbook-submit,
+.fab-action,
+.fab-main {
+    border-radius: 8px;
+}
+
+.game-card,
+.tool-card,
+.stats-card,
+.viz-card,
+.achievement-card,
+.featured-card,
+.hero-terminal-panel,
+.terminal-dashboard {
+    border-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.14);
+    box-shadow: 0 14px 44px rgba(0, 0, 0, 0.26);
+}
+
+.game-card:hover,
+.tool-card:hover,
+.stats-card:hover,
+.viz-card:hover,
+.achievement-card:hover,
+.featured-card:hover {
+    border-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.34);
+}
+
+.terminal-panel-state {
+    min-width: max-content;
+}
+
+.terminal-panel-state::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 12px currentColor;
+    vertical-align: 1px;
+}
+
+@media (max-width: 768px) {
+    html,
+    body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .global-particles,
+    .binary-rain,
+    .protocol-scanline,
+    .hero-particles {
+        display: none !important;
+    }
+
+    .navbar {
+        height: 58px;
+        padding: 0 12px;
+        border-bottom: 1px solid rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.12);
+    }
+
+    .nav-right {
+        gap: 6px;
+    }
+
+    .bgm-player {
+        display: none;
+    }
+
+    .hero {
+        min-height: auto;
+        padding: 78px 16px 36px;
+        gap: 22px;
+    }
+
+    .hero-featured {
+        order: 0;
+    }
+
+    .hero-content {
+        width: 100%;
+    }
+
+    .profile-section,
+    .hero-terminal-panel,
+    .terminal-dashboard,
+    .featured-card,
+    .quick-stats-panel {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .hero-terminal-panel {
+        margin-bottom: 22px;
+    }
+
+    .terminal-panel-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .terminal-panel-item strong,
+    .terminal-dashboard-row strong {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .terminal-dashboard {
+        padding: 14px;
+    }
+
+    .terminal-dashboard-row {
+        gap: 10px;
+    }
+
+    .hero-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-bottom: 22px;
+    }
+
+    .hero-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .hero-actions .hero-btn {
+        width: 100%;
+        min-height: 46px;
+        justify-content: center;
+    }
+
+    .quick-stats-panel {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .quick-stat {
+        min-width: 0;
+        flex-direction: column;
+        text-align: center;
+        gap: 6px;
+    }
+
+    .qs-icon {
+        font-size: 20px;
+    }
+
+    .games-toolbar,
+    .sort-box,
+    .genre-filters {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .genre-filters {
+        display: flex;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scroll-snap-type: x proximity;
+    }
+
+    .genre-filters .filter-btn {
+        flex: 0 0 auto;
+        scroll-snap-align: start;
+    }
+
+    .games-grid,
+    .tools-grid,
+    .stats-grid,
+    .viz-grid {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .game-card-img {
+        min-height: 92px;
+        object-fit: cover;
+    }
+
+    .game-card-desc,
+    .card-description {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .tool-card,
+    .stats-card,
+    .viz-card {
+        padding: 16px;
+    }
+
+    .playtime-chart-canvas,
+    .genre-chart-canvas,
+    .trend-chart-canvas {
+        max-width: 100%;
+    }
+
+    .lightbox-content {
+        max-height: calc(100vh - 22px);
+    }
+
+    .lightbox-thumbs {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 30px !important;
+    }
+
+    .hero-desc {
+        font-size: 13px !important;
+        line-height: 1.7;
+    }
+
+    .profile-section {
+        align-items: center;
+        text-align: center;
+    }
+
+    .profile-tags {
+        justify-content: center;
+    }
+
+    .hero-stats {
+        gap: 8px;
+    }
+
+    .stat-item {
+        min-width: 0;
+    }
+
+    .quick-stats-panel {
+        gap: 8px;
+    }
+
+    .games-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .featured-card img {
+        height: 170px;
+        object-fit: cover;
+    }
+
+    .lightbox-nav {
+        top: 46%;
+    }
+}
+

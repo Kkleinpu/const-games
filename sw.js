@@ -1,5 +1,5 @@
 ﻿// Gaming Hub Service Worker v1
-const CACHE_NAME = 'gaming-hub-v1';
+const CACHE_NAME = 'gaming-hub-v4-mobile-data-fallback';
 const ASSETS = [
     '/',
     '/index.html',
@@ -36,6 +36,33 @@ self.addEventListener('activate', function(event) {
 self.addEventListener('fetch', function(event) {
     // 跳过 API 请求
     if (event.request.url.includes('/api/')) return;
+
+    var requestUrl = new URL(event.request.url);
+    var isFreshAsset =
+        event.request.destination === 'document' ||
+        requestUrl.pathname.endsWith('/index.html') ||
+        requestUrl.pathname.endsWith('/style.css') ||
+        requestUrl.pathname.endsWith('/script.js') ||
+        requestUrl.pathname.endsWith('/sw.js');
+
+    if (isFreshAsset) {
+        event.respondWith(
+            fetch(event.request).then(function(response) {
+                if (response && response.status === 200 && response.type === 'basic') {
+                    var responseClone = response.clone();
+                    caches.open(CACHE_NAME).then(function(cache) {
+                        cache.put(event.request, responseClone);
+                    });
+                }
+                return response;
+            }).catch(function() {
+                return caches.match(event.request).then(function(cached) {
+                    return cached || caches.match('/index.html');
+                });
+            })
+        );
+        return;
+    }
     
     event.respondWith(
         caches.match(event.request).then(function(cached) {

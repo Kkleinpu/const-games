@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>零度协议 // PROTOCOL ZERO</title>
-    <link rel="stylesheet" href="style.css?v=20260615-terminal-gallery">
+    <link rel="stylesheet" href="style.css?v=20260615-mobile-data-fallback">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap&display=swap" rel="stylesheet">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#050510">
@@ -201,25 +201,25 @@
             </div>
             <p class="hero-subtitle">PROTOCOL ZERO — 初始化完成</p>
             <h1 class="hero-title"><span class="gradient-text" data-text="零度协议">零度协议</span></h1>
-            <p class="hero-desc">20 个任务节点 · 607 小时执行 · 177 个已解锁 · 协议运行中</p>
+            <p class="hero-desc" id="heroDesc">任务节点同步中 · 时长计算中 · 协议运行中</p>
             <div class="hero-terminal-panel" aria-label="协议状态摘要">
                 <div class="terminal-panel-header">
                     <span class="terminal-panel-dot"></span>
                     <span>LIVE COMMAND NODE</span>
-                    <span class="terminal-panel-state">ONLINE</span>
+                    <span class="terminal-panel-state" id="terminalDataState">LOCAL CACHE</span>
                 </div>
                 <div class="terminal-panel-grid">
                     <div class="terminal-panel-item">
                         <span class="terminal-panel-label">ACTIVE ROUTE</span>
-                        <strong>武器库 / 小诺猫 / 执行报告</strong>
+                        <strong id="terminalRoute">武器库 / 小诺猫 / 执行报告</strong>
                     </div>
                     <div class="terminal-panel-item">
                         <span class="terminal-panel-label">LAST SIGNAL</span>
-                        <strong>GTA V · 186.7h</strong>
+                        <strong id="terminalSignal">等待游戏数据</strong>
                     </div>
                     <div class="terminal-panel-item">
                         <span class="terminal-panel-label">MEMORY VAULT</span>
-                        <strong>18 张相册节点</strong>
+                        <strong id="terminalMemory">相册节点同步中</strong>
                     </div>
                 </div>
             </div>
@@ -237,7 +237,7 @@
                     <span class="stat-label">解锁节点</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number">Steam</span>
+                    <span class="stat-number" id="dataSourceLabel">Local</span>
                     <span class="stat-label">协议版本</span>
                 </div>
             </div>
@@ -260,18 +260,18 @@
                 </div>
                 <div class="terminal-dashboard-row">
                     <span>MODE</span>
-                    <strong>探索 · 收藏 · 记录</strong>
+                    <strong id="dashboardMode">探索 · 收藏 · 记录</strong>
                 </div>
                 <div class="terminal-dashboard-row">
                     <span>SYNC</span>
-                    <strong>Steam + Local Memory</strong>
+                    <strong id="dashboardSync">Local Memory</strong>
                 </div>
             </div>
             <div class="featured-card">
-                <img src="https://cdn.akamai.steamstatic.com/steam/apps/271590/header.jpg" alt="GTA V" loading="lazy">
+                <img id="featuredGameImg" src="https://cdn.akamai.steamstatic.com/steam/apps/271590/header.jpg" alt="GTA V" loading="lazy">
                 <div class="featured-overlay">
-                    <span class="featured-badge">⚡ 当前执行</span>
-                    <h3>Grand Theft Auto V</h3>
+                    <span class="featured-badge" id="featuredGameBadge">⚡ 当前执行</span>
+                    <h3 id="featuredGameName">Grand Theft Auto V</h3>
                 </div>
             </div>
             <div class="quick-stats-panel">
@@ -285,7 +285,7 @@
                 <div class="quick-stat">
                     <span class="qs-icon">🎮</span>
                     <div class="qs-info">
-                        <span class="qs-value" id="qsPlaying">3</span>
+                        <span class="qs-value" id="qsPlaying">0</span>
                         <span class="qs-label">个进行中</span>
                     </div>
                 </div>
@@ -768,7 +768,7 @@
         <div class="footer-content"><div class="footer-links"><a href="https://store.steampowered.com/" target="_blank">Steam 商店</a><a href="https://steamcommunity.com/id/momaek276" target="_blank">我的 Steam</a><a href="#home">回到顶部</a></div><p>零度协议 // PROTOCOL ZERO · v2.0 · 2026</p></div>
     </footer>
 
-    <script src="script.js?v=20260615-terminal-gallery"></script>
+    <script src="script.js?v=20260615-mobile-data-fallback"></script>
     <script src="effects-3d.js"></script>
 </body>
 </html>

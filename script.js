@@ -26,9 +26,13 @@ const games = [
 const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? '/api' : null;
 let apiGames = null;
 let apiPlaytime = null;
+let steamDataMode = "local";
+let steamDataMessage = "Local Memory";
 
 async function fetchFromAPI(endpoint) {
     if (!API_BASE_URL || !window.location.protocol.startsWith("http")) {
+        steamDataMode = "local";
+        steamDataMessage = "Static GitHub Pages";
         return null;
     }
 
@@ -39,9 +43,13 @@ async function fetchFromAPI(endpoint) {
         if (payload && payload.success === false) {
             throw new Error(payload.error || "API returned an error");
         }
+        steamDataMode = "steam";
+        steamDataMessage = "Steam API Live";
         return payload && Object.prototype.hasOwnProperty.call(payload, "data") ? payload.data : payload;
     } catch (error) {
         console.warn(`API fetch failed for ${endpoint}:`, error.message);
+        steamDataMode = "local";
+        steamDataMessage = error && error.message ? "Local Cache · " + error.message : "Local Cache";
         return null;
     }
 }
@@ -71,6 +79,8 @@ async function loadGameData() {
         console.log('Using local game data as fallback');
         apiGames = games;
         apiPlaytime = estimatedPlaytime;
+        steamDataMode = "local";
+        if (!steamDataMessage || steamDataMessage === "Steam API Live") steamDataMessage = "Local Cache";
     }
     
     // Update global variables (fix: create a copy before clearing games)
@@ -82,6 +92,7 @@ async function loadGameData() {
     // Re-render with new data
     renderFilters();
     renderGames();
+    updateHomeDashboard();
     
     return { games: apiGames, playtime: apiPlaytime };
 }
@@ -169,7 +180,8 @@ function renderGames() {
             '<div class="game-card-footer"><a class="game-card-link" href="https://store.steampowered.com/app/' + game.appId + '" target="_blank" rel="noopener">Steam \u5546\u5E97</a>' +
             '<a class="game-card-link game-card-link-play" href="steam://run/' + game.appId + '" rel="noopener">\u25B6 \u542F\u52A8\u6E38\u620F</a></div></div></div>';
     }).join("");
-    document.getElementById("gameCount").textContent = filtered.length;
+    var gameCountEl = document.getElementById("gameCount");
+    if (gameCountEl) gameCountEl.textContent = games.length;
 }
 
 function animateCounter(el, target, dur) {
@@ -216,6 +228,67 @@ function calcTotalAchievements() {
     var total = 0;
     games.forEach(function(g) { if (g.ach) total += g.ach[0]; });
     return total;
+}
+
+function calcCompletedGames() {
+    return games.filter(function(g) {
+        return g.ach && g.ach[1] > 0 && g.ach[0] >= g.ach[1];
+    }).length;
+}
+
+function getTopPlaytimeGame() {
+    return games.slice().sort(function(a, b) {
+        return getPlaytime(b.appId) - getPlaytime(a.appId);
+    })[0] || games[0];
+}
+
+function getActiveGameCount() {
+    return games.filter(function(g) {
+        var minutes = getPlaytime(g.appId);
+        var completed = g.ach && g.ach[1] > 0 && g.ach[0] >= g.ach[1];
+        return minutes > 0 && !completed;
+    }).length;
+}
+
+function setText(id, value) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = value;
+}
+
+function updateHomeDashboard() {
+    var totalHours = calcTotalPlaytime();
+    var totalAch = calcTotalAchievements();
+    var completed = calcCompletedGames();
+    var active = getActiveGameCount();
+    var topGame = getTopPlaytimeGame();
+    var topMinutes = topGame ? getPlaytime(topGame.appId) : 0;
+    var sourceLabel = steamDataMode === "steam" ? "Steam" : "Local";
+    var sourceState = steamDataMode === "steam" ? "STEAM LIVE" : "CACHE MODE";
+
+    setText("heroDesc", games.length + " 个任务节点 · " + totalHours + " 小时执行 · " + totalAch + " 个已解锁 · " + sourceState);
+    setText("terminalDataState", sourceState);
+    setText("terminalRoute", "武器库 / 小诺猫 / 执行报告");
+    setText("terminalSignal", topGame ? topGame.name + " · " + formatPlaytime(topMinutes) : "等待游戏数据");
+    setText("terminalMemory", (typeof friendsGallery !== "undefined" ? friendsGallery.length : 18) + " 张相册节点");
+    setText("dataSourceLabel", sourceLabel);
+    setText("dashboardMode", active + " 个进行中 · " + completed + " 个完全渗透");
+    setText("dashboardSync", steamDataMode === "steam" ? "Steam API + Local Memory" : "Local Memory · API 可选");
+    setText("qsPlaying", active);
+
+    var featuredImg = document.getElementById("featuredGameImg");
+    var featuredName = document.getElementById("featuredGameName");
+    var featuredBadge = document.getElementById("featuredGameBadge");
+    if (topGame) {
+        if (featuredImg) {
+            featuredImg.src = steamImg + topGame.appId + "/header.jpg";
+            featuredImg.alt = topGame.name;
+        }
+        if (featuredName) featuredName.textContent = topGame.name;
+        if (featuredBadge) featuredBadge.textContent = "⚡ 最高时长 · " + formatPlaytime(topMinutes);
+    }
+
+    var statsEl = document.getElementById("statsTotalHours");
+    if (statsEl) statsEl.textContent = totalHours + " 小时";
 }
 
 // ==================== CLOCK WIDGET ====================
@@ -501,6 +574,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     loadNotes(); updatePomodoroDisplay(); renderCountdowns(); refreshWeather(); detectSystemInfo();
     var statsEl = document.getElementById("statsTotalHours");
     if (statsEl) statsEl.textContent = calcTotalPlaytime() + " 小时";
+    updateHomeDashboard();
     
     // 初始化粒子系统和交互效果
     initGlobalParticles(perfProfile);
@@ -1819,7 +1893,22 @@ function saveGameNotes() { if(!currentGameModalAppId)return; var n=JSON.parse(lo
 
 // ========== Steam 状态 ==========
 function initSteamStatus() {
-    fetchFromAPI('/steam/profile').then(function(d) { var el=document.getElementById('steamStatus'),t=document.getElementById('steamStatusText'); if(!el||!d)return; if(d.personaState===0){el.className='steam-status offline';t.textContent='\u79bb\u7ebf';}else{el.className='steam-status online';t.textContent='\u5728\u7ebf';}}).catch(function(){});
+    fetchFromAPI('/steam/profile').then(function(d) {
+        var el=document.getElementById('steamStatus'),t=document.getElementById('steamStatusText');
+        if (d) {
+            steamDataMode = "steam";
+            steamDataMessage = "Steam API Live";
+        }
+        if(el&&t&&d){
+            if(d.personaState===0){el.className='steam-status offline';t.textContent='\u79bb\u7ebf';}
+            else{el.className='steam-status online';t.textContent='\u5728\u7ebf';}
+        }
+        updateHomeDashboard();
+    }).catch(function(){
+        steamDataMode = "local";
+        steamDataMessage = "Local Cache";
+        updateHomeDashboard();
+    });
 }
 
 // ========== 成就墙 ==========
