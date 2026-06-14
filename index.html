@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>零度协议 // PROTOCOL ZERO</title>
-    <link rel="stylesheet" href="style.css?v=20260614-gallery-polish">
+    <link rel="stylesheet" href="style.css?v=20260615-terminal-gallery">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap&display=swap" rel="stylesheet">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#050510">
@@ -202,6 +202,27 @@
             <p class="hero-subtitle">PROTOCOL ZERO — 初始化完成</p>
             <h1 class="hero-title"><span class="gradient-text" data-text="零度协议">零度协议</span></h1>
             <p class="hero-desc">20 个任务节点 · 607 小时执行 · 177 个已解锁 · 协议运行中</p>
+            <div class="hero-terminal-panel" aria-label="协议状态摘要">
+                <div class="terminal-panel-header">
+                    <span class="terminal-panel-dot"></span>
+                    <span>LIVE COMMAND NODE</span>
+                    <span class="terminal-panel-state">ONLINE</span>
+                </div>
+                <div class="terminal-panel-grid">
+                    <div class="terminal-panel-item">
+                        <span class="terminal-panel-label">ACTIVE ROUTE</span>
+                        <strong>武器库 / 小诺猫 / 执行报告</strong>
+                    </div>
+                    <div class="terminal-panel-item">
+                        <span class="terminal-panel-label">LAST SIGNAL</span>
+                        <strong>GTA V · 186.7h</strong>
+                    </div>
+                    <div class="terminal-panel-item">
+                        <span class="terminal-panel-label">MEMORY VAULT</span>
+                        <strong>18 张相册节点</strong>
+                    </div>
+                </div>
+            </div>
             <div class="hero-stats">
                 <div class="stat-item">
                     <span class="stat-number" id="gameCount">0</span>
@@ -220,12 +241,32 @@
                     <span class="stat-label">协议版本</span>
                 </div>
             </div>
-            <a href="#games" class="hero-btn">
-                进入武器库
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
+            <div class="hero-actions">
+                <a href="#games" class="hero-btn">
+                    进入武器库
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+                <a href="#friends" class="hero-btn hero-btn-secondary">
+                    打开记忆相册
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v13H4z"/><path d="M8 7V4h8v3"/><path d="m8 15 2.5-2.5 2 2L15 12l3 3"/></svg>
+                </a>
+            </div>
         </div>
         <div class="hero-featured">
+            <div class="terminal-dashboard">
+                <div class="terminal-dashboard-row">
+                    <span>SESSION</span>
+                    <strong>LX / momaek276</strong>
+                </div>
+                <div class="terminal-dashboard-row">
+                    <span>MODE</span>
+                    <strong>探索 · 收藏 · 记录</strong>
+                </div>
+                <div class="terminal-dashboard-row">
+                    <span>SYNC</span>
+                    <strong>Steam + Local Memory</strong>
+                </div>
+            </div>
             <div class="featured-card">
                 <img src="https://cdn.akamai.steamstatic.com/steam/apps/271590/header.jpg" alt="GTA V" loading="lazy">
                 <div class="featured-overlay">
@@ -298,11 +339,19 @@
     <div class="photo-lightbox" id="photoLightbox" onclick="closeLightbox(event)">
         <div class="lightbox-content">
             <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-            <img id="lightboxImg" src="" alt="">
+            <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1, event)" aria-label="上一张">‹</button>
+            <div class="lightbox-stage">
+                <img id="lightboxImg" src="" alt="">
+            </div>
+            <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(1, event)" aria-label="下一张">›</button>
             <div class="lightbox-info">
-                <span id="lightboxName"></span>
+                <div class="lightbox-title-row">
+                    <span id="lightboxName"></span>
+                    <span id="lightboxCounter"></span>
+                </div>
                 <span id="lightboxDesc"></span>
             </div>
+            <div class="lightbox-thumbs" id="lightboxThumbs" aria-label="相册缩略图"></div>
         </div>
     </div>
 
@@ -719,7 +768,7 @@
         <div class="footer-content"><div class="footer-links"><a href="https://store.steampowered.com/" target="_blank">Steam 商店</a><a href="https://steamcommunity.com/id/momaek276" target="_blank">我的 Steam</a><a href="#home">回到顶部</a></div><p>零度协议 // PROTOCOL ZERO · v2.0 · 2026</p></div>
     </footer>
 
-    <script src="script.js?v=20260614-gallery-polish"></script>
+    <script src="script.js?v=20260615-terminal-gallery"></script>
     <script src="effects-3d.js"></script>
 </body>
 </html>

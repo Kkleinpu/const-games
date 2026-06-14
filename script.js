@@ -937,7 +937,7 @@ function initFriendsSpiralGallery() {
     if (!section || !stage || !cards.length) return;
 
     var profile = getPerformanceProfile();
-    var isStaticMode = profile.reducedMotion || profile.isMobile || profile.lowPower;
+    var isStaticMode = profile.reducedMotion || profile.isMobile;
     var isFrozen = false;
     var isActive = true;
     var lastProgress = -1;
@@ -1180,30 +1180,86 @@ function initFriendsSpiralGallery() {
 function initFriendCardEffects() {
     initFriendsSpiralGallery();
 }
+
+var activeFriendIndex = -1;
+
 function handleFriendPhoto(index) {
     var friend = friendsGallery[index];
     if (!friend) return;
-    // 直接打开lightbox查看照片
-    openLightbox(friend.src, friend.name, friend.desc);
+    openLightbox(index);
 }
 
-function openLightbox(src, name, desc) {
+function renderLightboxThumbs() {
+    var thumbs = document.getElementById("lightboxThumbs");
+    if (!thumbs) return;
+    thumbs.innerHTML = friendsGallery.map(function(friend, index) {
+        return '<button class="lightbox-thumb' + (index === activeFriendIndex ? ' active' : '') + '" type="button" onclick="openLightbox(' + index + ', event)" aria-label="查看第 ' + (index + 1) + ' 张">' +
+            '<img src="' + friend.src + '" alt="' + friend.name + '" loading="lazy" decoding="async">' +
+        '</button>';
+    }).join("");
+    var active = thumbs.querySelector(".lightbox-thumb.active");
+    if (active && active.scrollIntoView) {
+        active.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+    }
+}
+
+function setLightboxPhoto(index) {
     var lightbox = document.getElementById("photoLightbox");
     var img = document.getElementById("lightboxImg");
     var nameEl = document.getElementById("lightboxName");
     var descEl = document.getElementById("lightboxDesc");
-    if (!lightbox || !img || !nameEl || !descEl) return;
+    var counterEl = document.getElementById("lightboxCounter");
+    var friend = friendsGallery[index];
+    if (!lightbox || !img || !nameEl || !descEl || !friend) return;
+
+    activeFriendIndex = index;
+    img.classList.add("is-switching");
+    window.setTimeout(function() {
+        img.loading = "eager";
+        img.decoding = "async";
+        img.src = friend.src;
+        img.alt = friend.name + " - " + friend.desc;
+        nameEl.textContent = friend.name;
+        descEl.textContent = friend.desc;
+        if (counterEl) counterEl.textContent = (index + 1) + " / " + friendsGallery.length;
+        renderLightboxThumbs();
+        img.onload = function() {
+            img.classList.remove("is-switching");
+        };
+        window.setTimeout(function() {
+            img.classList.remove("is-switching");
+        }, 280);
+    }, 80);
+}
+
+function openLightbox(srcOrIndex, name, desc) {
+    if (srcOrIndex && srcOrIndex.stopPropagation) srcOrIndex.stopPropagation();
+    var index = typeof srcOrIndex === "number" ? srcOrIndex : friendsGallery.findIndex(function(friend) {
+        return friend.src === srcOrIndex;
+    });
+    if (index < 0) {
+        index = 0;
+        if (srcOrIndex && typeof srcOrIndex === "string") {
+            friendsGallery.unshift({ name: name || "照片", desc: desc || "", src: srcOrIndex });
+        }
+    }
+    var lightbox = document.getElementById("photoLightbox");
+    if (!lightbox) return;
     
     window.friendGalleryPaused = true;
     document.body.classList.add("lightbox-open");
     window.dispatchEvent(new Event("friend-gallery-pause"));
-    img.loading = "eager";
-    img.decoding = "async";
-    img.src = src;
-    nameEl.textContent = name;
-    descEl.textContent = desc;
-    
+    setLightboxPhoto(index);
     lightbox.classList.add("active");
+}
+
+function navigateLightbox(direction, event) {
+    if (event) event.stopPropagation();
+    if (!friendsGallery.length) return;
+    var nextIndex = activeFriendIndex + direction;
+    if (nextIndex < 0) nextIndex = friendsGallery.length - 1;
+    if (nextIndex >= friendsGallery.length) nextIndex = 0;
+    setLightboxPhoto(nextIndex);
 }
 
 function closeLightbox(event) {
@@ -1218,12 +1274,18 @@ function closeLightbox(event) {
 }
 
 document.addEventListener("keydown", function(e) {
+    var lightbox = document.getElementById("photoLightbox");
+    var isOpen = lightbox && lightbox.classList.contains("active");
     if (e.key === "Escape") closeLightbox();
+    if (!isOpen) return;
+    if (e.key === "ArrowLeft") navigateLightbox(-1);
+    if (e.key === "ArrowRight") navigateLightbox(1);
 });
 
 window.handleFriendPhoto = handleFriendPhoto;
 window.openLightbox = openLightbox;
 window.closeLightbox = closeLightbox;
+window.navigateLightbox = navigateLightbox;
 
 // ==================== 语音朗读功能 ====================
 let isVoicePlaying = false;
