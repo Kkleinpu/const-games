@@ -1,15 +1,15 @@
-﻿// Gaming Hub Service Worker v1
-const CACHE_NAME = 'gaming-hub-v4-mobile-data-fallback';
+// Gaming Hub Service Worker v6
+const CACHE_NAME = 'gaming-hub-v9-protocol-links';
 const ASSETS = [
-    '/',
-    '/index.html',
-    '/style.css',
-    '/script.js',
-    '/avatar.jpg',
-    '/bgm.mp3'
+    './',
+    'index.html',
+    'style.css',
+    'script.js',
+    'avatar.jpg',
+    'profile-bg.jpg',
+    'manifest.json'
 ];
 
-// 安装
 self.addEventListener('install', function(event) {
     event.waitUntil(
         caches.open(CACHE_NAME).then(function(cache) {
@@ -19,22 +19,19 @@ self.addEventListener('install', function(event) {
     self.skipWaiting();
 });
 
-// 激活
 self.addEventListener('activate', function(event) {
     event.waitUntil(
         caches.keys().then(function(names) {
             return Promise.all(
                 names.filter(function(name) { return name !== CACHE_NAME; })
-                     .map(function(name) { return caches.delete(name); })
+                    .map(function(name) { return caches.delete(name); })
             );
         })
     );
     self.clients.claim();
 });
 
-// 拦截请求
 self.addEventListener('fetch', function(event) {
-    // 跳过 API 请求
     if (event.request.url.includes('/api/')) return;
 
     var requestUrl = new URL(event.request.url);
@@ -57,13 +54,13 @@ self.addEventListener('fetch', function(event) {
                 return response;
             }).catch(function() {
                 return caches.match(event.request).then(function(cached) {
-                    return cached || caches.match('/index.html');
+                    return cached || caches.match('index.html');
                 });
             })
         );
         return;
     }
-    
+
     event.respondWith(
         caches.match(event.request).then(function(cached) {
             if (cached) return cached;
@@ -76,9 +73,8 @@ self.addEventListener('fetch', function(event) {
                 }
                 return response;
             }).catch(function() {
-                // 离线回退
                 if (event.request.destination === 'document') {
-                    return caches.match('/index.html');
+                    return caches.match('index.html');
                 }
             });
         })

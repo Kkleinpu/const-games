@@ -4,7 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>零度协议 // PROTOCOL ZERO</title>
-    <link rel="stylesheet" href="style.css?v=20260615-mobile-data-fallback">
+    <meta name="description" content="LX 的 Steam 游戏档案、个人记录、记忆相册与协议终端。">
+    <meta name="author" content="LX">
+    <link rel="canonical" href="https://kkleinpu.github.io/const-games/">
+    <meta property="og:title" content="LX Gaming Hub // Protocol Zero">
+    <meta property="og:description" content="Steam 游戏档案、个人记录、记忆相册与协议终端。">
+    <meta property="og:image" content="https://kkleinpu.github.io/const-games/profile-bg.jpg">
+    <meta property="og:url" content="https://kkleinpu.github.io/const-games/">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="zh_CN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="LX Gaming Hub // Protocol Zero">
+    <meta name="twitter:description" content="Steam 游戏档案、个人记录、记忆相册与协议终端。">
+    <meta name="twitter:image" content="https://kkleinpu.github.io/const-games/profile-bg.jpg">
+    <link rel="stylesheet" href="style.css?v=20260615-protocol-links">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap&display=swap" rel="stylesheet">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#050510">
@@ -121,8 +134,10 @@
             <a href="#home" class="active">首页</a>
             <a href="#games">武器库</a>
             <a href="#friends">小诺猫</a>
+            <a href="#memory-vault">记忆馆</a>
+            <a href="#year-report">年度报告</a>
             <a href="#tools">协议工具</a>
-            <a href="#stats">执行报告</a>
+            <a href="#visitor-lab">互动</a>
         </div>
         <div class="nav-right">
             <a href="#tools" class="cpu-indicator" id="cpuIndicator" title="系统监控">
@@ -223,6 +238,24 @@
                     </div>
                 </div>
             </div>
+            <div class="hero-protocol-path" aria-label="协议游览路径">
+                <button class="protocol-step active" type="button" data-target="games" onclick="jumpProtocolNode('games')">
+                    <span>01</span><strong>武器库</strong><em>游戏档案</em>
+                </button>
+                <button class="protocol-step" type="button" data-target="memory-vault" onclick="jumpProtocolNode('memory-vault')">
+                    <span>02</span><strong>记忆馆</strong><em>小诺猫存档</em>
+                </button>
+                <button class="protocol-step" type="button" data-target="year-report" onclick="jumpProtocolNode('year-report')">
+                    <span>03</span><strong>年度报告</strong><em>Wrapped 回放</em>
+                </button>
+                <button class="protocol-step" type="button" data-target="visitor-lab" onclick="jumpProtocolNode('visitor-lab')">
+                    <span>04</span><strong>访客互动</strong><em>留下信号</em>
+                </button>
+            </div>
+            <div class="protocol-progress" aria-label="协议探索进度">
+                <span id="protocolProgressText">协议探索 1 / 4</span>
+                <i><b id="protocolProgressBar"></b></i>
+            </div>
             <div class="hero-stats">
                 <div class="stat-item">
                     <span class="stat-number" id="gameCount">0</span>
@@ -246,8 +279,12 @@
                     进入武器库
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </a>
-                <a href="#friends" class="hero-btn hero-btn-secondary">
-                    打开记忆相册
+                <a href="#memory-vault" class="hero-btn hero-btn-secondary">
+                    打开记忆馆
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10Z"/></svg>
+                </a>
+                <a href="profile.html" class="hero-btn hero-btn-secondary">
+                    查看公开名片
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v13H4z"/><path d="M8 7V4h8v3"/><path d="m8 15 2.5-2.5 2 2L15 12l3 3"/></svg>
                 </a>
             </div>
@@ -318,6 +355,7 @@
             </div>
         </div>
         <div class="genre-filters" id="genreFilters"></div>
+        <div class="archive-filters" id="archiveFilters" aria-label="游戏档案筛选"></div>
         <div class="games-grid" id="gamesGrid"></div>
     </section>
 
@@ -327,6 +365,7 @@
             <h2>小诺猫</h2>
             <p>3D 螺旋堆叠 · 滚动展开 · 记忆相册 ✨</p>
         </div>
+        <div class="friends-album-filters" id="friendsAlbumFilters" aria-label="相册分组"></div>
         <div class="friends-scroll-hud" aria-hidden="true">
             <span class="friends-scroll-hud__label">DEPLOY</span>
             <span class="friends-scroll-hud__track"><i></i></span>
@@ -342,6 +381,7 @@
             <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1, event)" aria-label="上一张">‹</button>
             <div class="lightbox-stage">
                 <img id="lightboxImg" src="" alt="">
+                <video id="lightboxVideo" controls playsinline preload="metadata"></video>
             </div>
             <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(1, event)" aria-label="下一张">›</button>
             <div class="lightbox-info">
@@ -349,11 +389,28 @@
                     <span id="lightboxName"></span>
                     <span id="lightboxCounter"></span>
                 </div>
+                <span id="lightboxCategory"></span>
                 <span id="lightboxDesc"></span>
             </div>
             <div class="lightbox-thumbs" id="lightboxThumbs" aria-label="相册缩略图"></div>
         </div>
     </div>
+
+    <section id="memory-vault" class="memory-vault-section">
+        <div class="section-header reveal">
+            <h2>MEMORY VAULT // 小诺猫记忆馆</h2>
+            <p>高光照片 · 场景分组 · 记忆故事</p>
+        </div>
+        <div class="memory-vault-layout">
+            <div class="memory-spotlight" id="memorySpotlight"></div>
+            <div class="memory-story-grid" id="memoryStoryGrid"></div>
+        </div>
+        <div class="module-bridge reveal">
+            <span>记忆节点已同步</span>
+            <button type="button" onclick="jumpProtocolNode('year-report')">生成年度回放</button>
+            <button type="button" onclick="jumpProtocolNode('visitor-lab')">让访客留下信号</button>
+        </div>
+    </section>
 
 
     <section id="tools" class="tools-section">
@@ -525,10 +582,10 @@
                 <div class="tool-card-header">
                     <span class="tool-icon">📋</span>
                     <h3>游戏笔记</h3>
-                    <button class="tool-refresh-btn" onclick="clearNotes()">🗑️ 清空</button>
+                    <button class="tool-refresh-btn" onclick="clearNotes()" data-write-action>🗑️ 清空</button>
                 </div>
                 <div class="notes-area">
-                    <textarea class="notes-input" id="notesInput" placeholder="记录游戏待办事项、愿望单、攻略备忘...&#10;&#10;支持自动保存 ✨" oninput="saveNotes()"></textarea>
+                    <textarea class="notes-input" id="notesInput" placeholder="记录游戏待办事项、愿望单、攻略备忘...&#10;&#10;支持自动保存 ✨" oninput="saveNotes()" data-write-action></textarea>
                     <div class="notes-footer">
                         <span class="notes-charcount" id="notesCharCount">0 字</span>
                         <span class="notes-save-status" id="notesSaveStatus">自动保存</span>
@@ -672,6 +729,20 @@
         </div>
     </section>
 
+    <section id="year-report" class="year-report-section">
+        <div class="section-header reveal">
+            <h2>年度游戏报告 // WRAPPED</h2>
+            <p>像战报一样回看这一年的游戏轨迹</p>
+            <button class="wrapped-share-btn" type="button" onclick="copyYearReportSummary()">复制年度摘要</button>
+        </div>
+        <div class="year-report-grid" id="yearReportGrid"></div>
+        <div class="module-bridge reveal">
+            <span>报告生成完成</span>
+            <button type="button" onclick="jumpProtocolNode('games')">回看游戏档案</button>
+            <button type="button" onclick="jumpProtocolNode('theme-lab')">切换报告氛围</button>
+        </div>
+    </section>
+
     <section id="tierlist" class="tierlist-section">
         <div class="section-header reveal"><h2>🏅 Tier List</h2><p>直接拖，别客气</p></div>
         <div class="tierlist-container" id="tierlistContainer"></div>
@@ -682,12 +753,52 @@
         <div class="timeline" id="timelineContainer"></div>
     </section>
 
+    <section id="theme-lab" class="theme-lab-section">
+        <div class="section-header reveal">
+            <h2>主题实验室 // THEME LAB</h2>
+            <p>切换整套观看氛围，而不只是换一个颜色</p>
+        </div>
+        <div class="theme-profile-grid" id="themeProfileGrid"></div>
+        <div class="module-bridge reveal">
+            <span>氛围已加载</span>
+            <button type="button" onclick="jumpProtocolNode('memory-vault')">用新主题看记忆馆</button>
+            <button type="button" onclick="jumpProtocolNode('visitor-lab')">继续访客互动</button>
+        </div>
+    </section>
+
+    <section id="visitor-lab" class="visitor-lab-section">
+        <div class="section-header reveal">
+            <h2>访客互动 // VISITOR LAB</h2>
+            <p>给这个终端留下一点轻量反馈</p>
+        </div>
+        <div class="visitor-lab-grid">
+            <div class="visitor-panel">
+                <h3>推荐下一款游戏</h3>
+                <div class="visitor-vote-list" id="visitorVoteList"></div>
+            </div>
+            <div class="visitor-panel">
+                <h3>今日随机任务</h3>
+                <div class="visitor-mission" id="visitorMission">等待生成任务...</div>
+                <button class="visitor-action-btn" type="button" onclick="rollVisitorMission()">刷新任务</button>
+            </div>
+            <div class="visitor-panel">
+                <h3>站点反应</h3>
+                <div class="visitor-reactions" id="visitorReactions"></div>
+            </div>
+        </div>
+        <div class="module-bridge reveal">
+            <span>访客信号已接收</span>
+            <button type="button" onclick="jumpProtocolNode('games')">回到武器库</button>
+            <button type="button" onclick="scrollToSection('guestbook')">写一条留言</button>
+        </div>
+    </section>
+
     <section id="guestbook" class="guestbook-section">
         <div class="section-header reveal"><h2>💬 留言板</h2><p>随便说点什么都行</p></div>
         <div class="guestbook-form">
             <input class="guestbook-input" id="gbNickname" placeholder="你的昵称" maxlength="20">
             <textarea class="guestbook-textarea" id="gbMessage" placeholder="随便聊两句..." maxlength="500"></textarea>
-            <button class="guestbook-submit" onclick="submitGuestbook()">发表留言</button>
+            <button class="guestbook-submit" onclick="submitGuestbook()" data-write-action>发表留言</button>
         </div>
         <div class="guestbook-list" id="guestbookList"></div>
     </section>
@@ -740,9 +851,9 @@
                 <a class="game-modal-link" id="modalSteamLink" href="#" target="_blank">⬡ 在 Steam 终端查看</a>
                 <div class="game-modal-notes">
                     <h4>📋 任务备注</h4>
-                    <textarea id="modalNotes" placeholder="写下感想..."></textarea>
+                    <textarea id="modalNotes" placeholder="写下感想..." data-write-action></textarea>
                     <div class="game-modal-rating"><label>评分：</label><div class="rating-stars" id="modalRatingStars"></div><span id="modalRatingValue" style="font-size:13px;color:rgba(255,255,255,0.5)">-</span></div>
-                    <button class="guestbook-submit" style="margin-top:8px;padding:8px 20px;font-size:12px" onclick="saveGameNotes()">保存笔记</button>
+                    <button class="guestbook-submit" style="margin-top:8px;padding:8px 20px;font-size:12px" onclick="saveGameNotes()" data-write-action>保存笔记</button>
                 </div>
             </div>
         </div>
@@ -768,7 +879,7 @@
         <div class="footer-content"><div class="footer-links"><a href="https://store.steampowered.com/" target="_blank">Steam 商店</a><a href="https://steamcommunity.com/id/momaek276" target="_blank">我的 Steam</a><a href="#home">回到顶部</a></div><p>零度协议 // PROTOCOL ZERO · v2.0 · 2026</p></div>
     </footer>
 
-    <script src="script.js?v=20260615-mobile-data-fallback"></script>
+    <script src="script.js?v=20260615-protocol-links"></script>
     <script src="effects-3d.js"></script>
 </body>
 </html>

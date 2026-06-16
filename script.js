@@ -91,8 +91,10 @@ async function loadGameData() {
     
     // Re-render with new data
     renderFilters();
+    renderArchiveFilters();
     renderGames();
     updateHomeDashboard();
+    renderYearReport();
     
     return { games: apiGames, playtime: apiPlaytime };
 }
@@ -109,8 +111,11 @@ const estimatedPlaytime = {
 
 const allGenres = [...new Set(games.flatMap(g => g.genre))].sort();
 let currentFilter = "all";
+let archiveFilter = "all";
 let searchQuery = "";
 let sortBy = "rating";
+const SITE_BASE_URL = "https://kkleinpu.github.io/const-games/";
+const guestMode = new URLSearchParams(window.location.search).has("guest");
 
 function getPlaytime(appId) { return estimatedPlaytime[appId] || 0; }
 function formatPlaytime(m) {
@@ -124,12 +129,56 @@ function renderRating(r) {
     return "\u2605".repeat(s) + (h ? "\u00BD" : "") + "\u2606".repeat(5 - s - h);
 }
 
+function getAchievementProgress(game) {
+    if (!game.ach || !game.ach[1]) return 0;
+    return game.ach[0] / game.ach[1];
+}
+
+function getGameArchiveStatus(game) {
+    var minutes = getPlaytime(game.appId);
+    var progress = getAchievementProgress(game);
+    if (progress >= 1) return { key: "completed", label: "完全渗透", tone: "gold" };
+    if (minutes === 0) return { key: "backlog", label: "未启动", tone: "muted" };
+    if (minutes >= 3000) return { key: "deep", label: "高时长", tone: "cyan" };
+    return { key: "active", label: "进行中", tone: "green" };
+}
+
+function getGameVisualClass(game) {
+    var minutes = getPlaytime(game.appId);
+    var progress = getAchievementProgress(game);
+    var rating = game.rating || 0;
+    var classes = [];
+    if (progress >= 1) classes.push("game-tier-completed");
+    if (minutes === 0) {
+        classes.push("game-tier-muted");
+    } else if (minutes >= 3000 || rating >= 9.2 || progress >= 1) {
+        classes.push("game-tier-featured");
+    }
+    if (!classes.length) classes.push("game-tier-standard");
+    return classes.join(" ");
+}
+
+function getGameRecommendation(game) {
+    var minutes = getPlaytime(game.appId);
+    var progress = getAchievementProgress(game);
+    if (progress >= 1) return "已完全渗透，适合作为主页荣誉样本。";
+    if (minutes === 0) return "还没启动，适合加入补完清单。";
+    if ((game.rating || 0) >= 9) return "高评分任务，值得继续推进。";
+    if (minutes >= 3000) return "高时长档案，已经形成主力游戏记录。";
+    return "常规档案，可继续观察体验。";
+}
+
 function getFilteredGames() {
     return games.filter(g => {
         const genres = g.genre || [];
         const mf = currentFilter === "all" || genres.includes(currentFilter);
         const ms = searchQuery === "" || g.name.toLowerCase().includes(searchQuery.toLowerCase()) || genres.some(x => x.includes(searchQuery));
-        return mf && ms;
+        const status = getGameArchiveStatus(g);
+        const af = archiveFilter === "all" ||
+            archiveFilter === status.key ||
+            (archiveFilter === "played" && getPlaytime(g.appId) > 0) ||
+            (archiveFilter === "high-rating" && (g.rating || 0) >= 9);
+        return mf && ms && af;
     });
 }
 
@@ -141,7 +190,25 @@ function renderFilters() {
         genres.map(g => '<button class="filter-btn' + (currentFilter === g ? " active" : "") + '" onclick="setFilter(\'' + g + '\')">' + g + "</button>").join("");
 }
 
+function renderArchiveFilters() {
+    var c = document.getElementById("archiveFilters");
+    if (!c) return;
+    var filters = [
+        { key: "all", label: "全部档案" },
+        { key: "active", label: "进行中" },
+        { key: "completed", label: "完全成就" },
+        { key: "deep", label: "高时长" },
+        { key: "played", label: "已游玩" },
+        { key: "backlog", label: "未启动" },
+        { key: "high-rating", label: "高评分" }
+    ];
+    c.innerHTML = filters.map(function(item) {
+        return '<button class="archive-filter-btn' + (archiveFilter === item.key ? ' active' : '') + '" type="button" onclick="setArchiveFilter(\'' + item.key + '\')">' + item.label + '</button>';
+    }).join("");
+}
+
 function setFilter(genre) { currentFilter = genre; renderFilters(); renderGames(); }
+function setArchiveFilter(filter) { archiveFilter = filter; renderArchiveFilters(); renderGames(); }
 function handleSearch(e) { searchQuery = e.target.value; renderGames(); }
 
 function setSort(s) {
@@ -168,10 +235,13 @@ function renderGames() {
         const h = Math.floor(m / 60);
         const pct = Math.min((m / maxPt) * 100, 100);
         const genres = game.genre.map(g => '<span class="game-card-genre">' + g + "</span>").join("");
-        return '<div class="game-card" style="animation-delay:' + (i * 0.05) + 's">' +
+        const status = getGameArchiveStatus(game);
+        const visualClass = getGameVisualClass(game);
+        return '<div class="game-card ' + visualClass + '" id="game-' + game.appId + '" data-app-id="' + game.appId + '" style="animation-delay:' + (i * 0.05) + 's">' +
             '<div class="game-card-img-wrapper"><img class="game-card-img" src="' + steamImg + game.appId + '/header.jpg" alt="' + game.name + '" loading="lazy" onerror="this.style.display=\'none\'">' +
             '<div class="game-card-rating"><span class="rating-stars">' + renderRating(game.rating) + '</span><span class="rating-number">' + game.rating + "</span></div></div>" +
             '<div class="game-card-body"><div class="game-card-title">' + game.name + "</div>" +
+            '<div class="game-archive-row"><span class="game-status-pill game-status-' + status.tone + '">' + status.label + '</span><span class="game-mini-note">' + getGameRecommendation(game) + '</span></div>' +
             '<div class="game-card-genres">' + genres + "</div>" +
             '<p class="game-card-desc">' + game.desc + "</p>" +
             '<div class="game-card-playtime-section"><div class="playtime-info"><span class="playtime-label">\u23F1 \u6E38\u73A9\u65F6\u957F</span><span class="playtime-value">' + formatPlaytime(m) + "</span></div>" +
@@ -182,6 +252,10 @@ function renderGames() {
     }).join("");
     var gameCountEl = document.getElementById("gameCount");
     if (gameCountEl) gameCountEl.textContent = games.length;
+    scheduleIdle(function() {
+        enhanceGameCards();
+        initGameCardPreview();
+    }, 300);
 }
 
 function animateCounter(el, target, dur) {
@@ -242,6 +316,23 @@ function getTopPlaytimeGame() {
     })[0] || games[0];
 }
 
+function getTopRatingGame() {
+    return games.slice().sort(function(a, b) {
+        return (b.rating || 0) - (a.rating || 0);
+    })[0] || games[0];
+}
+
+function getFeaturedRotation() {
+    var topPlaytime = getTopPlaytimeGame();
+    var topRating = getTopRatingGame();
+    var completed = games.find(function(g) { return getAchievementProgress(g) >= 1; }) || topPlaytime;
+    return [
+        { game: topPlaytime, label: "最高时长 · " + formatPlaytime(getPlaytime(topPlaytime.appId)) },
+        { game: topRating, label: "最高评分 · " + (topRating.rating || 0).toFixed(1) },
+        { game: completed, label: "完全渗透 · " + (completed.ach ? completed.ach[0] + "/" + completed.ach[1] : "档案") }
+    ].filter(function(item) { return item.game; });
+}
+
 function getActiveGameCount() {
     return games.filter(function(g) {
         var minutes = getPlaytime(g.appId);
@@ -253,6 +344,37 @@ function getActiveGameCount() {
 function setText(id, value) {
     var el = document.getElementById(id);
     if (el) el.textContent = value;
+}
+
+function scheduleIdle(fn, timeout) {
+    if (window.requestIdleCallback) {
+        window.requestIdleCallback(fn, { timeout: timeout || 1800 });
+    } else {
+        window.setTimeout(fn, timeout || 600);
+    }
+}
+
+function isGuestMode() {
+    return guestMode;
+}
+
+function applyGuestMode() {
+    if (!isGuestMode()) return;
+    document.documentElement.classList.add("guest-mode");
+
+    var banner = document.createElement("div");
+    banner.className = "guest-mode-banner";
+    banner.textContent = "访客只读模式 · 本地笔记、留言和评分已锁定";
+    document.body.appendChild(banner);
+
+    document.querySelectorAll("[data-write-action], #gbNickname, #gbMessage").forEach(function(el) {
+        if (el.tagName === "BUTTON") {
+            el.disabled = true;
+        } else {
+            el.setAttribute("readonly", "readonly");
+            el.setAttribute("aria-readonly", "true");
+        }
+    });
 }
 
 function updateHomeDashboard() {
@@ -267,7 +389,7 @@ function updateHomeDashboard() {
 
     setText("heroDesc", games.length + " 个任务节点 · " + totalHours + " 小时执行 · " + totalAch + " 个已解锁 · " + sourceState);
     setText("terminalDataState", sourceState);
-    setText("terminalRoute", "武器库 / 小诺猫 / 执行报告");
+    setText("terminalRoute", "武器库 → 记忆馆 → 年度报告 → 访客互动");
     setText("terminalSignal", topGame ? topGame.name + " · " + formatPlaytime(topMinutes) : "等待游戏数据");
     setText("terminalMemory", (typeof friendsGallery !== "undefined" ? friendsGallery.length : 18) + " 张相册节点");
     setText("dataSourceLabel", sourceLabel);
@@ -275,20 +397,152 @@ function updateHomeDashboard() {
     setText("dashboardSync", steamDataMode === "steam" ? "Steam API + Local Memory" : "Local Memory · API 可选");
     setText("qsPlaying", active);
 
-    var featuredImg = document.getElementById("featuredGameImg");
-    var featuredName = document.getElementById("featuredGameName");
-    var featuredBadge = document.getElementById("featuredGameBadge");
-    if (topGame) {
-        if (featuredImg) {
-            featuredImg.src = steamImg + topGame.appId + "/header.jpg";
-            featuredImg.alt = topGame.name;
-        }
-        if (featuredName) featuredName.textContent = topGame.name;
-        if (featuredBadge) featuredBadge.textContent = "⚡ 最高时长 · " + formatPlaytime(topMinutes);
-    }
+    updateFeaturedGame(0);
 
     var statsEl = document.getElementById("statsTotalHours");
     if (statsEl) statsEl.textContent = totalHours + " 小时";
+}
+
+var protocolNodeLabels = {
+    "games": "武器库",
+    "memory-vault": "小诺猫记忆馆",
+    "year-report": "年度游戏报告",
+    "visitor-lab": "访客互动"
+};
+
+function getVisitedProtocolNodes() {
+    try { return JSON.parse(localStorage.getItem("protocolVisitedNodes") || "[]"); } catch(e) { return []; }
+}
+
+function saveVisitedProtocolNode(id) {
+    if (!protocolNodeLabels[id]) return;
+    var visited = getVisitedProtocolNodes();
+    if (visited.indexOf(id) < 0) {
+        visited.push(id);
+        localStorage.setItem("protocolVisitedNodes", JSON.stringify(visited));
+    }
+}
+
+function renderVisitedProtocolNodes() {
+    var visited = getVisitedProtocolNodes();
+    document.querySelectorAll(".protocol-step").forEach(function(step) {
+        var id = step.getAttribute("data-target");
+        step.classList.toggle("visited", visited.indexOf(id) >= 0);
+    });
+    var total = Object.keys(protocolNodeLabels).length;
+    var count = Math.min(visited.length, total);
+    var progressText = document.getElementById("protocolProgressText");
+    var progressBar = document.getElementById("protocolProgressBar");
+    if (progressText) progressText.textContent = "协议探索 " + count + " / " + total;
+    if (progressBar) progressBar.style.width = Math.max(25, Math.round(count / total * 100)) + "%";
+}
+
+function setActiveProtocolNode(id) {
+    saveVisitedProtocolNode(id);
+    document.querySelectorAll(".protocol-step").forEach(function(step) {
+        step.classList.toggle("active", step.getAttribute("data-target") === id);
+    });
+    renderVisitedProtocolNodes();
+    if (protocolNodeLabels[id]) {
+        setText("terminalRoute", "当前节点 // " + protocolNodeLabels[id]);
+    }
+}
+
+function jumpProtocolNode(id) {
+    setActiveProtocolNode(id);
+    scrollToSection(id);
+    var label = protocolNodeLabels[id] || (id === "theme-lab" ? "主题实验室" : "");
+    if (label) {
+        if (!protocolNodeLabels[id]) setText("terminalRoute", "当前节点 // " + label);
+        showToast("正在接入：" + label, "info");
+    }
+}
+
+function highlightGameCard(appId) {
+    var card = document.querySelector('.game-card[data-app-id="' + appId + '"]');
+    if (!card) return;
+    card.classList.add("protocol-focus");
+    window.setTimeout(function() {
+        card.classList.remove("protocol-focus");
+    }, 2400);
+}
+
+function focusGameFromReport(appId) {
+    setActiveProtocolNode("games");
+    var card = document.getElementById("game-" + appId);
+    if (card) card.scrollIntoView({ behavior: "smooth", block: "center" });
+    highlightGameCard(appId);
+}
+
+function initProtocolPath() {
+    var steps = document.querySelectorAll(".protocol-step");
+    if (!steps.length) return;
+    setActiveProtocolNode("games");
+    renderVisitedProtocolNodes();
+    var sectionIds = Array.prototype.slice.call(steps).map(function(step) {
+        return step.getAttribute("data-target");
+    });
+    if (!("IntersectionObserver" in window)) return;
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) setActiveProtocolNode(entry.target.id);
+        });
+    }, { rootMargin: "-35% 0px -50% 0px", threshold: 0.05 });
+    sectionIds.forEach(function(id) {
+        var section = document.getElementById(id);
+        if (section) observer.observe(section);
+    });
+}
+
+function updateFeaturedGame(offset) {
+    var rotation = getFeaturedRotation();
+    if (!rotation.length) return;
+    var slot = rotation[Math.abs(Math.floor((Date.now() / 7000) + (offset || 0))) % rotation.length];
+    var featuredImg = document.getElementById("featuredGameImg");
+    var featuredName = document.getElementById("featuredGameName");
+    var featuredBadge = document.getElementById("featuredGameBadge");
+    var featuredCard = document.querySelector(".featured-card");
+    if (featuredImg) {
+        featuredImg.src = steamImg + slot.game.appId + "/header.jpg";
+        featuredImg.alt = slot.game.name;
+    }
+    if (featuredName) featuredName.textContent = slot.game.name;
+    if (featuredBadge) featuredBadge.textContent = "⚡ " + slot.label;
+    if (featuredCard) featuredCard.setAttribute("data-featured-app-id", slot.game.appId);
+}
+
+function initFeaturedGameLink() {
+    var featuredCard = document.querySelector(".featured-card");
+    if (!featuredCard || featuredCard.dataset.protocolBound === "1") return;
+    featuredCard.dataset.protocolBound = "1";
+    featuredCard.setAttribute("role", "button");
+    featuredCard.setAttribute("tabindex", "0");
+    featuredCard.setAttribute("aria-label", "查看当前推荐游戏档案");
+    function openFeatured() {
+        var appId = parseInt(featuredCard.getAttribute("data-featured-app-id"), 10);
+        if (!Number.isNaN(appId)) {
+            setActiveProtocolNode("games");
+            window.setTimeout(function() { highlightGameCard(appId); }, 120);
+        }
+    }
+    featuredCard.addEventListener("click", openFeatured);
+    featuredCard.addEventListener("keydown", function(event) {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openFeatured();
+        }
+    });
+}
+
+function initReportGameLinks() {
+    if (document.body.dataset.reportLinksBound === "1") return;
+    document.body.dataset.reportLinksBound = "1";
+    document.addEventListener("click", function(event) {
+        var rank = event.target.closest && event.target.closest(".wrapped-rank-btn");
+        if (!rank) return;
+        var appId = parseInt(rank.getAttribute("data-report-app-id"), 10);
+        if (!Number.isNaN(appId)) focusGameFromReport(appId);
+    });
 }
 
 // ==================== CLOCK WIDGET ====================
@@ -367,6 +621,7 @@ function rollDailyGame() {
 }
 
 function saveNotes() {
+    if (isGuestMode()) return;
     var input = document.getElementById("notesInput");
     var cc = document.getElementById("notesCharCount");
     var ss = document.getElementById("notesSaveStatus");
@@ -383,6 +638,7 @@ function loadNotes() {
     if (input && saved) { input.value = saved; if (cc) cc.textContent = saved.length + " \u5B57"; }
 }
 function clearNotes() {
+    if (isGuestMode()) return;
     var input = document.getElementById("notesInput");
     var cc = document.getElementById("notesCharCount");
     if (input) { input.value = ""; localStorage.removeItem("gamingHubNotes"); if (cc) cc.textContent = "0 \u5B57"; }
@@ -572,6 +828,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     setTimeout(setupScrollAnimations, 600);
     updateClock(); setInterval(updateClock, 1000);
     loadNotes(); updatePomodoroDisplay(); renderCountdowns(); refreshWeather(); detectSystemInfo();
+    applyGuestMode();
     var statsEl = document.getElementById("statsTotalHours");
     if (statsEl) statsEl.textContent = calcTotalPlaytime() + " 小时";
     updateHomeDashboard();
@@ -582,6 +839,14 @@ document.addEventListener("DOMContentLoaded", async function() {
     initCardHoverGlow();
     initButtonRipple();
     renderFriendsGallery();
+    renderMemoryVault();
+    renderYearReport();
+    initThemeLab();
+    renderVisitorLab();
+    initProtocolPath();
+    initFeaturedGameLink();
+    initReportGameLinks();
+    window.setInterval(function() { updateFeaturedGame(1); }, 7000);
 });
 
 // ==================== 全站粒子背景 ====================
@@ -958,23 +1223,75 @@ const friendsGallery = [
         desc: "商场休闲一刻 ☕",
         src: "photos/小诺猫_12.jpg",
         unlockKey: "lx2026"
+    },
+    {
+        name: "小诺猫",
+        desc: "动态记忆回放 · 一小段会动的高光 🎬",
+        src: "photos/小诺猫_video.mp4",
+        type: "video",
+        unlockKey: "lx2026"
     }
 ];
+
+var activeFriendCategory = "all";
+
+function isFriendVideo(friend) {
+    return !!(friend && (friend.type === "video" || /\.mp4($|\?)/i.test(friend.src || "")));
+}
+
+function getFriendCategory(friend, index) {
+    if (isFriendVideo(friend)) return "视频";
+    if (friend.name === "我们") return "我们";
+    if (/地铁|商场|休闲|花田|花丛|红毯/.test(friend.desc || "")) return "出游";
+    if (/自拍|镜|随拍/.test(friend.desc || "")) return "自拍";
+    return index < 6 ? "日常" : "小诺猫";
+}
+
+function getFilteredFriends() {
+    return friendsGallery.map(function(friend, index) {
+        return Object.assign({ originalIndex: index, category: getFriendCategory(friend, index) }, friend);
+    }).filter(function(friend) {
+        return activeFriendCategory === "all" || friend.category === activeFriendCategory;
+    });
+}
+
+function renderFriendCategoryFilters() {
+    var container = document.getElementById("friendsAlbumFilters");
+    if (!container) return;
+    var categories = ["all"].concat(Array.from(new Set(friendsGallery.map(getFriendCategory))));
+    container.innerHTML = categories.map(function(cat) {
+        var label = cat === "all" ? "全部" : cat;
+        var count = cat === "all" ? friendsGallery.length : friendsGallery.filter(function(friend, index) { return getFriendCategory(friend, index) === cat; }).length;
+        return '<button class="album-filter-btn' + (activeFriendCategory === cat ? ' active' : '') + '" type="button" onclick="setFriendCategory(\'' + cat + '\')">' + label + '<span>' + count + '</span></button>';
+    }).join("");
+}
+
+function setFriendCategory(category) {
+    activeFriendCategory = category;
+    renderFriendsGallery();
+}
 
 function renderFriendsGallery() {
     var grid = document.getElementById("friendsGrid");
     if (!grid) return;
+    var visibleFriends = getFilteredFriends();
 
-    grid.innerHTML = friendsGallery.map(function(friend, index) {
-        return '<article class="friend-card" data-index="' + index + '" role="button" tabindex="0" aria-label="查看' + friend.name + '照片">' +
+    renderFriendCategoryFilters();
+    grid.innerHTML = visibleFriends.map(function(friend, index) {
+        var isVideo = isFriendVideo(friend);
+        var mediaHtml = isVideo
+            ? '<div class="friend-video-preview" aria-hidden="true"><span>▶</span><strong>VIDEO LOG</strong><em>点击播放</em></div>'
+            : '<img class="friend-card-img is-loading" src="' + friend.src + '" alt="' + friend.name + '" loading="lazy" decoding="async" fetchpriority="low">';
+        return '<article class="friend-card' + (isVideo ? ' friend-card-video' : '') + '" data-index="' + friend.originalIndex + '" data-category="' + friend.category + '" role="button" tabindex="0" aria-label="查看' + friend.name + (isVideo ? '视频' : '照片') + '">' +
             '<div class="friend-card-img-wrapper">' +
-                '<img class="friend-card-img is-loading" src="' + friend.src + '" alt="' + friend.name + '" loading="lazy" decoding="async" fetchpriority="low">' +
+                mediaHtml +
             '</div>' +
             '<div class="friend-card-info">' +
+                '<span class="friend-card-category">' + friend.category + '</span>' +
                 '<h3 class="friend-card-name">' + friend.name + '</h3>' +
                 '<p class="friend-card-desc">' + friend.desc + '</p>' +
-                '<button class="friend-card-btn" type="button" data-photo-index="' + index + '">' +
-                    '查看照片' +
+                '<button class="friend-card-btn" type="button" data-photo-index="' + friend.originalIndex + '">' +
+                    (isVideo ? '播放视频' : '查看照片') +
                 '</button>' +
             '</div>' +
         '</article>';
@@ -1266,9 +1583,19 @@ function handleFriendPhoto(index) {
 function renderLightboxThumbs() {
     var thumbs = document.getElementById("lightboxThumbs");
     if (!thumbs) return;
-    thumbs.innerHTML = friendsGallery.map(function(friend, index) {
+    var thumbFriends = getFilteredFriends();
+    if (!thumbFriends.some(function(friend) { return friend.originalIndex === activeFriendIndex; })) {
+        thumbFriends = friendsGallery.map(function(friend, index) {
+            return Object.assign({ originalIndex: index, category: getFriendCategory(friend, index) }, friend);
+        });
+    }
+    thumbs.innerHTML = thumbFriends.map(function(friend) {
+        var index = friend.originalIndex;
+        var isVideo = isFriendVideo(friend);
         return '<button class="lightbox-thumb' + (index === activeFriendIndex ? ' active' : '') + '" type="button" onclick="openLightbox(' + index + ', event)" aria-label="查看第 ' + (index + 1) + ' 张">' +
-            '<img src="' + friend.src + '" alt="' + friend.name + '" loading="lazy" decoding="async">' +
+            (isVideo
+                ? '<span class="lightbox-thumb-video">▶</span>'
+                : '<img src="' + friend.src + '" alt="' + friend.name + '" loading="lazy" decoding="async">') +
         '</button>';
     }).join("");
     var active = thumbs.querySelector(".lightbox-thumb.active");
@@ -1280,22 +1607,44 @@ function renderLightboxThumbs() {
 function setLightboxPhoto(index) {
     var lightbox = document.getElementById("photoLightbox");
     var img = document.getElementById("lightboxImg");
+    var video = document.getElementById("lightboxVideo");
     var nameEl = document.getElementById("lightboxName");
     var descEl = document.getElementById("lightboxDesc");
     var counterEl = document.getElementById("lightboxCounter");
+    var categoryEl = document.getElementById("lightboxCategory");
     var friend = friendsGallery[index];
-    if (!lightbox || !img || !nameEl || !descEl || !friend) return;
+    if (!lightbox || !img || !video || !nameEl || !descEl || !friend) return;
+    var visibleFriends = getFilteredFriends();
+    var visiblePosition = visibleFriends.findIndex(function(item) { return item.originalIndex === index; });
+    var counterCurrent = visiblePosition >= 0 ? visiblePosition + 1 : index + 1;
+    var counterTotal = visiblePosition >= 0 ? visibleFriends.length : friendsGallery.length;
+    var isVideo = isFriendVideo(friend);
 
     activeFriendIndex = index;
     img.classList.add("is-switching");
     window.setTimeout(function() {
-        img.loading = "eager";
-        img.decoding = "async";
-        img.src = friend.src;
-        img.alt = friend.name + " - " + friend.desc;
+        if (isVideo) {
+            img.removeAttribute("src");
+            img.style.display = "none";
+            img.classList.remove("is-switching");
+            video.style.display = "block";
+            video.src = friend.src;
+            video.load();
+        } else {
+            video.pause();
+            video.removeAttribute("src");
+            video.load();
+            video.style.display = "none";
+            img.style.display = "block";
+            img.loading = "eager";
+            img.decoding = "async";
+            img.src = friend.src;
+            img.alt = friend.name + " - " + friend.desc;
+        }
         nameEl.textContent = friend.name;
         descEl.textContent = friend.desc;
-        if (counterEl) counterEl.textContent = (index + 1) + " / " + friendsGallery.length;
+        if (categoryEl) categoryEl.textContent = getFriendCategory(friend, index);
+        if (counterEl) counterEl.textContent = counterCurrent + " / " + counterTotal;
         renderLightboxThumbs();
         img.onload = function() {
             img.classList.remove("is-switching");
@@ -1330,10 +1679,14 @@ function openLightbox(srcOrIndex, name, desc) {
 function navigateLightbox(direction, event) {
     if (event) event.stopPropagation();
     if (!friendsGallery.length) return;
-    var nextIndex = activeFriendIndex + direction;
-    if (nextIndex < 0) nextIndex = friendsGallery.length - 1;
-    if (nextIndex >= friendsGallery.length) nextIndex = 0;
-    setLightboxPhoto(nextIndex);
+    var visibleFriends = getFilteredFriends();
+    if (!visibleFriends.length) return;
+    var currentVisible = visibleFriends.findIndex(function(friend) { return friend.originalIndex === activeFriendIndex; });
+    if (currentVisible < 0) currentVisible = 0;
+    var nextVisible = currentVisible + direction;
+    if (nextVisible < 0) nextVisible = visibleFriends.length - 1;
+    if (nextVisible >= visibleFriends.length) nextVisible = 0;
+    setLightboxPhoto(visibleFriends[nextVisible].originalIndex);
 }
 
 function closeLightbox(event) {
@@ -1341,6 +1694,12 @@ function closeLightbox(event) {
     
     var lightbox = document.getElementById("photoLightbox");
     if (!lightbox) return;
+    var video = document.getElementById("lightboxVideo");
+    if (video) {
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+    }
     lightbox.classList.remove("active");
     document.body.classList.remove("lightbox-open");
     window.friendGalleryPaused = false;
@@ -1360,6 +1719,269 @@ window.handleFriendPhoto = handleFriendPhoto;
 window.openLightbox = openLightbox;
 window.closeLightbox = closeLightbox;
 window.navigateLightbox = navigateLightbox;
+window.setFriendCategory = setFriendCategory;
+window.setArchiveFilter = setArchiveFilter;
+
+// ==================== Memory Vault + Wrapped + Labs ====================
+function getFriendStory(friend, index) {
+    var stories = [
+        "普通的一天被好好保存，后来再看也会觉得亮。",
+        "像一个小小的存档点，记录那一刻的光和心情。",
+        "不是盛大的瞬间，但足够成为记忆馆的一格。",
+        "这张更像高光回放，轻轻一点就能回到现场。"
+    ];
+    return friend.story || stories[index % stories.length];
+}
+
+function renderMemoryVault() {
+    var spotlight = document.getElementById("memorySpotlight");
+    var grid = document.getElementById("memoryStoryGrid");
+    if (!spotlight || !grid || !friendsGallery.length) return;
+    var enriched = friendsGallery.map(function(friend, index) {
+        return Object.assign({ originalIndex: index, category: getFriendCategory(friend, index), story: getFriendStory(friend, index) }, friend);
+    });
+    var featured = enriched.find(function(item) { return item.name === "我们"; }) || enriched[0];
+    spotlight.innerHTML =
+        '<button class="memory-spotlight-card" type="button" onclick="openLightbox(' + featured.originalIndex + ')">' +
+            '<img src="' + featured.src + '" alt="' + featured.name + '" loading="lazy" decoding="async">' +
+            '<span class="memory-label">' + featured.category + '</span>' +
+            '<strong>' + featured.name + '</strong>' +
+            '<p>' + featured.story + '</p>' +
+        '</button>';
+    grid.innerHTML = enriched.slice(0, 8).map(function(item) {
+        return '<button class="memory-story-card" type="button" onclick="openLightbox(' + item.originalIndex + ')">' +
+            '<img src="' + item.src + '" alt="' + item.name + '" loading="lazy" decoding="async">' +
+            '<span>' + item.category + '</span>' +
+            '<strong>' + item.name + '</strong>' +
+            '<p>' + item.story + '</p>' +
+        '</button>';
+    }).join("");
+}
+
+function getYearReportData() {
+    var totalHours = calcTotalPlaytime();
+    var topGames = games.slice().sort(function(a, b) { return getPlaytime(b.appId) - getPlaytime(a.appId); }).slice(0, 5);
+    var topGame = topGames[0] || games[0];
+    var topRating = getTopRatingGame();
+    var genreCounts = {};
+    games.forEach(function(game) {
+        (game.genre || []).forEach(function(genre) {
+            genreCounts[genre] = (genreCounts[genre] || 0) + 1;
+        });
+    });
+    var topGenres = Object.entries(genreCounts).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 5);
+    var keywords = topGenres.slice(0, 3).map(function(item) { return item[0]; }).join(" / ");
+    return {
+        totalHours: totalHours,
+        topGames: topGames,
+        topGame: topGame,
+        topRating: topRating,
+        topGenres: topGenres,
+        keywords: keywords || "探索 / 沉浸 / 热爱"
+    };
+}
+
+function buildYearReportSummary() {
+    if (!games.length) return "我的 2026 年度游戏报告还在生成中。";
+    var data = getYearReportData();
+    var topList = data.topGames.slice(0, 3).map(function(game, index) {
+        return (index + 1) + ". " + game.name + " - " + formatPlaytime(getPlaytime(game.appId));
+    }).join("\n");
+    return [
+        "🎮 我的 2026 年度游戏报告",
+        "总执行时长：" + data.totalHours + "h",
+        "年度关键词：" + data.keywords,
+        "年度 Top 3：",
+        topList,
+        "年度结论：最长任务是 " + data.topGame.name + "，最高评分档案是 " + data.topRating.name + "。"
+    ].join("\n");
+}
+
+function copyTextWithFallback(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function(resolve, reject) {
+        var textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand("copy");
+            resolve();
+        } catch (error) {
+            reject(error);
+        } finally {
+            textarea.remove();
+        }
+    });
+}
+
+function copyYearReportSummary() {
+    copyTextWithFallback(buildYearReportSummary()).then(function() {
+        showToast("年度报告摘要已复制", "success");
+    }).catch(function() {
+        showToast("复制失败，请手动选择报告内容", "warning");
+    });
+}
+
+function bindYearReportGameLinks() {
+    document.querySelectorAll(".wrapped-rank-btn").forEach(function(link) {
+        if (link.dataset.reportBound === "1") return;
+        link.dataset.reportBound = "1";
+        link.addEventListener("click", function(event) {
+            var appId = parseInt(link.getAttribute("data-report-app-id"), 10);
+            if (Number.isNaN(appId)) return;
+            setActiveProtocolNode("games");
+            window.setTimeout(function() { highlightGameCard(appId); }, 120);
+        });
+    });
+}
+
+function renderYearReport() {
+    var grid = document.getElementById("yearReportGrid");
+    if (!grid || !games.length) return;
+    var data = getYearReportData();
+    var totalHours = data.totalHours;
+    var topGames = data.topGames;
+    var topGame = data.topGame;
+    var topRating = data.topRating;
+    var topGenres = data.topGenres;
+    var keywords = data.keywords;
+    grid.innerHTML =
+        '<div class="wrapped-hero-card"><span>2026 WRAPPED</span><strong>' + totalHours + 'h</strong><p>年度总执行时长 · 关键词：' + keywords + '</p></div>' +
+        '<div class="wrapped-card"><h3>Top 5 高时长</h3>' + topGames.map(function(game, index) {
+            var pct = topGame ? Math.max(8, Math.round(getPlaytime(game.appId) / Math.max(getPlaytime(topGame.appId), 1) * 100)) : 0;
+            return '<a class="wrapped-rank wrapped-rank-btn" href="#game-' + game.appId + '" data-report-app-id="' + game.appId + '"><span>' + (index + 1) + '</span><div><strong>' + game.name + '</strong><i style="width:' + pct + '%"></i></div><em>' + formatPlaytime(getPlaytime(game.appId)) + '</em></a>';
+        }).join("") + '</div>' +
+        '<div class="wrapped-card"><h3>类型偏好</h3><div class="wrapped-tags">' + topGenres.map(function(item) {
+            return '<span>' + item[0] + '<b>' + item[1] + '</b></span>';
+        }).join("") + '</div></div>' +
+        '<div class="wrapped-card"><h3>年度结论</h3><p>最长任务是 ' + topGame.name + '，最高评分档案是 ' + topRating.name + '。你的档案更偏向 ' + keywords + '。</p></div>';
+    bindYearReportGameLinks();
+}
+
+var themeProfiles = {
+    cyber: { label: "Cyber Blue", color: "#00d4ff", bg: "#0a0a0f", shadow: "0 14px 44px rgba(0,0,0,0.28)", className: "theme-cyber" },
+    neon: { label: "Neon Pink", color: "#fd79a8", bg: "#100812", shadow: "0 14px 44px rgba(253,121,168,0.16)", className: "theme-neon" },
+    amber: { label: "Amber Terminal", color: "#ffc312", bg: "#120d05", shadow: "0 14px 44px rgba(255,195,18,0.12)", className: "theme-amber" },
+    clean: { label: "Clean Light", color: "#0984e3", bg: "#f4f7fb", shadow: "0 10px 30px rgba(20,40,70,0.12)", className: "theme-clean" },
+    low: { label: "Low Power", color: "#00b894", bg: "#080b0d", shadow: "0 8px 22px rgba(0,0,0,0.2)", className: "theme-low" }
+};
+
+function applyThemeProfile(name) {
+    var profile = themeProfiles[name] || themeProfiles.cyber;
+    var root = document.documentElement;
+    var rgb = profile.color.match(/[a-f0-9]{2}/gi).map(function(v) { return parseInt(v, 16); });
+    root.style.setProperty("--theme-r", rgb[0]);
+    root.style.setProperty("--theme-g", rgb[1]);
+    root.style.setProperty("--theme-b", rgb[2]);
+    root.style.setProperty("--bg-primary", profile.bg);
+    root.style.setProperty("--shadow", profile.shadow);
+    Object.keys(themeProfiles).forEach(function(key) { root.classList.remove(themeProfiles[key].className); });
+    root.classList.add(profile.className);
+    if (name === "low") root.classList.add("perf-lite");
+    localStorage.setItem("protocolThemeProfile", name);
+    renderThemeLab();
+}
+
+function renderThemeLab() {
+    var grid = document.getElementById("themeProfileGrid");
+    if (!grid) return;
+    var active = localStorage.getItem("protocolThemeProfile") || "cyber";
+    grid.innerHTML = Object.keys(themeProfiles).map(function(key) {
+        var profile = themeProfiles[key];
+        return '<button class="theme-profile-card' + (active === key ? ' active' : '') + '" type="button" onclick="applyThemeProfile(\'' + key + '\')">' +
+            '<span style="background:' + profile.color + '"></span><strong>' + profile.label + '</strong><em>' + (key === "low" ? "轻量动效" : "氛围模式") + '</em>' +
+        '</button>';
+    }).join("");
+}
+
+function initThemeLab() {
+    applyThemeProfile(localStorage.getItem("protocolThemeProfile") || "cyber");
+}
+
+var visitorVoteOptions = ["Grand Theft Auto V", "Counter-Strike 2", "Detroit: Become Human", "It Takes Two"];
+var visitorMissions = [
+    { text: "打开小诺猫记忆馆，看一张高光照片。", target: "memory-vault", cta: "进入记忆馆" },
+    { text: "从游戏库随机抽一款游戏，给它写一句短评。", target: "games", cta: "查看游戏库" },
+    { text: "查看年度报告，找出今年的关键词。", target: "year-report", cta: "打开报告" },
+    { text: "切换一个新主题，重新逛一遍首页。", target: "theme-lab", cta: "切换主题" }
+];
+var visitorReactionOptions = ["酷", "温柔", "想玩", "震撼"];
+
+function getVisitorState() {
+    try { return JSON.parse(localStorage.getItem("visitorLabState") || "{}"); } catch(e) { return {}; }
+}
+
+function saveVisitorState(state) {
+    localStorage.setItem("visitorLabState", JSON.stringify(state));
+}
+
+function voteVisitorGame(game) {
+    var state = getVisitorState();
+    state.votes = state.votes || {};
+    state.votes[game] = (state.votes[game] || 0) + 1;
+    saveVisitorState(state);
+    renderVisitorLab();
+    showToast("已记录推荐：" + game, "success");
+}
+
+function reactVisitor(label) {
+    var state = getVisitorState();
+    state.reactions = state.reactions || {};
+    state.reactions[label] = (state.reactions[label] || 0) + 1;
+    saveVisitorState(state);
+    renderVisitorLab();
+    showToast("收到反馈：" + label, "success");
+}
+
+function rollVisitorMission() {
+    var mission = visitorMissions[Math.floor(Math.random() * visitorMissions.length)];
+    var el = document.getElementById("visitorMission");
+    if (!el) return;
+    el.innerHTML = '<span>' + mission.text + '</span><button type="button" onclick="runVisitorMission(\'' + mission.target + '\')">' + mission.cta + '</button>';
+}
+
+function runVisitorMission(target) {
+    if (target === "theme-lab") {
+        scrollToSection(target);
+        showToast("正在打开主题实验室", "info");
+        return;
+    }
+    jumpProtocolNode(target);
+}
+
+function renderVisitorLab() {
+    var voteList = document.getElementById("visitorVoteList");
+    var reactions = document.getElementById("visitorReactions");
+    var state = getVisitorState();
+    state.votes = state.votes || {};
+    state.reactions = state.reactions || {};
+    if (voteList) {
+        voteList.innerHTML = visitorVoteOptions.map(function(game) {
+            return '<button class="visitor-vote-btn" type="button" onclick="voteVisitorGame(\'' + game.replace(/'/g, "\\'") + '\')"><span>' + game + '</span><b>' + (state.votes[game] || 0) + '</b></button>';
+        }).join("");
+    }
+    if (reactions) {
+        reactions.innerHTML = visitorReactionOptions.map(function(label) {
+            return '<button class="visitor-reaction-btn" type="button" onclick="reactVisitor(\'' + label + '\')">' + label + '<span>' + (state.reactions[label] || 0) + '</span></button>';
+        }).join("");
+    }
+    if (document.getElementById("visitorMission") && document.getElementById("visitorMission").textContent.indexOf("等待") >= 0) rollVisitorMission();
+}
+
+window.applyThemeProfile = applyThemeProfile;
+window.voteVisitorGame = voteVisitorGame;
+window.reactVisitor = reactVisitor;
+window.rollVisitorMission = rollVisitorMission;
+window.copyYearReportSummary = copyYearReportSummary;
+window.jumpProtocolNode = jumpProtocolNode;
+window.focusGameFromReport = focusGameFromReport;
+window.runVisitorMission = runVisitorMission;
 
 // ==================== 语音朗读功能 ====================
 let isVoicePlaying = false;
@@ -1888,8 +2510,8 @@ function openGameModal(index) {
     document.body.style.overflow='hidden';
 }
 function closeGameModal(e) { if(e&&e.target!==e.currentTarget) return; document.getElementById('gameModalOverlay').classList.remove('show'); document.body.style.overflow=''; currentGameModalAppId=null; }
-function renderRatingStars(r) { var c=document.getElementById('modalRatingStars'),v=document.getElementById('modalRatingValue'); if(!c)return; c.innerHTML=''; for(var i=1;i<=5;i++){var s=document.createElement('span');s.className='rating-star'+(i<=r?' filled':'');s.textContent='\u2605';s.dataset.value=i;s.onclick=function(){renderRatingStars(parseInt(this.dataset.value));if(v)v.textContent=this.dataset.value+'/5';};c.appendChild(s);} if(v)v.textContent=r>0?r+'/5':'-'; }
-function saveGameNotes() { if(!currentGameModalAppId)return; var n=JSON.parse(localStorage.getItem('gameNotes')||'{}'); var fs=document.getElementById('modalRatingStars').querySelectorAll('.rating-star.filled').length; n[currentGameModalAppId]={text:document.getElementById('modalNotes').value,rating:fs,updatedAt:Date.now()}; localStorage.setItem('gameNotes',JSON.stringify(n)); showToast('\ud83d\udcdd \u7b14\u8bb0\u5df2\u4fdd\u5b58','success'); }
+function renderRatingStars(r) { var c=document.getElementById('modalRatingStars'),v=document.getElementById('modalRatingValue'); if(!c)return; c.innerHTML=''; for(var i=1;i<=5;i++){var s=document.createElement('span');s.className='rating-star'+(i<=r?' filled':'');s.textContent='\u2605';s.dataset.value=i;if(!isGuestMode()){s.onclick=function(){renderRatingStars(parseInt(this.dataset.value));if(v)v.textContent=this.dataset.value+'/5';};}c.appendChild(s);} if(v)v.textContent=r>0?r+'/5':'-'; }
+function saveGameNotes() { if(isGuestMode()){showToast('访客只读模式下无法保存本地笔记','info');return;} if(!currentGameModalAppId)return; var n=JSON.parse(localStorage.getItem('gameNotes')||'{}'); var fs=document.getElementById('modalRatingStars').querySelectorAll('.rating-star.filled').length; n[currentGameModalAppId]={text:document.getElementById('modalNotes').value,rating:fs,updatedAt:Date.now()}; localStorage.setItem('gameNotes',JSON.stringify(n)); showToast('\ud83d\udcdd \u7b14\u8bb0\u5df2\u4fdd\u5b58','success'); }
 
 // ========== Steam 状态 ==========
 function initSteamStatus() {
@@ -1921,9 +2543,9 @@ function initAchievementWall() {
 
 // ========== 留言板 ==========
 function initGuestbook() { renderGuestbook(); }
-function submitGuestbook() { var n=(document.getElementById('gbNickname').value||'').trim(),m=(document.getElementById('gbMessage').value||'').trim(); if(!n){showToast('\u8bf7\u8f93\u5165\u6635\u79f0','warning');return;} if(!m){showToast('\u8bf7\u8f93\u5165\u5185\u5bb9','warning');return;} var e=JSON.parse(localStorage.getItem('guestbook')||'[]'); e.unshift({nick:n,msg:m,time:Date.now()}); if(e.length>100)e=e.slice(0,100); localStorage.setItem('guestbook',JSON.stringify(e)); document.getElementById('gbMessage').value=''; renderGuestbook(); showToast('\ud83d\udcac \u53d1\u8868\u6210\u529f','success'); }
-function renderGuestbook() { var l=document.getElementById('guestbookList'); if(!l)return; var e=JSON.parse(localStorage.getItem('guestbook')||'[]'); l.innerHTML=''; if(e.length===0){l.innerHTML='<p style="color:rgba(255,255,255,0.3);font-size:13px">\u8fd8\u6ca1\u6709\u7559\u8a00\uff0c\u6765\u53d1\u8868\u7b2c\u4e00\u6761\u5427~</p>';return;} e.forEach(function(entry,i){var d=document.createElement('div');d.className='guestbook-item';var ini=entry.nick.charAt(0).toUpperCase();var ts=new Date(entry.time).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});d.innerHTML='<div class="guestbook-item-header"><div class="guestbook-avatar">'+ini+'</div><div><div class="guestbook-nick">'+entry.nick+'</div><div class="guestbook-time">'+ts+'</div></div><button class="gb-delete-btn" onclick="deleteGuestbook('+i+')" title="\u5220\u9664">\u2715</button></div><div class="guestbook-msg">'+entry.msg+'</div>';l.appendChild(d);}); }
-function deleteGuestbook(i) { var e=JSON.parse(localStorage.getItem('guestbook')||'[]'); e.splice(i,1); localStorage.setItem('guestbook',JSON.stringify(e)); renderGuestbook(); }
+function submitGuestbook() { if(isGuestMode()){showToast('访客只读模式下无法发表留言','info');return;} var n=(document.getElementById('gbNickname').value||'').trim(),m=(document.getElementById('gbMessage').value||'').trim(); if(!n){showToast('\u8bf7\u8f93\u5165\u6635\u79f0','warning');return;} if(!m){showToast('\u8bf7\u8f93\u5165\u5185\u5bb9','warning');return;} var e=JSON.parse(localStorage.getItem('guestbook')||'[]'); e.unshift({nick:n,msg:m,time:Date.now()}); if(e.length>100)e=e.slice(0,100); localStorage.setItem('guestbook',JSON.stringify(e)); document.getElementById('gbMessage').value=''; renderGuestbook(); showToast('\ud83d\udcac \u53d1\u8868\u6210\u529f','success'); }
+function renderGuestbook() { var l=document.getElementById('guestbookList'); if(!l)return; var e=JSON.parse(localStorage.getItem('guestbook')||'[]'); l.innerHTML=''; if(e.length===0){l.innerHTML='<p style="color:rgba(255,255,255,0.3);font-size:13px">\u8fd8\u6ca1\u6709\u7559\u8a00\uff0c\u6765\u53d1\u8868\u7b2c\u4e00\u6761\u5427~</p>';return;} e.forEach(function(entry,i){var d=document.createElement('div');d.className='guestbook-item';var ini=entry.nick.charAt(0).toUpperCase();var ts=new Date(entry.time).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});var deleteButton=isGuestMode()?'':'<button class="gb-delete-btn" onclick="deleteGuestbook('+i+')" title="\u5220\u9664">\u2715</button>';d.innerHTML='<div class="guestbook-item-header"><div class="guestbook-avatar">'+ini+'</div><div><div class="guestbook-nick">'+entry.nick+'</div><div class="guestbook-time">'+ts+'</div></div>'+deleteButton+'</div><div class="guestbook-msg">'+entry.msg+'</div>';l.appendChild(d);}); }
+function deleteGuestbook(i) { if(isGuestMode())return; var e=JSON.parse(localStorage.getItem('guestbook')||'[]'); e.splice(i,1); localStorage.setItem('guestbook',JSON.stringify(e)); renderGuestbook(); }
 
 // ========== 图表 ==========
 function drawPlaytimeChart() {
@@ -1982,7 +2604,21 @@ function initTimeline() {
 }
 
 // ========== 命令面板 ==========
-var cmdCommands=[{icon:'\ud83c\udfe0',label:'\u56de\u5230\u9876\u90e8',action:function(){scrollToTop();closeCmdPalette();}},{icon:'\ud83c\udfae',label:'\u6e38\u620f\u5e93',action:function(){scrollToSection('games');}},{icon:'\ud83d\udd27',label:'\u5de5\u5177\u7bb1',action:function(){scrollToSection('tools');}},{icon:'\ud83c\udfc6',label:'\u6210\u5c31\u5899',action:function(){scrollToSection('achievements');}},{icon:'\ud83c\udfc5',label:'Tier List',action:function(){scrollToSection('tierlist');}},{icon:'\ud83d\udcac',label:'\u7559\u8a00\u677f',action:function(){scrollToSection('guestbook');}},{icon:'\ud83c\udf19',label:'\u5207\u6362\u4e3b\u9898',action:function(){toggleTheme();closeCmdPalette();}},{icon:'\ud83c\udfb5',label:'\u97f3\u4e50',action:function(){toggleBGM();closeCmdPalette();}},{icon:'\ud83c\udfb2',label:'\u968f\u673a\u6e38\u620f',action:function(){randomGame();closeCmdPalette();}}];
+var cmdCommands=[
+    {icon:'🏠',label:'回到顶部',action:function(){scrollToTop();closeCmdPalette();}},
+    {icon:'🎮',label:'游戏库',action:function(){scrollToSection('games');}},
+    {icon:'🐾',label:'小诺猫记忆馆',action:function(){scrollToSection('memory-vault');}},
+    {icon:'📀',label:'年度游戏报告',action:function(){scrollToSection('year-report');}},
+    {icon:'🎨',label:'主题实验室',action:function(){scrollToSection('theme-lab');}},
+    {icon:'🧭',label:'访客互动',action:function(){scrollToSection('visitor-lab');}},
+    {icon:'🔧',label:'工具箱',action:function(){scrollToSection('tools');}},
+    {icon:'🏆',label:'成就墙',action:function(){scrollToSection('achievements');}},
+    {icon:'🏅',label:'Tier List',action:function(){scrollToSection('tierlist');}},
+    {icon:'💬',label:'留言板',action:function(){scrollToSection('guestbook');}},
+    {icon:'🌙',label:'切换主题',action:function(){toggleTheme();closeCmdPalette();}},
+    {icon:'🎵',label:'音乐',action:function(){toggleBGM();closeCmdPalette();}},
+    {icon:'🎲',label:'随机游戏',action:function(){randomGame();closeCmdPalette();}}
+];
 function initCmdPalette(){renderCmdList(cmdCommands);document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openCmdPalette();}if(e.key==='Escape'){closeGameModal();closeCmdPalette();}});}
 function openCmdPalette(){var o=document.getElementById('cmdPaletteOverlay');if(o){o.classList.add('show');var i=document.getElementById('cmdInput');if(i){i.value='';i.focus();}renderCmdList(cmdCommands);}}
 function closeCmdPalette(e){if(e&&e.target!==e.currentTarget)return;var o=document.getElementById('cmdPaletteOverlay');if(o)o.classList.remove('show');}
@@ -2014,7 +2650,7 @@ function initPWA(){if('serviceWorker' in navigator){navigator.serviceWorker.regi
 function dismissPWA(){var b=document.getElementById('pwaInstallBanner');if(b)b.classList.remove('show');}
 
 // ========== 游戏卡片点击 ==========
-function enhanceGameCards(){document.querySelectorAll('.game-card').forEach(function(c,i){c.style.cursor='pointer';c.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();openGameModal(i);});});}
+function enhanceGameCards(){document.querySelectorAll('.game-card').forEach(function(c,i){c.style.cursor='pointer';if(c.dataset.boundModal==='1')return;c.dataset.boundModal='1';c.addEventListener('click',function(e){if(e.target.closest('a,button'))return;e.preventDefault();e.stopPropagation();var appId=parseInt(c.getAttribute('data-app-id'),10);var idx=games.findIndex(function(g){return g.appId===appId;});openGameModal(idx>=0?idx:i);});});}
 
 // ========== 汉堡菜单 ==========
 function toggleHamburger(){var h=document.getElementById('hamburger'),n=document.getElementById('navLinks');if(h&&n){h.classList.toggle('active');n.classList.toggle('open');}}
@@ -2148,23 +2784,27 @@ document.addEventListener('DOMContentLoaded', function() {
         initScrollProgressBar();
         initBGM();
         initSteamStatus();
-        initAchievementWall();
-        initGuestbook();
-        drawPlaytimeChart();
-        drawGenreChart();
-        drawHeatmap();
-        drawTrendChart();
-        initTierList();
-        initTimeline();
         initCmdPalette();
         initTypingEffect();
-        initClickParticles();
-        initGameCardPreview();
         initPWA();
         enhanceGameCards();
         initScrollEnhancements();
         // 确保 reveal 元素被发现
         initScrollReveal();
+        scheduleIdle(function() {
+            initAchievementWall();
+            initGuestbook();
+            drawPlaytimeChart();
+            drawGenreChart();
+        }, 900);
+        scheduleIdle(function() {
+            drawHeatmap();
+            drawTrendChart();
+            initTierList();
+            initTimeline();
+            initClickParticles();
+            initGameCardPreview();
+        }, 1600);
         console.log('All features loaded');
     }, 800);
 });
@@ -2302,11 +2942,11 @@ function initRecentlyPlaying() {
 
 // ========== 初始化 ==========
 document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(function() {
+    scheduleIdle(function() {
         initSystemMonitor();
         initKbdHint();
         initRecentlyPlaying();
-    }, 1200);
+    }, 2200);
 });
 
 
@@ -2379,6 +3019,10 @@ document.addEventListener('DOMContentLoaded', function() {
         var protocolCommands = [
             {icon: '⬆️', label: '返回协议顶层', action: function(){scrollToTop();closeCmdPalette();}},
             {icon: '🎯', label: '武器库', action: function(){scrollToSection('games');}},
+            {icon: '🐾', label: '小诺猫记忆馆', action: function(){scrollToSection('memory-vault');}},
+            {icon: '📀', label: '年度游戏报告', action: function(){scrollToSection('year-report');}},
+            {icon: '🎨', label: '主题实验室', action: function(){scrollToSection('theme-lab');}},
+            {icon: '🧭', label: '访客互动', action: function(){scrollToSection('visitor-lab');}},
             {icon: '🔧', label: '协议工具', action: function(){scrollToSection('tools');}},
             {icon: '🏆', label: '节点解锁', action: function(){scrollToSection('achievements');}},
             {icon: '📊', label: 'Tier List', action: function(){scrollToSection('tierlist');}},
@@ -2627,6 +3271,9 @@ setInterval(function() {
         overlay.setAttribute('tabindex', '0');
         overlay.focus();
         window.enterProtocol = enterProtocol;
+        if (window.location.hash) {
+            setTimeout(enterProtocol, 120);
+        }
     }
 
     if (document.readyState === 'loading') {
