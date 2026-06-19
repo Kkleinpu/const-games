@@ -545,6 +545,40 @@ function initReportGameLinks() {
     });
 }
 
+var salaryCatLines = [
+    "今天也要摸鱼式加油",
+    "月薪到账前先摆一下手",
+    "ฅ՞••՞ฅ 协议已喵喵通过",
+    "别急，猫猫正在加载好运",
+    "给执行者补充一点可爱能量"
+];
+
+function waveSalaryCat(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    var widget = document.getElementById("salaryCatWidget");
+    var line = document.getElementById("salaryCatLine");
+    if (!widget) return;
+    var nextLine = salaryCatLines[Math.floor(Math.random() * salaryCatLines.length)];
+    if (line) line.textContent = nextLine;
+    widget.classList.remove("is-waving");
+    void widget.offsetWidth;
+    widget.classList.add("is-waving");
+    showToast("月薪喵摆手：好运 +1", "success");
+}
+
+function initSalaryCat() {
+    var widget = document.getElementById("salaryCatWidget");
+    if (!widget || widget.dataset.bound === "1") return;
+    widget.dataset.bound = "1";
+    widget.addEventListener("click", waveSalaryCat);
+    widget.addEventListener("keydown", function(event) {
+        if (event.key === "Enter" || event.key === " ") waveSalaryCat(event);
+    });
+}
+
 // ==================== CLOCK WIDGET ====================
 function updateClock() {
     var now = new Date();
@@ -846,6 +880,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     initProtocolPath();
     initFeaturedGameLink();
     initReportGameLinks();
+    initSalaryCat();
     window.setInterval(function() { updateFeaturedGame(1); }, 7000);
 });
 
@@ -1982,6 +2017,7 @@ window.copyYearReportSummary = copyYearReportSummary;
 window.jumpProtocolNode = jumpProtocolNode;
 window.focusGameFromReport = focusGameFromReport;
 window.runVisitorMission = runVisitorMission;
+window.waveSalaryCat = waveSalaryCat;
 
 // ==================== 语音朗读功能 ====================
 let isVoicePlaying = false;

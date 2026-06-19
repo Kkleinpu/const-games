@@ -1067,6 +1067,192 @@ body {
     outline-offset: 4px;
 }
 
+/* ========== 月薪喵：原创摆手小猫组件 ========== */
+.salary-cat-widget {
+    position: relative;
+    display: grid;
+    place-items: center;
+    gap: 10px;
+    padding: 16px 14px 14px;
+    border: 1px solid rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.16);
+    border-radius: 8px;
+    background:
+        radial-gradient(circle at 55% 34%, rgba(255, 255, 255, 0.12), transparent 34%),
+        linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.035));
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.24);
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.salary-cat-widget::before {
+    content: '';
+    position: absolute;
+    inset: -40% -20% auto;
+    height: 120px;
+    background: linear-gradient(90deg, transparent, rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.16), transparent);
+    transform: rotate(-8deg);
+    animation: salary-cat-scan 4.8s ease-in-out infinite;
+}
+
+.salary-cat-bubble {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.22);
+}
+
+.salary-cat-bubble span {
+    color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.92);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.salary-cat-bubble strong {
+    min-width: 0;
+    color: rgba(244, 250, 255, 0.78);
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.salary-cat {
+    position: relative;
+    z-index: 1;
+    width: min(230px, 100%);
+    height: auto;
+    filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.26));
+    transform-origin: 50% 80%;
+    animation: salary-cat-bob 3.2s ease-in-out infinite;
+}
+
+.cat-fill {
+    fill: #d7bc98;
+}
+
+.cat-belly,
+.cat-paw-fill {
+    fill: #fffaf2;
+}
+
+.cat-line,
+.salary-cat-tail path {
+    fill: none;
+    stroke: #754533;
+    stroke-width: 9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.cat-eye {
+    fill: none;
+    stroke: #2e63c6;
+    stroke-width: 11;
+    stroke-linecap: round;
+}
+
+.cat-mouth {
+    fill: none;
+    stroke: #754533;
+    stroke-width: 7;
+    stroke-linecap: round;
+}
+
+.salary-cat-paw {
+    transform-box: fill-box;
+    transform-origin: 78% 18%;
+    animation: salary-cat-wave 1.05s ease-in-out infinite;
+}
+
+.salary-cat-tail {
+    transform-box: fill-box;
+    transform-origin: 5% 50%;
+    animation: salary-cat-tail 2.6s ease-in-out infinite;
+}
+
+.salary-cat-btn {
+    position: relative;
+    z-index: 1;
+    min-height: 36px;
+    padding: 8px 14px;
+    border: 1px solid rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.28);
+    border-radius: 999px;
+    background: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.1);
+    color: rgba(244, 250, 255, 0.92);
+    font-family: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.salary-cat-widget:hover,
+.salary-cat-widget:focus-visible,
+.salary-cat-widget.is-waving {
+    border-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.46);
+    box-shadow: 0 20px 52px rgba(0, 0, 0, 0.3), 0 0 24px rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.08);
+}
+
+.salary-cat-widget.is-waving .salary-cat-paw {
+    animation: salary-cat-wave-fast 0.34s ease-in-out 5;
+}
+
+.salary-cat-widget.is-waving .salary-cat {
+    animation: salary-cat-bob-fast 0.68s ease-in-out 3;
+}
+
+@keyframes salary-cat-wave {
+    0%, 100% { transform: rotate(-7deg) translateY(0); }
+    50% { transform: rotate(13deg) translateY(-3px); }
+}
+
+@keyframes salary-cat-wave-fast {
+    0%, 100% { transform: rotate(-16deg); }
+    50% { transform: rotate(22deg); }
+}
+
+@keyframes salary-cat-tail {
+    0%, 100% { transform: rotate(-3deg); }
+    50% { transform: rotate(7deg); }
+}
+
+@keyframes salary-cat-bob {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-5px) rotate(1deg); }
+}
+
+@keyframes salary-cat-bob-fast {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+@keyframes salary-cat-scan {
+    0%, 100% { transform: translateX(-35%) rotate(-8deg); opacity: 0; }
+    50% { transform: translateX(35%) rotate(-8deg); opacity: 1; }
+}
+
+@media (max-width: 900px) {
+    .salary-cat-widget {
+        order: 3;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .salary-cat,
+    .salary-cat-paw,
+    .salary-cat-tail,
+    .salary-cat-widget::before {
+        animation: none !important;
+    }
+}
+
 @keyframes protocol-focus-pulse {
     0%, 100% { transform: translateY(0) scale(1); }
     50% { transform: translateY(-4px) scale(1.01); }

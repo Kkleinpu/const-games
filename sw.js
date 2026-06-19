@@ -1,5 +1,5 @@
 // Gaming Hub Service Worker v6
-const CACHE_NAME = 'gaming-hub-v9-protocol-links';
+const CACHE_NAME = 'gaming-hub-v10-salary-cat';
 const ASSETS = [
     './',
     'index.html',
