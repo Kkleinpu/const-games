@@ -546,11 +546,11 @@ function initReportGameLinks() {
 }
 
 var salaryCatLines = [
-    "今天也要摸鱼式加油",
-    "月薪到账前先摆一下手",
-    "ฅ՞••՞ฅ 协议已喵喵通过",
-    "别急，猫猫正在加载好运",
-    "给执行者补充一点可爱能量"
+    "月薪喵ฅ՞••՞ฅ",
+    "摆手喵",
+    "喵喵通过",
+    "今日也可爱",
+    "工资快来喵"
 ];
 
 function waveSalaryCat(event) {
@@ -558,7 +558,7 @@ function waveSalaryCat(event) {
         event.preventDefault();
         event.stopPropagation();
     }
-    var widget = document.getElementById("salaryCatWidget");
+    var widget = document.getElementById("salaryCatMascot");
     var line = document.getElementById("salaryCatLine");
     if (!widget) return;
     var nextLine = salaryCatLines[Math.floor(Math.random() * salaryCatLines.length)];
@@ -566,17 +566,105 @@ function waveSalaryCat(event) {
     widget.classList.remove("is-waving");
     void widget.offsetWidth;
     widget.classList.add("is-waving");
-    showToast("月薪喵摆手：好运 +1", "success");
+    showToast("月薪喵摆手 ฅ՞••՞ฅ", "success");
 }
 
 function initSalaryCat() {
-    var widget = document.getElementById("salaryCatWidget");
-    if (!widget || widget.dataset.bound === "1") return;
-    widget.dataset.bound = "1";
-    widget.addEventListener("click", waveSalaryCat);
-    widget.addEventListener("keydown", function(event) {
+    var mascot = document.getElementById("salaryCatMascot");
+    var restore = document.getElementById("salaryCatRestore");
+    var hide = mascot ? mascot.querySelector(".salary-cat-hide") : null;
+    if (!mascot || mascot.dataset.bound === "1") return;
+    mascot.dataset.bound = "1";
+
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem("salaryCatMascotState") || "{}"); } catch(e) { saved = {}; }
+    if (saved.hidden) {
+        mascot.classList.add("is-hidden");
+        if (restore) restore.classList.add("show");
+    }
+    if (typeof saved.x === "number" && typeof saved.y === "number") {
+        mascot.style.left = saved.x + "px";
+        mascot.style.top = saved.y + "px";
+        mascot.style.right = "auto";
+        mascot.style.bottom = "auto";
+    }
+
+    function saveState(extra) {
+        var rect = mascot.getBoundingClientRect();
+        var state = Object.assign({}, saved, { x: rect.left, y: rect.top }, extra || {});
+        saved = state;
+        localStorage.setItem("salaryCatMascotState", JSON.stringify(state));
+    }
+
+    var drag = { active: false, moved: false, offsetX: 0, offsetY: 0 };
+
+    mascot.addEventListener("pointerdown", function(event) {
+        if (event.target.closest(".salary-cat-hide")) return;
+        drag.active = true;
+        drag.moved = false;
+        var rect = mascot.getBoundingClientRect();
+        drag.offsetX = event.clientX - rect.left;
+        drag.offsetY = event.clientY - rect.top;
+        mascot.classList.add("is-dragging");
+        mascot.setPointerCapture && mascot.setPointerCapture(event.pointerId);
+    });
+
+    mascot.addEventListener("pointermove", function(event) {
+        if (!drag.active) return;
+        drag.moved = true;
+        var width = mascot.offsetWidth;
+        var height = mascot.offsetHeight;
+        var x = Math.min(Math.max(8, event.clientX - drag.offsetX), window.innerWidth - width - 8);
+        var y = Math.min(Math.max(70, event.clientY - drag.offsetY), window.innerHeight - height - 8);
+        mascot.style.left = x + "px";
+        mascot.style.top = y + "px";
+        mascot.style.right = "auto";
+        mascot.style.bottom = "auto";
+    });
+
+    mascot.addEventListener("pointerup", function(event) {
+        if (!drag.active) return;
+        drag.active = false;
+        mascot.classList.remove("is-dragging");
+        if (drag.moved) {
+            saveState({ hidden: false });
+        } else {
+            waveSalaryCat(event);
+        }
+    });
+
+    mascot.addEventListener("dblclick", function(event) {
+        event.preventDefault();
+        mascot.style.left = "";
+        mascot.style.top = "";
+        mascot.style.right = "";
+        mascot.style.bottom = "";
+        saveState({ hidden: false, x: null, y: null });
+        waveSalaryCat(event);
+    });
+
+    mascot.addEventListener("keydown", function(event) {
         if (event.key === "Enter" || event.key === " ") waveSalaryCat(event);
     });
+
+    if (hide) {
+        hide.addEventListener("click", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            mascot.classList.add("is-hidden");
+            if (restore) restore.classList.add("show");
+            saveState({ hidden: true });
+        });
+    }
+
+    if (restore) {
+        restore.addEventListener("click", function() {
+            mascot.classList.remove("is-hidden");
+            restore.classList.remove("show");
+            saveState({ hidden: false });
+            waveSalaryCat();
+        });
+    }
 }
 
 // ==================== CLOCK WIDGET ====================

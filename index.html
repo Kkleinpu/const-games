@@ -311,31 +311,6 @@
                     <h3 id="featuredGameName">Grand Theft Auto V</h3>
                 </div>
             </div>
-            <div class="salary-cat-widget" id="salaryCatWidget" role="button" tabindex="0" aria-label="月薪喵摆手小猫">
-                <div class="salary-cat-bubble">
-                    <span>月薪喵ฅ՞••՞ฅ</span>
-                    <strong id="salaryCatLine">今天也要摸鱼式加油</strong>
-                </div>
-                <svg class="salary-cat" viewBox="0 0 260 220" aria-hidden="true">
-                    <g class="salary-cat-tail">
-                        <path d="M204 145c30 4 42 20 34 37-8 18-36 18-47 2" />
-                    </g>
-                    <g class="salary-cat-body">
-                        <path class="cat-fill" d="M77 96C73 67 91 38 115 52c9 5 11 20 23 21 20 2 38 1 56 1 13 0 22-20 39-16 18 5 18 38 10 58 10 38-9 74-58 82-51 8-105-6-121-43-9-20 0-43 13-59Z" />
-                        <path class="cat-belly" d="M118 97c18-14 42-13 55 4 18 24 14 77-18 86-28 8-59-12-61-45-1-17 7-34 24-45Z" />
-                        <path class="cat-line" d="M77 96C73 67 91 38 115 52c9 5 11 20 23 21 20 2 38 1 56 1 13 0 22-20 39-16 18 5 18 38 10 58 10 38-9 74-58 82-51 8-105-6-121-43-9-20 0-43 13-59Z" />
-                        <path class="cat-line cat-cheek" d="M72 117c-12 4-21 11-23 21" />
-                        <path class="cat-eye" d="M120 103v30" />
-                        <path class="cat-eye" d="M184 103v30" />
-                        <path class="cat-mouth" d="M143 143c10 9 22 9 32 0" />
-                    </g>
-                    <g class="salary-cat-paw">
-                        <path class="cat-paw-fill" d="M95 122c23-30 55-19 35 13-12 20-17 35-21 52-2 9-17 9-20 0-8-24-12-47 6-65Z" />
-                        <path class="cat-line" d="M95 122c23-30 55-19 35 13-12 20-17 35-21 52-2 9-17 9-20 0-8-24-12-47 6-65Z" />
-                    </g>
-                </svg>
-                <button class="salary-cat-btn" type="button" onclick="waveSalaryCat(event)">摸摸摆手</button>
-            </div>
             <div class="quick-stats-panel">
                 <div class="quick-stat">
                     <span class="qs-icon">🔥</span>
@@ -890,6 +865,35 @@
         </div>
     </div>
     <div class="toast-container" id="toastContainer"></div>
+    <div class="salary-cat-mascot" id="salaryCatMascot" role="button" tabindex="0" aria-label="???????">
+        <button class="salary-cat-hide" type="button" aria-label="?????">?</button>
+        <div class="salary-cat-speech" id="salaryCatLine">?????????</div>
+        <svg class="salary-cat salary-cat-avatar" viewBox="0 0 300 250" aria-hidden="true">
+            <g class="salary-cat-tail">
+                <path d="M235 151c30 8 45 26 36 44-9 19-40 17-53-2" />
+            </g>
+            <g class="salary-cat-body">
+                <path class="cat-fill" d="M74 124c-6-29 15-75 47-91 20-10 28 27 42 31 25 7 73 10 95 2 15-6 22-21 38-17 23 6 21 52 9 81 10 33-2 70-38 84-46 18-132 13-169-14-25-19-35-49-24-76Z" />
+                <path class="cat-belly" d="M111 105c26-25 73-22 92 9 22 36 7 91-36 99-39 7-75-20-75-62 0-18 6-34 19-46Z" />
+                <path class="cat-line" d="M74 124c-6-29 15-75 47-91 20-10 28 27 42 31 25 7 73 10 95 2 15-6 22-21 38-17 23 6 21 52 9 81 10 33-2 70-38 84-46 18-132 13-169-14-25-19-35-49-24-76Z" />
+                <path class="cat-line cat-cheek" d="M72 126c-18 5-32 17-36 33" />
+                <path class="cat-eye" d="M132 100v34" />
+                <path class="cat-eye" d="M215 103v34" />
+                <path class="cat-mouth" d="M166 151c12 11 26 11 39 0" />
+            </g>
+            <g class="salary-cat-paw salary-cat-paw-back">
+                <path class="cat-paw-fill" d="M207 135c23-14 48 5 30 27-11 14-25 15-41 5-12-8-6-23 11-32Z" />
+                <path class="cat-line" d="M207 135c23-14 48 5 30 27-11 14-25 15-41 5-12-8-6-23 11-32Z" />
+            </g>
+            <g class="salary-cat-paw salary-cat-paw-front">
+                <path class="cat-paw-fill" d="M103 127c30-34 66-20 42 20-15 25-21 44-26 66-3 12-23 13-28 1-11-31-10-62 12-87Z" />
+                <path class="cat-line" d="M103 127c30-34 66-20 42 20-15 25-21 44-26 66-3 12-23 13-28 1-11-31-10-62 12-87Z" />
+                <path class="cat-line cat-paw-crease" d="M123 150c-10 17-17 34-21 53" />
+            </g>
+        </svg>
+        <div class="salary-cat-drag-hint">?? / ????</div>
+    </div>
+    <button class="salary-cat-restore" id="salaryCatRestore" type="button">???</button>
     <div class="fab-container">
         <div class="fab-actions" id="fabActions">
             <button class="fab-action" onclick="scrollToTop()" title="返回协议顶层">⬆️</button>

@@ -12,6 +12,6 @@
     "display":  "standalone",
     "name":  "LX Gaming Hub",
     "background_color":  "#1a1a2e",
-    "start_url":  "/",
+    "start_url":  "./",
     "orientation":  "any"
 }
